@@ -1,0 +1,16 @@
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_modernc_driver.txt bench_zombiezen_direct.txt bench_mattn_driver.txt bench_tailscale_driver.txt
+goos: darwin
+goarch: arm64
+pkg: github.com/michaellenaghan/go-sqlite-bench
+cpu: Apple M2 Pro
+                │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │      bench_modernc_driver.txt      │     bench_zombiezen_direct.txt     │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
+                │          sec/op          │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │
+Query/GroupBy-4                569.3µ ± 0%   947.7µ ± 0%  +66.47% (p=0.002 n=6)   507.8µ ± 1%  -10.80% (p=0.002 n=6)   481.0µ ± 1%  -15.51% (p=0.002 n=6)   342.1µ ± 0%  -39.91% (p=0.002 n=6)   266.5µ ± 0%  -53.19% (p=0.002 n=6)
+
+                │ bench_ncruces_direct.txt │       bench_ncruces_driver.txt       │       bench_modernc_driver.txt       │     bench_zombiezen_direct.txt      │        bench_mattn_driver.txt        │      bench_tailscale_driver.txt      │
+                │           B/op           │    B/op      vs base                 │    B/op      vs base                 │    B/op      vs base                │    B/op      vs base                 │    B/op      vs base                 │
+Query/GroupBy-4                 128.0 ± 2%   1811.5 ± 1%  +1315.23% (p=0.002 n=6)   1992.0 ± 0%  +1456.25% (p=0.002 n=6)   360.0 ± 29%  +181.25% (p=0.002 n=6)   7194.5 ± 0%  +5520.70% (p=0.002 n=6)   1816.0 ± 0%  +1318.75% (p=0.002 n=6)
+
+                │ bench_ncruces_direct.txt │       bench_ncruces_driver.txt       │       bench_modernc_driver.txt        │     bench_zombiezen_direct.txt     │        bench_mattn_driver.txt         │      bench_tailscale_driver.txt      │
+                │        allocs/op         │  allocs/op   vs base                 │  allocs/op    vs base                 │  allocs/op   vs base               │  allocs/op    vs base                 │  allocs/op   vs base                 │
+Query/GroupBy-4                 4.000 ± 0%   89.000 ± 0%  +2125.00% (p=0.002 n=6)   124.000 ± 0%  +3000.00% (p=0.002 n=6)   6.000 ± 17%  +50.00% (p=0.002 n=6)   156.000 ± 0%  +3800.00% (p=0.002 n=6)   55.000 ± 0%  +1275.00% (p=0.002 n=6)

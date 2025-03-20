@@ -1,0 +1,25 @@
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_modernc_driver.txt bench_zombiezen_direct.txt bench_mattn_driver.txt bench_tailscale_driver.txt
+goos: darwin
+goarch: arm64
+pkg: github.com/michaellenaghan/go-sqlite-bench
+cpu: Apple M2 Pro
+                             │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │      bench_modernc_driver.txt      │    bench_zombiezen_direct.txt     │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
+                             │          sec/op          │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base              │   sec/op     vs base               │   sec/op     vs base               │
+Populate/PopulateDB-4                       2.576 ± 11%   2.763 ±  6%        ~ (p=0.093 n=6)   2.765 ±  6%        ~ (p=0.065 n=6)   2.461 ±  6%       ~ (p=0.394 n=6)   2.229 ±  9%  -13.47% (p=0.009 n=6)   2.050 ± 46%        ~ (p=0.394 n=6)
+Populate/PopulateDBWithTx-4                 1.277 ±  4%   1.557 ± 80%  +21.99% (p=0.002 n=6)   1.556 ±  9%  +21.88% (p=0.002 n=6)   1.305 ±  9%       ~ (p=0.818 n=6)   1.214 ±  8%   -4.92% (p=0.026 n=6)   1.085 ±  8%  -14.99% (p=0.002 n=6)
+Populate/PopulateDBWithTxs-4                1.599 ± 14%   1.806 ±  9%  +12.94% (p=0.041 n=6)   1.811 ± 11%  +13.23% (p=0.002 n=6)   1.656 ± 10%       ~ (p=0.394 n=6)   1.475 ± 22%        ~ (p=0.699 n=6)   1.484 ± 10%        ~ (p=0.240 n=6)
+geomean                                     1.739         1.981        +13.90%                 1.982        +13.99%                 1.746        +0.38%                 1.586         -8.78%                 1.489        -14.37%
+
+                             │ bench_ncruces_direct.txt │       bench_ncruces_driver.txt        │        bench_modernc_driver.txt        │      bench_zombiezen_direct.txt      │          bench_mattn_driver.txt          │      bench_tailscale_driver.txt       │
+                             │           B/op           │     B/op       vs base                │     B/op       vs base                 │     B/op      vs base                │      B/op       vs base                  │     B/op       vs base                │
+Populate/PopulateDB-4                     11.668Mi ± 1%   28.351Mi ± 0%  +142.99% (p=0.002 n=6)   34.817Mi ± 0%   +198.41% (p=0.002 n=6)   6.161Mi ± 2%   -47.19% (p=0.002 n=6)   273.194Mi ± 0%   +2241.45% (p=0.002 n=6)   18.956Mi ± 0%   +62.47% (p=0.002 n=6)
+Populate/PopulateDBWithTx-4                2.274Mi ± 4%   18.959Mi ± 0%  +733.91% (p=0.002 n=6)   34.811Mi ± 0%  +1431.16% (p=0.002 n=6)   6.161Mi ± 0%  +170.98% (p=0.002 n=6)   273.193Mi ± 0%  +11916.30% (p=0.002 n=6)   18.956Mi ± 0%  +733.77% (p=0.002 n=6)
+Populate/PopulateDBWithTxs-4               2.470Mi ± 0%   20.169Mi ± 0%  +716.55% (p=0.002 n=6)   35.833Mi ± 0%  +1350.71% (p=0.002 n=6)   6.207Mi ± 0%  +151.28% (p=0.002 n=6)   274.462Mi ± 0%  +11011.59% (p=0.002 n=6)   20.204Mi ± 0%  +717.95% (p=0.002 n=6)
+geomean                                    4.031Mi         22.13Mi       +448.99%                  35.15Mi        +771.91%                 6.176Mi        +53.20%                   273.6Mi        +6686.99%                  19.36Mi       +380.30%
+
+                             │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt       │       bench_modernc_driver.txt       │     bench_zombiezen_direct.txt      │        bench_mattn_driver.txt        │     bench_tailscale_driver.txt      │
+                             │        allocs/op         │  allocs/op   vs base                │  allocs/op    vs base                │  allocs/op   vs base                │  allocs/op    vs base                │  allocs/op   vs base                │
+Populate/PopulateDB-4                       447.8k ± 0%   905.8k ± 1%  +102.30% (p=0.002 n=6)   1463.3k ± 1%  +226.80% (p=0.002 n=6)   445.1k ± 3%    -0.60% (p=0.002 n=6)   1057.5k ± 1%  +136.17% (p=0.002 n=6)   598.1k ± 1%   +33.57% (p=0.002 n=6)
+Populate/PopulateDBWithTx-4                 140.0k ± 0%   598.1k ± 0%  +327.14% (p=0.002 n=6)   1463.2k ± 0%  +944.96% (p=0.002 n=6)   445.1k ± 0%  +217.86% (p=0.002 n=6)   1057.5k ± 0%  +655.21% (p=0.002 n=6)   598.1k ± 0%  +327.12% (p=0.002 n=6)
+Populate/PopulateDBWithTxs-4                146.5k ± 0%   625.5k ± 0%  +327.09% (p=0.002 n=6)   1484.3k ± 0%  +913.37% (p=0.002 n=6)   448.1k ± 0%  +205.93% (p=0.002 n=6)   1092.5k ± 0%  +645.87% (p=0.002 n=6)   623.2k ± 0%  +325.46% (p=0.002 n=6)
+geomean                                     209.4k        697.2k       +232.94%                  1.470M       +602.08%                 446.1k       +113.02%                  1.069M       +410.48%                 606.3k       +189.54%

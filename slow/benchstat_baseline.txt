@@ -1,0 +1,16 @@
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_modernc_driver.txt bench_zombiezen_direct.txt bench_mattn_driver.txt bench_tailscale_driver.txt
+goos: darwin
+goarch: arm64
+pkg: github.com/michaellenaghan/go-sqlite-bench
+cpu: Apple M2 Pro
+                   │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt       │      bench_modernc_driver.txt      │     bench_zombiezen_direct.txt     │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
+                   │          sec/op          │   sec/op     vs base                │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │
+Baseline/Select1-4                1.876µ ± 4%   7.734µ ± 3%  +312.23% (p=0.002 n=6)   2.093µ ± 1%  +11.57% (p=0.002 n=6)   2.741µ ± 1%  +46.11% (p=0.002 n=6)   2.650µ ± 2%  +41.26% (p=0.002 n=6)   1.107µ ± 2%  -40.99% (p=0.002 n=6)
+
+                   │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │      bench_modernc_driver.txt       │     bench_zombiezen_direct.txt      │       bench_mattn_driver.txt        │     bench_tailscale_driver.txt      │
+                   │           B/op           │    B/op     vs base               │    B/op      vs base                │    B/op      vs base                │    B/op      vs base                │    B/op      vs base                │
+Baseline/Select1-4                 80.00 ± 0%   32.00 ± 0%  -60.00% (p=0.002 n=6)   252.00 ± 0%  +215.00% (p=0.002 n=6)   713.00 ± 0%  +791.25% (p=0.002 n=6)   288.00 ± 0%  +260.00% (p=0.002 n=6)   240.00 ± 0%  +200.00% (p=0.002 n=6)
+
+                   │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │      bench_modernc_driver.txt      │     bench_zombiezen_direct.txt     │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
+                   │        allocs/op         │ allocs/op   vs base               │ allocs/op   vs base                │ allocs/op   vs base                │ allocs/op   vs base                │ allocs/op   vs base                │
+Baseline/Select1-4                 2.000 ± 0%   1.000 ± 0%  -50.00% (p=0.002 n=6)   7.000 ± 0%  +250.00% (p=0.002 n=6)   9.000 ± 0%  +350.00% (p=0.002 n=6)   9.000 ± 0%  +350.00% (p=0.002 n=6)   5.000 ± 0%  +150.00% (p=0.002 n=6)
