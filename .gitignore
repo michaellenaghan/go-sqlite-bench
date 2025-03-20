@@ -1,0 +1,4 @@
+arch/
+/bench_*.txt
+/benchstat_*.txt
+/test_*.txt
