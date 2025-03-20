@@ -25,6 +25,10 @@ type Conn struct {
 	prepared map[string]*sqlite3.Stmt
 }
 
+func init() {
+	sqlite3.Initialize()
+}
+
 func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteConnections int) (*DB, error) {
 	if !(maxReadConnections >= 0) {
 		return nil, errors.New("maxReadConnections must be >= 0")
@@ -32,8 +36,6 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	if !(maxWriteConnections >= 1) {
 		return nil, errors.New("maxWriteConnections must be >= 1")
 	}
-
-	sqlite3.Initialize()
 
 	if maxReadConnections == 0 {
 		pool, err := newPool(filename, 0, maxWriteConnections, 0)
