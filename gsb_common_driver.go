@@ -31,13 +31,6 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 
 		db.SetMaxOpenConns(maxWriteConnections)
 
-		// Note: ncruces seems to need this in order to avoid a "database is locked" error.
-		conn, err := db.Conn(ctx)
-		if err != nil {
-			return nil, err
-		}
-		conn.Close()
-
 		return &DB{readDB: db, writeDB: db}, nil
 	} else {
 		readDB, err := OpenDB(filename)
@@ -53,13 +46,6 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 		}
 
 		writeDB.SetMaxOpenConns(maxWriteConnections)
-
-		// Note: ncruces seems to need this in order to avoid a "database is locked" error.
-		conn, err := writeDB.Conn(ctx)
-		if err != nil {
-			return nil, err
-		}
-		conn.Close()
 
 		return &DB{readDB: readDB, writeDB: writeDB}, nil
 	}
