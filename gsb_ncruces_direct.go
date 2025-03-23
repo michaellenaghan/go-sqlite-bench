@@ -51,6 +51,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 		}
 		writePool, err := newPool(filename, 0, maxWriteConnections, 0)
 		if err != nil {
+			readPool.Stop()
 			return nil, err
 		}
 
@@ -1140,11 +1141,12 @@ func (db *DB) Pragmas(ctx context.Context, names []string) ([]string, error) {
 	}
 	defer db.readPool.Put(conn)
 
-	for _, name := range names {
+	pragma := func(name string) error {
 		stmt, _, err := conn.Prepare("PRAGMA" + " " + name)
 		if err != nil {
-			return nil, err
+			return err
 		}
+		defer stmt.Close()
 
 		for stmt.Step() {
 			value := stmt.ColumnText(0)
@@ -1154,11 +1156,17 @@ func (db *DB) Pragmas(ctx context.Context, names []string) ([]string, error) {
 
 		err = stmt.Reset()
 		if err != nil {
-			stmt.Close()
-			return nil, err
+			return err
 		}
 
-		stmt.Close()
+		return nil
+	}
+
+	for _, name := range names {
+		err = pragma(name)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return pragmas, nil

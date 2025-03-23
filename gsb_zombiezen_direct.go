@@ -75,6 +75,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 				PrepareConn: prepareConn,
 			})
 		if err != nil {
+			errors.Join(writePool.Close(), err)
 			return nil, err
 		}
 
@@ -83,22 +84,14 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 }
 
 func (db *DB) Close() error {
-	var readErr error
-	var writeErr error
+	var err error
 
-	readErr = db.readPool.Close()
-	if db.writePool != db.readPool {
-		writeErr = db.writePool.Close()
+	err = errors.Join(db.writePool.Close(), err)
+	if db.readPool != db.writePool {
+		err = errors.Join(db.readPool.Close(), err)
 	}
 
-	if readErr != nil {
-		return readErr
-	}
-	if writeErr != nil {
-		return writeErr
-	}
-
-	return nil
+	return err
 }
 
 func (db *DB) PrepareDBWithTx(ctx context.Context) error {

@@ -84,8 +84,9 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 }
 
 func (db *DB) prepareNewDBStatements() error {
-	var stmt *sql.Stmt
 	var err error
+
+	var stmt *sql.Stmt
 
 	stmt, err = db.readDB.Prepare("SELECT 1")
 	if err != nil {
@@ -154,8 +155,9 @@ func (db *DB) PrepareDBWithTx(ctx context.Context) (err error) {
 }
 
 func (db *DB) preparePrepareDBStatements() error {
-	var stmt *sql.Stmt
 	var err error
+
+	var stmt *sql.Stmt
 
 	stmt, err = db.writeDB.Prepare(SQLForInsertPost)
 	if err != nil {
