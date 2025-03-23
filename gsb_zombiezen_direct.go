@@ -761,6 +761,16 @@ func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 
 // ===
 
+func (db *DB) Conn(ctx context.Context) error {
+	conn, err := db.readPool.Take(ctx)
+	if err != nil {
+		return err
+	}
+	defer db.readPool.Put(conn)
+
+	return nil
+}
+
 func (db *DB) Options(ctx context.Context) ([]string, error) {
 	options := make([]string, 0)
 
@@ -821,6 +831,21 @@ func (db *DB) Select1(ctx context.Context) error {
 	defer db.readPool.Put(conn)
 
 	err = sqlitex.ExecuteTransient(conn, "SELECT 1", &sqlitex.ExecOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DB) Select1PrePrepared(ctx context.Context) error {
+	conn, err := db.readPool.Take(ctx)
+	if err != nil {
+		return err
+	}
+	defer db.readPool.Put(conn)
+
+	err = sqlitex.Execute(conn, "SELECT 1", &sqlitex.ExecOptions{})
 	if err != nil {
 		return err
 	}

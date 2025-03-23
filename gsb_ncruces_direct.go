@@ -1071,6 +1071,16 @@ func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 
 // ===
 
+func (db *DB) Conn(ctx context.Context) error {
+	conn, err := db.readPool.Get(ctx)
+	if err != nil {
+		return err
+	}
+	defer db.readPool.Put(conn)
+
+	return nil
+}
+
 func (db *DB) Options(ctx context.Context) ([]string, error) {
 	options := make([]string, 0)
 
@@ -1141,6 +1151,27 @@ func (db *DB) Select1(ctx context.Context) error {
 	defer db.readPool.Put(conn)
 
 	stmt, _, err := conn.Prepare("SELECT 1")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	err = stmt.Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DB) Select1PrePrepared(ctx context.Context) error {
+	conn, err := db.readPool.Get(ctx)
+	if err != nil {
+		return err
+	}
+	defer db.readPool.Put(conn)
+
+	stmt, _, err := conn.PrepareAndPersist("SELECT 1")
 	if err != nil {
 		return err
 	}

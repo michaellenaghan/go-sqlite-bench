@@ -840,6 +840,16 @@ func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 
 // ===
 
+func (db *DB) Conn(ctx context.Context) error {
+	conn, err := db.readDB.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	return err
+}
+
 func (db *DB) Options(ctx context.Context) ([]string, error) {
 	options := make([]string, 0)
 
@@ -882,6 +892,11 @@ func (db *DB) Pragmas(ctx context.Context, names []string) ([]string, error) {
 
 func (db *DB) Select1(ctx context.Context) error {
 	_, err := db.readDB.ExecContext(ctx, "SELECT 1")
+	return err
+}
+
+func (db *DB) Select1PrePrepared(ctx context.Context) error {
+	_, err := db.readDBSelect1.ExecContext(ctx)
 	return err
 }
 

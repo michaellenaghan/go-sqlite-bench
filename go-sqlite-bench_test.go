@@ -533,9 +533,23 @@ func BenchmarkBaseline(b *testing.B) {
 	db := newDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections)
 	defer db.Close()
 
+	b.Run("Conn", func(b *testing.B) {
+		for b.Loop() {
+			err := db.Conn(b.Context())
+			noErr(b, err)
+		}
+	})
+
 	b.Run("Select1", func(b *testing.B) {
 		for b.Loop() {
 			err := db.Select1(b.Context())
+			noErr(b, err)
+		}
+	})
+
+	b.Run("Select1PrePrepared", func(b *testing.B) {
+		for b.Loop() {
+			err := db.Select1PrePrepared(b.Context())
 			noErr(b, err)
 		}
 	})
