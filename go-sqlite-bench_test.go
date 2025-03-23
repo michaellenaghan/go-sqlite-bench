@@ -811,6 +811,9 @@ func newPreparedDB(tb testing.TB, maxReadConnections, maxWriteConnections int) *
 	err := db.PrepareDBWithTx(tb.Context())
 	noErr(tb, err)
 
+	err = db.Analyze(tb.Context())
+	noErr(tb, err)
+
 	return db
 }
 
@@ -818,6 +821,9 @@ func newPopulatedDB(tb testing.TB, maxReadConnections, maxWriteConnections int, 
 	db := newPreparedDB(tb, maxReadConnections, maxWriteConnections)
 
 	err := db.PopulateDBWithTxs(tb.Context(), posts, postParagraphs, comments, commentParagraphs)
+	noErr(tb, err)
+
+	err = db.Analyze(tb.Context())
 	noErr(tb, err)
 
 	return db

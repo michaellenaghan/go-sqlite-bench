@@ -840,6 +840,11 @@ func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 
 // ===
 
+func (db *DB) Analyze(ctx context.Context) error {
+	_, err := db.readDB.ExecContext(ctx, "ANALYZE")
+	return err
+}
+
 func (db *DB) Conn(ctx context.Context) error {
 	conn, err := db.readDB.Conn(ctx)
 	if err != nil {

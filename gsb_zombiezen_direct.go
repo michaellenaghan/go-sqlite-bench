@@ -761,6 +761,21 @@ func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 
 // ===
 
+func (db *DB) Analyze(ctx context.Context) error {
+	conn, err := db.readPool.Take(ctx)
+	if err != nil {
+		return err
+	}
+	defer db.readPool.Put(conn)
+
+	err = sqlitex.ExecuteTransient(conn, "ANALYZE", &sqlitex.ExecOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (db *DB) Conn(ctx context.Context) error {
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
