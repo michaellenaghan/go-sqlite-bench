@@ -13,6 +13,27 @@ import (
 type DB struct {
 	readDB  *sql.DB
 	writeDB *sql.DB
+
+	// Non-Schema ("NewDB") Statements
+
+	readDBSelect1 *sql.Stmt
+
+	// Schema ("PrepareDB") Statements
+
+	writeDBInsertPost               *sql.Stmt
+	writeDBInsertPostWithCreated    *sql.Stmt
+	writeDBInsertComment            *sql.Stmt
+	writeDBInsertCommentWithCreated *sql.Stmt
+
+	readDBSelectPostByID         *sql.Stmt
+	readDBSelectCommentsByPostID *sql.Stmt
+
+	readDBQueryCorrelated      *sql.Stmt
+	readDBQueryGroupBy         *sql.Stmt
+	readDBQueryJSON            *sql.Stmt
+	readDBQueryNonRecursiveCTE *sql.Stmt
+	readDBQueryOrderBy         *sql.Stmt
+	readDBQueryRecursiveCTE    *sql.Stmt
 }
 
 func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteConnections int) (*DB, error) {
@@ -23,15 +44,17 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 		return nil, errors.New("maxWriteConnections must be >= 1")
 	}
 
+	var db *DB
+
 	if maxReadConnections == 0 {
-		db, err := OpenDB(filename)
+		readWriteDB, err := OpenDB(filename)
 		if err != nil {
 			return nil, err
 		}
 
-		db.SetMaxOpenConns(maxWriteConnections)
+		readWriteDB.SetMaxOpenConns(maxWriteConnections)
 
-		return &DB{readDB: db, writeDB: db}, nil
+		db = &DB{readDB: readWriteDB, writeDB: readWriteDB}
 	} else {
 		readDB, err := OpenDB(filename)
 		if err != nil {
@@ -42,32 +65,61 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 
 		writeDB, err := OpenDB(filename)
 		if err != nil {
+			err = errors.Join(readDB.Close(), err)
 			return nil, err
 		}
 
 		writeDB.SetMaxOpenConns(maxWriteConnections)
 
-		return &DB{readDB: readDB, writeDB: writeDB}, nil
+		db = &DB{readDB: readDB, writeDB: writeDB}
 	}
+
+	err := db.prepareNewDBStatements()
+	if err != nil {
+		err = errors.Join(db.Close(), err)
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func (db *DB) prepareNewDBStatements() error {
+	var stmt *sql.Stmt
+	var err error
+
+	stmt, err = db.readDB.Prepare("SELECT 1")
+	if err != nil {
+		return err
+	}
+	db.readDBSelect1 = stmt
+
+	return err
+}
+
+func (db *DB) closeNewDBStatements() error {
+	var err error
+
+	if db.readDBSelect1 != nil {
+		err = errors.Join(db.readDBSelect1.Close(), err)
+		db.readDBSelect1 = nil
+	}
+
+	return err
 }
 
 func (db *DB) Close() error {
-	var readErr error
-	var writeErr error
+	var err error
 
-	readErr = db.readDB.Close()
-	if db.writeDB != db.readDB {
-		writeErr = db.writeDB.Close()
+	err = errors.Join(db.closePrepareDBStatements(), err)
+
+	err = errors.Join(db.closeNewDBStatements(), err)
+
+	err = errors.Join(db.writeDB.Close(), err)
+	if db.readDB != db.writeDB {
+		err = errors.Join(db.readDB.Close(), err)
 	}
 
-	if readErr != nil {
-		return readErr
-	}
-	if writeErr != nil {
-		return writeErr
-	}
-
-	return nil
+	return err
 }
 
 func (db *DB) PrepareDBWithTx(ctx context.Context) (err error) {
@@ -93,7 +145,157 @@ func (db *DB) PrepareDBWithTx(ctx context.Context) (err error) {
 		return err
 	}
 
+	err = db.preparePrepareDBStatements()
+	if err != nil {
+		return err
+	}
+
 	return
+}
+
+func (db *DB) preparePrepareDBStatements() error {
+	var stmt *sql.Stmt
+	var err error
+
+	stmt, err = db.writeDB.Prepare(SQLForInsertPost)
+	if err != nil {
+		return err
+	}
+	db.writeDBInsertPost = stmt
+
+	stmt, err = db.writeDB.Prepare(SQLForInsertPostWithCreated)
+	if err != nil {
+		return err
+	}
+	db.writeDBInsertPostWithCreated = stmt
+
+	stmt, err = db.writeDB.Prepare(SQLForInsertComment)
+	if err != nil {
+		return err
+	}
+	db.writeDBInsertComment = stmt
+
+	stmt, err = db.writeDB.Prepare(SQLForInsertCommentWithCreated)
+	if err != nil {
+		return err
+	}
+	db.writeDBInsertCommentWithCreated = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForSelectPostByID)
+	if err != nil {
+		return err
+	}
+	db.readDBSelectPostByID = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForSelectCommentsByPostID)
+	if err != nil {
+		return err
+	}
+	db.readDBSelectCommentsByPostID = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryCorrelated)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryCorrelated = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryGroupBy)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryGroupBy = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryJSON)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryJSON = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryNonRecursiveCTE)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryNonRecursiveCTE = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryOrderBy)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryOrderBy = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryRecursiveCTE)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryRecursiveCTE = stmt
+
+	return nil
+}
+
+func (db *DB) closePrepareDBStatements() error {
+	var err error
+
+	if db.writeDBInsertPost != nil {
+		err = errors.Join(db.writeDBInsertPost.Close(), err)
+		db.writeDBInsertPost = nil
+	}
+
+	if db.writeDBInsertPostWithCreated != nil {
+		err = errors.Join(db.writeDBInsertPostWithCreated.Close(), err)
+		db.writeDBInsertPostWithCreated = nil
+	}
+
+	if db.writeDBInsertComment != nil {
+		err = errors.Join(db.writeDBInsertComment.Close(), err)
+		db.writeDBInsertComment = nil
+	}
+
+	if db.writeDBInsertCommentWithCreated != nil {
+		err = errors.Join(db.writeDBInsertCommentWithCreated.Close(), err)
+		db.writeDBInsertCommentWithCreated = nil
+	}
+
+	if db.readDBSelectPostByID != nil {
+		err = errors.Join(db.readDBSelectPostByID.Close(), err)
+		db.readDBSelectPostByID = nil
+	}
+
+	if db.readDBSelectCommentsByPostID != nil {
+		err = errors.Join(db.readDBSelectCommentsByPostID.Close(), err)
+		db.readDBSelectCommentsByPostID = nil
+	}
+
+	if db.readDBQueryCorrelated != nil {
+		err = errors.Join(db.readDBQueryCorrelated.Close(), err)
+		db.readDBQueryCorrelated = nil
+	}
+
+	if db.readDBQueryGroupBy != nil {
+		err = errors.Join(db.readDBQueryGroupBy.Close(), err)
+		db.readDBQueryGroupBy = nil
+	}
+
+	if db.readDBQueryJSON != nil {
+		err = errors.Join(db.readDBQueryJSON.Close(), err)
+		db.readDBQueryJSON = nil
+	}
+
+	if db.readDBQueryNonRecursiveCTE != nil {
+		err = errors.Join(db.readDBQueryNonRecursiveCTE.Close(), err)
+		db.readDBQueryNonRecursiveCTE = nil
+	}
+
+	if db.readDBQueryOrderBy != nil {
+		err = errors.Join(db.readDBQueryOrderBy.Close(), err)
+		db.readDBQueryOrderBy = nil
+	}
+
+	if db.readDBQueryRecursiveCTE != nil {
+		err = errors.Join(db.readDBQueryRecursiveCTE.Close(), err)
+		db.readDBQueryRecursiveCTE = nil
+	}
+
+	return err
 }
 
 func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) (err error) {
@@ -105,18 +307,6 @@ func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, c
 	commentStats := LoremIpsumJSON
 	commentDate := postDate.CommentDate
 
-	postStmt, err := db.writeDB.PrepareContext(ctx, SQLForInsertPostWithCreated)
-	if err != nil {
-		return err
-	}
-	defer postStmt.Close()
-
-	commentStmt, err := db.writeDB.PrepareContext(ctx, SQLForInsertCommentWithCreated)
-	if err != nil {
-		return err
-	}
-	defer commentStmt.Close()
-
 	for i := range posts {
 		postSeq := i + 1
 		title := fmt.Sprintf("Post %d", postSeq)
@@ -124,7 +314,7 @@ func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, c
 		stats := postStats
 		created := postDate.NextFormatted()
 
-		result, err := postStmt.ExecContext(ctx, title, content, stats, created)
+		result, err := db.writeDBInsertPostWithCreated.ExecContext(ctx, title, content, stats, created)
 		if err != nil {
 			return err
 		}
@@ -141,7 +331,7 @@ func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, c
 			stats := commentStats
 			created := commentDate.NextFormatted()
 
-			_, err = commentStmt.ExecContext(ctx, postID, name, content, stats, created)
+			_, err = db.writeDBInsertCommentWithCreated.ExecContext(ctx, postID, name, content, stats, created)
 			if err != nil {
 				return err
 			}
@@ -170,18 +360,6 @@ func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comme
 		}
 	}()
 
-	postStmt, err := tx.PrepareContext(ctx, SQLForInsertPostWithCreated)
-	if err != nil {
-		return err
-	}
-	defer postStmt.Close()
-
-	commentStmt, err := tx.PrepareContext(ctx, SQLForInsertCommentWithCreated)
-	if err != nil {
-		return err
-	}
-	defer commentStmt.Close()
-
 	for i := range posts {
 		postSeq := i + 1
 		title := fmt.Sprintf("Post %d", postSeq)
@@ -189,7 +367,7 @@ func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comme
 		stats := postStats
 		created := postDate.NextFormatted()
 
-		result, err := postStmt.ExecContext(ctx, title, content, stats, created)
+		result, err := tx.Stmt(db.writeDBInsertPostWithCreated).ExecContext(ctx, title, content, stats, created)
 		if err != nil {
 			return err
 		}
@@ -206,7 +384,7 @@ func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comme
 			stats := commentStats
 			created := commentDate.NextFormatted()
 
-			_, err = commentStmt.ExecContext(ctx, postID, name, content, stats, created)
+			_, err = tx.Stmt(db.writeDBInsertCommentWithCreated).ExecContext(ctx, postID, name, content, stats, created)
 			if err != nil {
 				return err
 			}
@@ -241,19 +419,13 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 			}
 		}()
 
-		postStmt, err := tx.PrepareContext(ctx, SQLForInsertPostWithCreated)
-		if err != nil {
-			return err
-		}
-		defer postStmt.Close()
-
 		postSeq := i + 1
 		title := fmt.Sprintf("Post %d", postSeq)
 		content := postContent
 		stats := postStats
 		created := postDate.NextFormatted()
 
-		result, err := postStmt.ExecContext(ctx, title, content, stats, created)
+		result, err := tx.Stmt(db.writeDBInsertPostWithCreated).ExecContext(ctx, title, content, stats, created)
 		if err != nil {
 			return err
 		}
@@ -263,12 +435,6 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 			return err
 		}
 
-		commentStmt, err := tx.PrepareContext(ctx, SQLForInsertCommentWithCreated)
-		if err != nil {
-			return err
-		}
-		defer commentStmt.Close()
-
 		for j := range comments {
 			commentSeq := j + 1
 			name := fmt.Sprintf("Comment %d.%d", postSeq, commentSeq)
@@ -276,7 +442,7 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 			stats := commentStats
 			created := commentDate.NextFormatted()
 
-			_, err = commentStmt.ExecContext(ctx, postID, name, content, stats, created)
+			_, err = tx.Stmt(db.writeDBInsertCommentWithCreated).ExecContext(ctx, postID, name, content, stats, created)
 			if err != nil {
 				return err
 			}
@@ -323,7 +489,7 @@ func (db *DB) CountComments(ctx context.Context) (n int64, err error) {
 func (db *DB) ReadPost(ctx context.Context, id int64) (p *Post, err error) {
 	p = &Post{ID: id}
 
-	row := db.readDB.QueryRowContext(ctx, SQLForSelectPostByID, id)
+	row := db.readDBSelectPostByID.QueryRowContext(ctx, id)
 	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
@@ -347,7 +513,7 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (p *Post, err error)
 
 	p = &Post{ID: id}
 
-	row := tx.QueryRowContext(ctx, SQLForSelectPostByID, id)
+	row := tx.Stmt(db.readDBSelectPostByID).QueryRowContext(ctx, id)
 	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
@@ -364,15 +530,9 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (p *Post, err error)
 }
 
 func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (p *Post, cs []*Comment, err error) {
-	postStmt, err := db.readDB.PrepareContext(ctx, SQLForSelectPostByID)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer postStmt.Close()
-
 	p = &Post{ID: id}
 
-	row := postStmt.QueryRowContext(ctx, id)
+	row := db.readDBSelectPostByID.QueryRowContext(ctx, id)
 	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
@@ -380,13 +540,7 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (p *Post, cs []
 		return nil, nil, err
 	}
 
-	commentStmt, err := db.readDB.PrepareContext(ctx, SQLForSelectCommentsByPostID)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer commentStmt.Close()
-
-	rows, err := commentStmt.QueryContext(ctx, id)
+	rows, err := db.readDBSelectCommentsByPostID.QueryContext(ctx, id)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -419,15 +573,9 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post,
 		}
 	}()
 
-	postStmt, err := tx.PrepareContext(ctx, SQLForSelectPostByID)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer postStmt.Close()
-
 	p = &Post{ID: id}
 
-	row := postStmt.QueryRowContext(ctx, id)
+	row := tx.Stmt(db.readDBSelectPostByID).QueryRowContext(ctx, id)
 	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
@@ -435,13 +583,7 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post,
 		return nil, nil, err
 	}
 
-	commentStmt, err := tx.PrepareContext(ctx, SQLForSelectCommentsByPostID)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer commentStmt.Close()
-
-	rows, err := commentStmt.QueryContext(ctx, id)
+	rows, err := tx.Stmt(db.readDBSelectCommentsByPostID).QueryContext(ctx, id)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -469,7 +611,7 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post,
 }
 
 func (db *DB) WritePost(ctx context.Context, title, content, stats string) (postID int64, err error) {
-	result, err := db.writeDB.ExecContext(ctx, SQLForInsertPost, title, content, stats)
+	result, err := db.writeDBInsertPost.ExecContext(ctx, title, content, stats)
 	if err != nil {
 		return 0, err
 	}
@@ -493,7 +635,7 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 		}
 	}()
 
-	result, err := tx.ExecContext(ctx, SQLForInsertPost, title, content, stats)
+	result, err := tx.Stmt(db.writeDBInsertPost).ExecContext(ctx, title, content, stats)
 	if err != nil {
 		return 0, err
 	}
@@ -512,13 +654,7 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 }
 
 func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (postID int64, err error) {
-	postStmt, err := db.writeDB.PrepareContext(ctx, SQLForInsertPost)
-	if err != nil {
-		return 0, err
-	}
-	defer postStmt.Close()
-
-	result, err := postStmt.ExecContext(ctx, postTitle, postContent, postStats)
+	result, err := db.writeDBInsertPost.ExecContext(ctx, postTitle, postContent, postStats)
 	if err != nil {
 		return 0, err
 	}
@@ -528,14 +664,8 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 		return 0, err
 	}
 
-	commentStmt, err := db.writeDB.PrepareContext(ctx, SQLForInsertComment)
-	if err != nil {
-		return 0, err
-	}
-	defer commentStmt.Close()
-
 	for range comments {
-		_, err = commentStmt.ExecContext(ctx, postID, commentName, commentContent, commentStats)
+		_, err = db.writeDBInsertComment.ExecContext(ctx, postID, commentName, commentContent, commentStats)
 		if err != nil {
 			return 0, err
 		}
@@ -555,13 +685,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 		}
 	}()
 
-	postStmt, err := tx.PrepareContext(ctx, SQLForInsertPost)
-	if err != nil {
-		return 0, err
-	}
-	defer postStmt.Close()
-
-	result, err := postStmt.ExecContext(ctx, postTitle, postContent, postStats)
+	result, err := tx.Stmt(db.writeDBInsertPost).ExecContext(ctx, postTitle, postContent, postStats)
 	if err != nil {
 		return 0, err
 	}
@@ -571,14 +695,8 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 		return 0, err
 	}
 
-	commentStmt, err := tx.PrepareContext(ctx, SQLForInsertComment)
-	if err != nil {
-		return 0, err
-	}
-	defer commentStmt.Close()
-
 	for range comments {
-		_, err = commentStmt.ExecContext(ctx, postID, commentName, commentContent, commentStats)
+		_, err = tx.Stmt(db.writeDBInsertComment).ExecContext(ctx, postID, commentName, commentContent, commentStats)
 		if err != nil {
 			return 0, err
 		}
@@ -597,7 +715,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	n := 0
 
-	rows, err := db.readDB.QueryContext(ctx, SQLForQueryCorrelated)
+	rows, err := db.readDBQueryCorrelated.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -618,7 +736,7 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
 	n := 0
 
-	rows, err := db.readDB.QueryContext(ctx, SQLForQueryGroupBy)
+	rows, err := db.readDBQueryGroupBy.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -639,7 +757,7 @@ func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
 func (db *DB) QueryJSON(ctx context.Context) (int, error) {
 	n := 0
 
-	rows, err := db.readDB.QueryContext(ctx, SQLForQueryJSON)
+	rows, err := db.readDBQueryJSON.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -660,7 +778,7 @@ func (db *DB) QueryJSON(ctx context.Context) (int, error) {
 func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
 	n := 0
 
-	rows, err := db.readDB.QueryContext(ctx, SQLForQueryNonRecursiveCTE)
+	rows, err := db.readDBQueryNonRecursiveCTE.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -681,7 +799,7 @@ func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
 	n := 0
 
-	rows, err := db.readDB.QueryContext(ctx, SQLForQueryOrderBy)
+	rows, err := db.readDBQueryOrderBy.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -702,7 +820,7 @@ func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 	n := 0
 
-	rows, err := db.readDB.QueryContext(ctx, SQLForQueryRecursiveCTE)
+	rows, err := db.readDBQueryRecursiveCTE.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
