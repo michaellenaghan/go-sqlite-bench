@@ -804,6 +804,29 @@ func (db *DB) Options(ctx context.Context) ([]string, error) {
 	return options, nil
 }
 
+func (db *DB) Pragma(ctx context.Context, name string) (string, error) {
+	value := ""
+
+	conn, err := db.readPool.Take(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer db.readPool.Put(conn)
+
+	err = sqlitex.ExecuteTransient(conn, "PRAGMA"+" "+name, &sqlitex.ExecOptions{
+		ResultFunc: func(stmt *sqlite.Stmt) error {
+			value = stmt.ColumnText(0)
+
+			return nil
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return value, nil
+}
+
 func (db *DB) Pragmas(ctx context.Context, names []string) ([]string, error) {
 	pragmas := make([]string, 0)
 

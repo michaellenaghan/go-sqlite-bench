@@ -34,6 +34,32 @@ func TestOptions(t *testing.T) {
 	}
 }
 
+func TestPragma(t *testing.T) {
+	db := newDB(t, 0, 1)
+	defer db.Close()
+
+	type testCase struct {
+		name  string
+		value string
+	}
+
+	tests := []testCase{
+		{name: "busy_timeout", value: "10000"},
+		{name: "foreign_keys", value: "1"},
+		{name: "journal_mode", value: "wal"},
+		{name: "synchronous", value: "1"},
+	}
+
+	for _, tc := range tests {
+		want := tc.value
+		got, err := db.Pragma(t.Context(), tc.name)
+		noErr(t, err)
+		if got != want {
+			t.Errorf("pragma name %v: want value %v, got %v", tc.name, want, got)
+		}
+	}
+}
+
 func TestPragmas(t *testing.T) {
 	db := newDB(t, 0, 1)
 	defer db.Close()

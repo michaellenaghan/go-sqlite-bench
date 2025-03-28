@@ -882,6 +882,17 @@ func (db *DB) Options(ctx context.Context) ([]string, error) {
 	return options, nil
 }
 
+func (db *DB) Pragma(ctx context.Context, name string) (string, error) {
+	value := ""
+
+	err := db.readDB.QueryRowContext(ctx, "PRAGMA"+" "+name).Scan(&value)
+	if err != nil {
+		return "", err
+	}
+
+	return value, nil
+}
+
 func (db *DB) Pragmas(ctx context.Context, names []string) ([]string, error) {
 	pragmas := make([]string, 0)
 
