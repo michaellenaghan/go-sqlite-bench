@@ -13,7 +13,7 @@ import (
 
 var (
 	defaultMaxReadConnections  = flag.Int("gsb-max-read-connections", 0, "max read connections (>= 0, 0 = use write connections)")
-	defaultMaxWriteConnections = flag.Int("gsb-max-write-connections", 256, "max write connections (>= 1)")
+	defaultMaxWriteConnections = flag.Int("gsb-max-write-connections", 32, "max write connections (>= 1)")
 
 	defaultPosts          = flag.Int("gsb-posts", 1000, "number of posts")
 	defaultPostParagraphs = flag.Int("gsb-post-paragraphs", 50, "number of paragraphs per post")
