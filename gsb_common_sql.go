@@ -22,7 +22,9 @@ var SQLForSchema = []string{
 	`
 	create table comments (
 		id integer primary key,
-		post_id int not null references posts (id),
+		post_id int not null references posts (id)
+			on update restrict
+			on delete cascade,
 		name text not null,
 		content text not null,
 		created text not null default (strftime('%Y-%m-%dT%H:%M:%SZ')),
