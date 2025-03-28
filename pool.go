@@ -166,11 +166,12 @@ func (p *Pool[T]) Get(ctx context.Context) (T, error) {
 	// log.Println("> Get")
 	// defer log.Println("< Get")
 	p.mu.Lock()
-	defer p.mu.Unlock()
 
 	for {
 		// 1. pool is stopping or stopped
 		if p.stoppingOrStopped {
+			p.mu.Unlock()
+
 			var zero T
 			return zero, ErrStoppingOrStopped
 		}
@@ -178,20 +179,29 @@ func (p *Pool[T]) Get(ctx context.Context) (T, error) {
 		// 2. pool has available objects
 		if len(p.objects) > 0 {
 			// Pop from the front to preserve lastUsed ordering.
-			pObject := p.objects[0]
+			object := p.objects[0].object
 			p.objects = p.objects[1:]
-			return pObject.object, nil
+			p.mu.Unlock()
+
+			return object, nil
 		}
 
 		// 3. pool has available capacity
 		if p.objectCount < p.max {
+			// Don't hold the lock while we call newFunc().
 			p.createdCount++
+			p.objectCount++
+			p.mu.Unlock()
 
 			object, err := p.newFunc()
 			if err != nil {
-				return object, errors.Join(ErrNew, err)
+				p.mu.Lock()
+				p.objectCount--
+				p.mu.Unlock()
+
+				var zero T
+				return zero, errors.Join(ErrNew, err)
 			}
-			p.objectCount++
 
 			return object, nil
 		}
@@ -203,24 +213,26 @@ func (p *Pool[T]) Get(ctx context.Context) (T, error) {
 		go func() {
 			p.mu.Lock()
 			p.cond.Wait() // signalled by `Put()`, `Stop()` -- and `ctx.Done()`
-			close(waitCh)
 			p.mu.Unlock()
+
+			close(waitCh)
 		}()
 
 		p.mu.Unlock()
 		select {
 		case <-waitCh:
+			// Lock and loop.
 			p.mu.Lock()
 		case <-ctx.Done():
-			p.mu.Lock()
-
 			// Broadcast the condition to ensure that the `Wait()` in the
 			// goroutine is triggered; otherwise the goroutine will remain
 			// blocked until `Stop()` is eventually called. `Broadcast()`
 			// may result in spurious wakeups, but it's our only choice;
 			// `Signal()` will only signal *one* waiter, and it may not be
 			// *our* waiter.
+			p.mu.Lock()
 			p.cond.Broadcast()
+			p.mu.Unlock()
 
 			var zero T
 			return zero, ctx.Err()
@@ -242,6 +254,7 @@ func (p *Pool[T]) Put(object T) {
 			p.destroyFunc(object)
 		}
 		p.objectCount--
+
 		return
 	}
 
