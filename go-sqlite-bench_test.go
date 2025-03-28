@@ -540,6 +540,15 @@ func BenchmarkBaseline(b *testing.B) {
 		}
 	})
 
+	b.Run("ConnParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				err := db.Conn(b.Context())
+				noErr(b, err)
+			}
+		})
+	})
+
 	b.Run("Select1", func(b *testing.B) {
 		for b.Loop() {
 			err := db.Select1(b.Context())
@@ -547,11 +556,29 @@ func BenchmarkBaseline(b *testing.B) {
 		}
 	})
 
+	b.Run("Select1Parallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				err := db.Select1(b.Context())
+				noErr(b, err)
+			}
+		})
+	})
+
 	b.Run("Select1PrePrepared", func(b *testing.B) {
 		for b.Loop() {
 			err := db.Select1PrePrepared(b.Context())
 			noErr(b, err)
 		}
+	})
+
+	b.Run("Select1PrePreparedParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				err := db.Select1PrePrepared(b.Context())
+				noErr(b, err)
+			}
+		})
 	})
 }
 
@@ -701,6 +728,28 @@ func BenchmarkReadWrite(b *testing.B) {
 
 			for _, writeRate := range []int{10, 90} {
 				b.Run(fmt.Sprintf("write_rate=%d", writeRate), func(b *testing.B) {
+					for b.Loop() {
+						if rand.IntN(100) < writeRate {
+							_, err := db.WritePostAndComments(b.Context(), postTitle, postContent, postStats, comments, commentName, commentContent, commentStats)
+							noErr(b, err)
+						} else {
+							_, _, err := db.ReadPostAndComments(b.Context(), postID)
+							noErr(b, err)
+						}
+					}
+				})
+			}
+		})
+	}
+
+	if !testing.Short() {
+		b.Run("ReadOrWritePostAndCommentsParallel", func(b *testing.B) {
+			if posts == 0 {
+				b.Skipf("skip: no posts")
+			}
+
+			for _, writeRate := range []int{10, 90} {
+				b.Run(fmt.Sprintf("write_rate=%d", writeRate), func(b *testing.B) {
 					b.RunParallel(func(pb *testing.PB) {
 						for pb.Next() {
 							if rand.IntN(100) < writeRate {
@@ -718,6 +767,26 @@ func BenchmarkReadWrite(b *testing.B) {
 	}
 
 	b.Run("ReadOrWritePostAndCommentsWithTx", func(b *testing.B) {
+		if posts == 0 {
+			b.Skipf("skip: no posts")
+		}
+
+		for _, writeRate := range []int{10, 90} {
+			b.Run(fmt.Sprintf("write_rate=%d", writeRate), func(b *testing.B) {
+				for b.Loop() {
+					if rand.IntN(100) < writeRate {
+						_, err := db.WritePostAndCommentsWithTx(b.Context(), postTitle, postContent, postStats, comments, commentName, commentContent, commentStats)
+						noErr(b, err)
+					} else {
+						_, _, err := db.ReadPostAndCommentsWithTx(b.Context(), postID)
+						noErr(b, err)
+					}
+				}
+			})
+		}
+	})
+
+	b.Run("ReadOrWritePostAndCommentsWithTxParallel", func(b *testing.B) {
 		if posts == 0 {
 			b.Skipf("skip: no posts")
 		}

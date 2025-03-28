@@ -1,7 +1,8 @@
 TAGS := ncruces_direct ncruces_driver modernc_driver zombiezen_direct mattn_driver tailscale_driver
 
 BENCH_COUNT := 1
-BENCH_CPU := 4
+BENCH_CPU := ''
+BENCH_CPU_PARALLEL := 1,2,4,8,16
 BENCH_OPTS := -benchmem -short
 BENCH_PATTERN := .
 BENCH_SKIP := ''
@@ -10,7 +11,6 @@ BENCH_TIMEOUT := 15m
 
 ifdef BENCH_SLOW
 	BENCH_COUNT := 6
-	# BENCH_CPU := 1,2,4,8,16
 	BENCH_OPTS := -benchmem
 	BENCH_TIME := 2s
 	BENCH_TIMEOUT := 30m
@@ -48,8 +48,10 @@ help:
 	@echo "  bench-all                                - Run all benchmarks"
 	@echo "  bench-by-category                        - Run all benchmark categories"
 	@echo "  bench-category-baseline                  - Run baseline benchmarks"
+	@echo "  bench-category-baseline-parallel         - Run baseline benchmarks in parallel"
 	@echo "  bench-category-populate                  - Run populate benchmarks"
 	@echo "  bench-category-readwrite                 - Run readwrite benchmarks"
+	@echo "  bench-category-readwrite-parallel        - Run readwrite benchmarks in parallel"
 	@echo "  bench-category-query-correlated          - Run correlated query benchmarks"
 	@echo "  bench-category-query-groupby             - Run groupby query benchmarks"
 	@echo "  bench-category-query-json                - Run json query benchmarks"
@@ -59,8 +61,10 @@ help:
 	@echo "  benchstat-all                            - Compare all benchmarks"
 	@echo "  benchstat-by-category                    - Run and compare all benchmark categories"
 	@echo "  benchstat-category-baseline              - Run and compare baseline benchmarks"
+	@echo "  benchstat-category-baseline-parallel     - Run and compare baseline benchmarks in parallel"
 	@echo "  benchstat-category-populate              - Run and compare populate benchmarks"
 	@echo "  benchstat-category-readwrite             - Run and compare readwrite benchmarks"
+	@echo "  benchstat-category-readwrite-parallel    - Run and compare readwrite benchmarks in parallel"
 	@echo "  benchstat-category-query-correlated      - Run and compare correlated query benchmarks"
 	@echo "  benchstat-category-query-groupby         - Run and compare groupby query benchmarks"
 	@echo "  benchstat-category-query-json            - Run and compare json query benchmarks"
@@ -77,11 +81,15 @@ all: bench-all test-all
 bench-all: $(addprefix bench-,$(TAGS))
 
 .PHONY: bench-by-category
-bench-by-category: bench-category-baseline bench-category-populate bench-category-readwrite bench-category-query-correlated bench-category-query-groupby bench-category-query-json bench-category-query-nonrecursivecte bench-category-query-orderby bench-category-query-recursivecte
+bench-by-category: bench-category-baseline bench-category-baseline-parallel bench-category-populate bench-category-readwrite bench-category-readwrite-parallel bench-category-query-correlated bench-category-query-groupby bench-category-query-json bench-category-query-nonrecursivecte bench-category-query-orderby bench-category-query-recursivecte
 
 .PHONY: bench-category-baseline
 bench-category-baseline:
 	$(MAKE) bench-all BENCH_PATTERN="Baseline"
+
+.PHONY: bench-category-baseline-parallel
+bench-category-baseline-parallel:
+	$(MAKE) bench-all BENCH_PATTERN="Baseline/.*Parallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
 
 .PHONY: bench-category-populate
 bench-category-populate:
@@ -90,6 +98,10 @@ bench-category-populate:
 .PHONY: bench-category-readwrite
 bench-category-readwrite:
 	$(MAKE) bench-all BENCH_PATTERN="ReadWrite"
+
+.PHONY: bench-category-readwrite-parallel
+bench-category-readwrite-parallel:
+	$(MAKE) bench-all BENCH_PATTERN="ReadWrite/.*Parallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
 
 .PHONY: bench-category-query-correlated
 bench-category-query-correlated:
@@ -147,11 +159,15 @@ benchstat-all: benchstat
 	benchstat $(addprefix bench_,$(addsuffix .txt,$(TAGS)))
 
 .PHONY: benchstat-by-category
-benchstat-by-category: benchstat-category-baseline benchstat-category-populate benchstat-category-readwrite benchstat-category-query-correlated benchstat-category-query-groupby benchstat-category-query-json benchstat-category-query-nonrecursivecte benchstat-category-query-orderby benchstat-category-query-recursivecte
+benchstat-by-category: benchstat-category-baseline benchstat-category-baseline-parallel benchstat-category-populate benchstat-category-readwrite benchstat-category-readwrite-parallel benchstat-category-query-correlated benchstat-category-query-groupby benchstat-category-query-json benchstat-category-query-nonrecursivecte benchstat-category-query-orderby benchstat-category-query-recursivecte
 
 .PHONY: benchstat-category-baseline
 benchstat-category-baseline: benchstat bench-category-baseline
 	$(MAKE) benchstat-all | tee benchstat_baseline.txt
+
+.PHONY: benchstat-category-baseline-parallel
+benchstat-category-baseline-parallel: benchstat bench-category-baseline-parallel
+	$(MAKE) benchstat-all | tee benchstat_baseline_parallel.txt
 
 .PHONY: benchstat-category-populate
 benchstat-category-populate: benchstat bench-category-populate
@@ -160,6 +176,10 @@ benchstat-category-populate: benchstat bench-category-populate
 .PHONY: benchstat-category-readwrite
 benchstat-category-readwrite: benchstat bench-category-readwrite
 	$(MAKE) benchstat-all | tee benchstat_readwrite.txt
+
+.PHONY: benchstat-category-readwrite-parallel
+benchstat-category-readwrite-parallel: benchstat bench-category-readwrite-parallel
+	$(MAKE) benchstat-all | tee benchstat_readwrite_parallel.txt
 
 .PHONY: benchstat-category-query-correlated
 benchstat-category-query-correlated: benchstat bench-category-query-correlated
