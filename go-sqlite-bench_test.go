@@ -22,6 +22,7 @@ var (
 	defaultCommentParagraphs = flag.Int("gsb-comment-paragraphs", 5, "number of paragraphs per comment")
 )
 
+// Log all compile-time options.
 func TestOptions(t *testing.T) {
 	db := newDB(t, 0, 1)
 	defer db.Close()
@@ -34,6 +35,7 @@ func TestOptions(t *testing.T) {
 	}
 }
 
+// Test selected pragma values.
 func TestPragma(t *testing.T) {
 	db := newDB(t, 0, 1)
 	defer db.Close()
@@ -60,6 +62,7 @@ func TestPragma(t *testing.T) {
 	}
 }
 
+// Log selected pragma values.
 func TestPragmas(t *testing.T) {
 	db := newDB(t, 0, 1)
 	defer db.Close()
@@ -100,6 +103,7 @@ func TestPragmas(t *testing.T) {
 	}
 }
 
+// Test whether or not time values round trip without additional effort.
 func TestTime(t *testing.T) {
 	db := newDB(t, 0, 1)
 	defer db.Close()
@@ -107,7 +111,7 @@ func TestTime(t *testing.T) {
 	in := time.Now().Truncate(time.Second)
 	out, err := db.Time(t.Context(), in)
 	if err != nil {
-		t.Skipf("skip: can't roundtrip time without some additional effort: %v", err)
+		t.Skipf("skip: can't roundtrip time without additional effort: %v", err)
 	}
 	if in.Compare(out) != 0 {
 		t.Errorf("want %v, got %v", in, out)
@@ -116,6 +120,7 @@ func TestTime(t *testing.T) {
 	t.Log("TIME", in, out)
 }
 
+// Log the SQLite version.
 func TestVersion(t *testing.T) {
 	db := newDB(t, 0, 1)
 	defer db.Close()
@@ -128,6 +133,7 @@ func TestVersion(t *testing.T) {
 
 // ===
 
+// Test the Populate methods.
 func TestPopulate(t *testing.T) {
 	posts := 10
 	postParagraphs := 10
@@ -147,6 +153,7 @@ func TestPopulate(t *testing.T) {
 	commentCreated := regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`)
 	commentStats := LoremIpsumJSON
 
+	// Test the PopulateDB method.
 	t.Run("PopulateDB", func(t *testing.T) {
 		db := newPreparedDB(t, 0, 1)
 		defer db.Close()
@@ -211,6 +218,7 @@ func TestPopulate(t *testing.T) {
 		}
 	})
 
+	// Test the PopulateDBWithTx method.
 	t.Run("PopulateDBWithTx", func(t *testing.T) {
 		db := newPreparedDB(t, 0, 1)
 		defer db.Close()
@@ -275,6 +283,7 @@ func TestPopulate(t *testing.T) {
 		}
 	})
 
+	// Test the PopulateDBWithTxs method.
 	t.Run("PopulateDBWithTxs", func(t *testing.T) {
 		db := newPreparedDB(t, 0, 1)
 		defer db.Close()
@@ -340,6 +349,7 @@ func TestPopulate(t *testing.T) {
 	})
 }
 
+// Test the ReadWrite methods.
 func TestReadWrite(t *testing.T) {
 	db := newPreparedDB(t, 0, 1)
 	defer db.Close()
@@ -357,6 +367,7 @@ func TestReadWrite(t *testing.T) {
 	commentContent := Paragraphs(LoremIpsum, commentParagraphs)
 	commentStats := LoremIpsumJSON
 
+	// Test the ReadPost and WritePost methods.
 	t.Run("ReadWritePost", func(t *testing.T) {
 		postID, err := db.WritePost(t.Context(), postTitle, postContent, postStats)
 		noErr(t, err)
@@ -375,6 +386,7 @@ func TestReadWrite(t *testing.T) {
 		}
 	})
 
+	// Test the ReadPostWithTx and WritePostWithTx methods.
 	t.Run("ReadWritePostWithTx", func(t *testing.T) {
 		postID, err := db.WritePostWithTx(t.Context(), postTitle, postContent, postStats)
 		noErr(t, err)
@@ -393,6 +405,7 @@ func TestReadWrite(t *testing.T) {
 		}
 	})
 
+	// Test the ReadPostAndComments and WritePostAndComments methods.
 	t.Run("ReadWritePostAndComments", func(t *testing.T) {
 		postID, err := db.WritePostAndComments(t.Context(), postTitle, postContent, postStats, comments, commentName, commentContent, commentStats)
 		noErr(t, err)
@@ -424,6 +437,7 @@ func TestReadWrite(t *testing.T) {
 		}
 	})
 
+	// Test the ReadPostAndCommentsWithTx and WritePostAndCommentsWithTx methods.
 	t.Run("ReadWritePostAndCommentsWithTx", func(t *testing.T) {
 		postID, err := db.WritePostAndCommentsWithTx(t.Context(), postTitle, postContent, postStats, comments, commentName, commentContent, commentStats)
 		noErr(t, err)
@@ -456,6 +470,7 @@ func TestReadWrite(t *testing.T) {
 	})
 }
 
+// Test the Query methods.
 func TestQuery(t *testing.T) {
 	posts := 10
 	postParagraphs := 10
@@ -469,6 +484,7 @@ func TestQuery(t *testing.T) {
 	// The following tests assume some things about the PostDate{} implementation —
 	// e.g., that there's one post per day and that posts start "-posts" days ago.
 
+	// Test the QueryCorrelated method.
 	t.Run("Correlated", func(t *testing.T) {
 		n, err := db.QueryCorrelated(t.Context())
 		noErr(t, err)
@@ -479,6 +495,7 @@ func TestQuery(t *testing.T) {
 		}
 	})
 
+	// Test the QueryGroupBy method.
 	t.Run("GroupBy", func(t *testing.T) {
 		n, err := db.QueryGroupBy(t.Context())
 		noErr(t, err)
@@ -512,6 +529,7 @@ func TestQuery(t *testing.T) {
 		}
 	})
 
+	// Test the QueryJSON method.
 	t.Run("JSON", func(t *testing.T) {
 		n, err := db.QueryJSON(t.Context())
 		noErr(t, err)
@@ -522,6 +540,7 @@ func TestQuery(t *testing.T) {
 		}
 	})
 
+	// Test the QueryNonRecursiveCTE method.
 	t.Run("NonRecursiveCTE", func(t *testing.T) {
 		n, err := db.QueryNonRecursiveCTE(t.Context())
 		noErr(t, err)
@@ -532,6 +551,7 @@ func TestQuery(t *testing.T) {
 		}
 	})
 
+	// Test the QueryOrderBy method.
 	t.Run("OrderBy", func(t *testing.T) {
 		n, err := db.QueryOrderBy(t.Context())
 		noErr(t, err)
@@ -542,6 +562,7 @@ func TestQuery(t *testing.T) {
 		}
 	})
 
+	// Test the QueryRecursiveCTE method.
 	t.Run("RecursiveCTE", func(t *testing.T) {
 		n, err := db.QueryRecursiveCTE(t.Context())
 		noErr(t, err)
@@ -555,10 +576,12 @@ func TestQuery(t *testing.T) {
 
 // ===
 
+// Run the Baseline benchmarks.
 func BenchmarkBaseline(b *testing.B) {
 	db := newDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections)
 	defer db.Close()
 
+	// Run the Conn Baseline benchmark.
 	b.Run("Conn", func(b *testing.B) {
 		for b.Loop() {
 			err := db.Conn(b.Context())
@@ -566,6 +589,7 @@ func BenchmarkBaseline(b *testing.B) {
 		}
 	})
 
+	// Run the Conn Baseline benchmark in parallel.
 	b.Run("ConnParallel", func(b *testing.B) {
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
@@ -575,6 +599,7 @@ func BenchmarkBaseline(b *testing.B) {
 		})
 	})
 
+	// Run the Select1 Baseline benchmark.
 	b.Run("Select1", func(b *testing.B) {
 		for b.Loop() {
 			err := db.Select1(b.Context())
@@ -582,6 +607,7 @@ func BenchmarkBaseline(b *testing.B) {
 		}
 	})
 
+	// Run the Select1 Baseline benchmark in parallel.
 	b.Run("Select1Parallel", func(b *testing.B) {
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
@@ -591,6 +617,7 @@ func BenchmarkBaseline(b *testing.B) {
 		})
 	})
 
+	// Run the Select1PrePrepared Baseline benchmark.
 	b.Run("Select1PrePrepared", func(b *testing.B) {
 		for b.Loop() {
 			err := db.Select1PrePrepared(b.Context())
@@ -598,6 +625,7 @@ func BenchmarkBaseline(b *testing.B) {
 		}
 	})
 
+	// Run the Select1PrePrepared Baseline benchmark in parallel.
 	b.Run("Select1PrePreparedParallel", func(b *testing.B) {
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
@@ -610,6 +638,7 @@ func BenchmarkBaseline(b *testing.B) {
 
 // ===
 
+// Run the Populate benchmarks.
 func BenchmarkPopulate(b *testing.B) {
 	db := newPreparedDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections)
 	defer db.Close()
@@ -621,6 +650,7 @@ func BenchmarkPopulate(b *testing.B) {
 	commentParagraphs := *defaultCommentParagraphs
 
 	if !testing.Short() {
+		// Run the PopulateDB Populate benchmark.
 		b.Run("PopulateDB", func(b *testing.B) {
 			for b.Loop() {
 				err := db.PopulateDB(b.Context(), posts, postParagraphs, comments, commentParagraphs)
@@ -630,6 +660,7 @@ func BenchmarkPopulate(b *testing.B) {
 	}
 
 	if !testing.Short() {
+		// Run the PopulateDBWithTx Populate benchmark.
 		b.Run("PopulateDBWithTx", func(b *testing.B) {
 			for b.Loop() {
 				err := db.PopulateDBWithTx(b.Context(), posts, postParagraphs, comments, commentParagraphs)
@@ -638,6 +669,7 @@ func BenchmarkPopulate(b *testing.B) {
 		})
 	}
 
+	// Run the PopulateDBWithTxs Populate benchmark.
 	b.Run("PopulateDBWithTxs", func(b *testing.B) {
 		for b.Loop() {
 			err := db.PopulateDBWithTxs(b.Context(), posts, postParagraphs, comments, commentParagraphs)
@@ -646,6 +678,7 @@ func BenchmarkPopulate(b *testing.B) {
 	})
 }
 
+// Run the ReadWrite benchmarks.
 func BenchmarkReadWrite(b *testing.B) {
 	db := newPopulatedDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections, *defaultPosts, *defaultPostParagraphs, *defaultComments, *defaultCommentParagraphs)
 	defer db.Close()
@@ -667,6 +700,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	commentStats := LoremIpsumJSON
 
 	if !testing.Short() {
+		// Run the ReadPost ReadWrite benchmark.
 		b.Run("ReadPost", func(b *testing.B) {
 			if posts == 0 {
 				b.Skipf("skip: no posts")
@@ -679,6 +713,7 @@ func BenchmarkReadWrite(b *testing.B) {
 		})
 	}
 
+	// Run the ReadPostWithTx ReadWrite benchmark.
 	b.Run("ReadPostWithTx", func(b *testing.B) {
 		if posts == 0 {
 			b.Skipf("skip: no posts")
@@ -691,6 +726,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	})
 
 	if !testing.Short() {
+		// Run the ReadPostAndComments ReadWrite benchmark.
 		b.Run("ReadPostAndComments", func(b *testing.B) {
 			if posts == 0 {
 				b.Skipf("skip: no posts")
@@ -703,6 +739,7 @@ func BenchmarkReadWrite(b *testing.B) {
 		})
 	}
 
+	// Run the ReadPostAndCommentsWithTx ReadWrite benchmark.
 	b.Run("ReadPostAndCommentsWithTx", func(b *testing.B) {
 		if posts == 0 {
 			b.Skipf("skip: no posts")
@@ -715,6 +752,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	})
 
 	if !testing.Short() {
+		// Run the WritePost ReadWrite benchmark.
 		b.Run("WritePost", func(b *testing.B) {
 			for b.Loop() {
 				_, err := db.WritePost(b.Context(), postTitle, postContent, postStats)
@@ -723,6 +761,7 @@ func BenchmarkReadWrite(b *testing.B) {
 		})
 	}
 
+	// Run the WritePostWithTx ReadWrite benchmark.
 	b.Run("WritePostWithTx", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.WritePostWithTx(b.Context(), postTitle, postContent, postStats)
@@ -731,6 +770,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	})
 
 	if !testing.Short() {
+		// Run the WritePostAndComments ReadWrite benchmark.
 		b.Run("WritePostAndComments", func(b *testing.B) {
 			for b.Loop() {
 				_, err := db.WritePostAndComments(b.Context(), postTitle, postContent, postStats, comments, commentName, commentContent, commentStats)
@@ -739,6 +779,7 @@ func BenchmarkReadWrite(b *testing.B) {
 		})
 	}
 
+	// Run the WritePostAndCommentsWithTx ReadWrite benchmark.
 	b.Run("WritePostAndCommentsWithTx", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.WritePostAndCommentsWithTx(b.Context(), postTitle, postContent, postStats, comments, commentName, commentContent, commentStats)
@@ -747,6 +788,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	})
 
 	if !testing.Short() {
+		// Run the ReadOrWritePostAndComments ReadWrite benchmark.
 		b.Run("ReadOrWritePostAndComments", func(b *testing.B) {
 			if posts == 0 {
 				b.Skipf("skip: no posts")
@@ -769,6 +811,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	}
 
 	if !testing.Short() {
+		// Run the ReadOrWritePostAndCommentsParallel ReadWrite benchmark.
 		b.Run("ReadOrWritePostAndCommentsParallel", func(b *testing.B) {
 			if posts == 0 {
 				b.Skipf("skip: no posts")
@@ -792,6 +835,7 @@ func BenchmarkReadWrite(b *testing.B) {
 		})
 	}
 
+	// Run the ReadOrWritePostAndCommentsWithTx ReadWrite benchmark.
 	b.Run("ReadOrWritePostAndCommentsWithTx", func(b *testing.B) {
 		if posts == 0 {
 			b.Skipf("skip: no posts")
@@ -812,6 +856,7 @@ func BenchmarkReadWrite(b *testing.B) {
 		}
 	})
 
+	// Run the ReadOrWritePostAndCommentsWithTxParallel ReadWrite benchmark.
 	b.Run("ReadOrWritePostAndCommentsWithTxParallel", func(b *testing.B) {
 		if posts == 0 {
 			b.Skipf("skip: no posts")
@@ -837,12 +882,14 @@ func BenchmarkReadWrite(b *testing.B) {
 
 // ===
 
+// Run the Query benchmarks.
 func BenchmarkQuery(b *testing.B) {
 	db := newPopulatedDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections, *defaultPosts, *defaultPostParagraphs, *defaultComments, *defaultCommentParagraphs)
 	defer db.Close()
 
 	b.ResetTimer()
 
+	// Run the QueryCorrelated Query benchmark.
 	b.Run("Correlated", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryCorrelated(b.Context())
@@ -850,6 +897,7 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryGroupBy Query benchmark.
 	b.Run("GroupBy", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryGroupBy(b.Context())
@@ -857,6 +905,7 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryJSON Query benchmark.
 	b.Run("JSON", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryJSON(b.Context())
@@ -864,6 +913,7 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryNonRecursiveCTE Query benchmark.
 	b.Run("NonRecursiveCTE", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryNonRecursiveCTE(b.Context())
@@ -871,6 +921,7 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryOrderBy Query benchmark.
 	b.Run("OrderBy", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryOrderBy(b.Context())
@@ -878,6 +929,7 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryRecursiveCTE Query benchmark.
 	b.Run("RecursiveCTE", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryRecursiveCTE(b.Context())
@@ -886,6 +938,7 @@ func BenchmarkQuery(b *testing.B) {
 	})
 }
 
+// Returns a new DB.
 func newDB(tb testing.TB, maxReadConnections, maxWriteConnections int) *DB {
 	if !(maxReadConnections >= 0) {
 		noErr(tb, errors.New("maxReadConnections must be >= 0"))
@@ -900,6 +953,7 @@ func newDB(tb testing.TB, maxReadConnections, maxWriteConnections int) *DB {
 	return db
 }
 
+// Returns a new prepared DB.
 func newPreparedDB(tb testing.TB, maxReadConnections, maxWriteConnections int) *DB {
 	db := newDB(tb, maxReadConnections, maxWriteConnections)
 
@@ -912,6 +966,7 @@ func newPreparedDB(tb testing.TB, maxReadConnections, maxWriteConnections int) *
 	return db
 }
 
+// Returns a new populated DB.
 func newPopulatedDB(tb testing.TB, maxReadConnections, maxWriteConnections int, posts, postParagraphs, comments, commentParagraphs int) *DB {
 	db := newPreparedDB(tb, maxReadConnections, maxWriteConnections)
 
@@ -924,6 +979,7 @@ func newPopulatedDB(tb testing.TB, maxReadConnections, maxWriteConnections int, 
 	return db
 }
 
+// Signals a fatal error if err is not nil.
 func noErr(tb testing.TB, err error) {
 	tb.Helper()
 
