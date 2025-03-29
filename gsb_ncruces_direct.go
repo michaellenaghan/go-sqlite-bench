@@ -143,6 +143,7 @@ func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, c
 	if err != nil {
 		return err
 	}
+	defer postStmt.Reset() // Purely defensive.
 
 	postContent := Paragraphs(LoremIpsum, postParagraphs)
 	postStats := LoremIpsumJSON
@@ -152,6 +153,7 @@ func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, c
 	if err != nil {
 		return err
 	}
+	defer commentStmt.Reset() // Purely defensive.
 
 	commentContent := Paragraphs(LoremIpsum, commentParagraphs)
 	commentStats := LoremIpsumJSON
@@ -243,6 +245,7 @@ func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comme
 	if err != nil {
 		return err
 	}
+	defer postStmt.Reset() // Purely defensive.
 
 	postContent := Paragraphs(LoremIpsum, postParagraphs)
 	postStats := LoremIpsumJSON
@@ -252,6 +255,7 @@ func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comme
 	if err != nil {
 		return err
 	}
+	defer commentStmt.Reset() // Purely defensive.
 
 	commentContent := Paragraphs(LoremIpsum, commentParagraphs)
 	commentStats := LoremIpsumJSON
@@ -337,6 +341,7 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 	if err != nil {
 		return err
 	}
+	defer postStmt.Reset() // Purely defensive.
 
 	postContent := Paragraphs(LoremIpsum, postParagraphs)
 	postStats := LoremIpsumJSON
@@ -346,6 +351,7 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 	if err != nil {
 		return err
 	}
+	defer commentStmt.Reset() // Purely defensive.
 
 	commentContent := Paragraphs(LoremIpsum, commentParagraphs)
 	commentStats := LoremIpsumJSON
@@ -449,6 +455,7 @@ func (db *DB) CountPosts(ctx context.Context) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	var n int64
 
@@ -475,6 +482,7 @@ func (db *DB) CountComments(ctx context.Context) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	var n int64
 
@@ -501,6 +509,7 @@ func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindInt64(1, id)
 	if err != nil {
@@ -538,6 +547,7 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindInt64(1, id)
 	if err != nil {
@@ -572,6 +582,7 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 	if err != nil {
 		return nil, nil, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindInt64(1, id)
 	if err != nil {
@@ -596,6 +607,7 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 	if err != nil {
 		return nil, nil, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindInt64(1, id)
 	if err != nil {
@@ -638,6 +650,7 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 	if err != nil {
 		return nil, nil, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindInt64(1, id)
 	if err != nil {
@@ -662,6 +675,7 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 	if err != nil {
 		return nil, nil, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindInt64(1, id)
 	if err != nil {
@@ -701,6 +715,7 @@ func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int6
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindText(1, title)
 	if err != nil {
@@ -745,6 +760,7 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.BindText(1, title)
 	if err != nil {
@@ -783,6 +799,7 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 	if err != nil {
 		return 0, err
 	}
+	defer postStmt.Reset() // Purely defensive.
 
 	err = postStmt.BindText(1, postTitle)
 	if err != nil {
@@ -811,6 +828,7 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 	if err != nil {
 		return 0, err
 	}
+	defer commentStmt.Reset() // Purely defensive.
 
 	for range comments {
 		err = commentStmt.BindInt64(1, postID)
@@ -856,6 +874,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 	if err != nil {
 		return 0, err
 	}
+	defer postStmt.Reset() // Purely defensive.
 
 	err = postStmt.BindText(1, postTitle)
 	if err != nil {
@@ -884,6 +903,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 	if err != nil {
 		return 0, err
 	}
+	defer commentStmt.Reset() // Purely defensive.
 
 	for range comments {
 		err = commentStmt.BindInt64(1, postID)
@@ -927,6 +947,7 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	for stmt.Step() {
 		n += 1
@@ -953,6 +974,7 @@ func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	for stmt.Step() {
 		n += 1
@@ -979,6 +1001,7 @@ func (db *DB) QueryJSON(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	for stmt.Step() {
 		n += 1
@@ -1005,6 +1028,7 @@ func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	for stmt.Step() {
 		n += 1
@@ -1031,6 +1055,7 @@ func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	for stmt.Step() {
 		n += 1
@@ -1057,6 +1082,7 @@ func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Reset() // Purely defensive.
 
 	for stmt.Step() {
 		n += 1
@@ -1231,7 +1257,7 @@ func (db *DB) Select1PrePrepared(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer stmt.Reset() // Purely defensive.
 
 	err = stmt.Exec()
 	if err != nil {
