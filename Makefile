@@ -31,7 +31,7 @@ ifdef BENCH_BIG
 endif
 
 TEST_COUNT := 1
-TEST_CPU := 4
+TEST_CPU := ''
 TEST_OPTS := -short -v
 TEST_PATTERN := .
 TEST_SKIP := ''
@@ -44,7 +44,8 @@ endif
 
 .PHONY: help
 help:
-	@echo "Available targets:"
+	@echo "Targets:"
+	@echo ""
 	@echo "  bench-all                                - Run all benchmarks"
 	@echo "  bench-by-category                        - Run all benchmark categories"
 	@echo "  bench-category-baseline                  - Run baseline benchmarks"
@@ -73,6 +74,81 @@ help:
 	@echo "  benchstat-category-query-recursivecte    - Run and compare recursivecte query benchmarks"
 	@echo "  clean                                    - Remove all benchmark, benchstat and test files"
 	@echo "  test-all                                 - Run all tests"
+	@echo ""
+	@echo "Variables:"
+	@echo ""
+	@echo "  TAGS=$(TAGS)"
+	@echo ""
+	@echo "  BENCH_COUNT=$(BENCH_COUNT)"
+	@echo "  BENCH_CPU=$(BENCH_CPU)"
+	@echo "  BENCH_CPU_PARALLEL=$(BENCH_CPU_PARALLEL)"
+	@echo "  BENCH_OPTS=$(BENCH_OPTS)"
+	@echo "  BENCH_PATTERN=$(BENCH_PATTERN)"
+	@echo "  BENCH_SKIP=$(BENCH_SKIP)"
+	@echo "  BENCH_TIME=$(BENCH_TIME)"
+	@echo "  BENCH_TIMEOUT=$(BENCH_TIMEOUT)"
+	@echo ""
+	@echo "  BENCH_SLOW=$(BENCH_SLOW)"
+	@echo ""
+	@echo "    BENCH_SLOW changes some of the values shown above. To see the BENCH_SLOW values,"
+	@echo "    try \"make help BENCH_SLOW=1\""
+	@echo ""
+	@echo "  BENCH_MAX_READ_CONNECTIONS=$(BENCH_MAX_READ_CONNECTIONS)"
+	@echo "  BENCH_MAX_WRITE_CONNECTIONS=$(BENCH_MAX_WRITE_CONNECTIONS)"
+	@echo "  BENCH_POSTS=$(BENCH_POSTS)"
+	@echo "  BENCH_POST_PARAGRAPHS=$(BENCH_POST_PARAGRAPHS)"
+	@echo "  BENCH_COMMENTS=$(BENCH_COMMENTS)"
+	@echo "  BENCH_COMMENT_PARAGRAPHS=$(BENCH_COMMENT_PARAGRAPHS)"
+	@echo ""
+	@echo "  BENCH_BIG=$(BENCH_BIG)"
+	@echo ""
+	@echo "    BENCH_BIG changes some of the values shown above. To see the BENCH_BIG values,"
+	@echo "    try \"make help BENCH_BIG=1\""
+	@echo ""
+	@echo "  TEST_COUNT=$(TEST_COUNT)"
+	@echo "  TEST_CPU=$(TEST_CPU)"
+	@echo "  TEST_OPTS=$(TEST_OPTS)"
+	@echo "  TEST_PATTERN=$(TEST_PATTERN)"
+	@echo "  TEST_SKIP=$(TEST_SKIP)"
+	@echo ""
+	@echo "Examples:"
+	@echo ""
+	@echo "  make bench-all"
+	@echo "  make benchstat-all"
+	@echo ""
+	@echo "  make bench-all BENCH_COUNT=3"
+	@echo "  make benchstat-all"
+	@echo ""
+	@echo "  make bench-all BENCH_SLOW=1"
+	@echo "  make benchstat-all"
+	@echo ""
+	@echo "  make bench-all BENCH_BIG=1"
+	@echo "  make benchstat-all"
+	@echo ""
+	@echo "  make bench-all BENCH_SLOW=1 BENCH_BIG=1"
+	@echo "  make benchstat-all"
+	@echo ""
+	@echo "  make bench-all TAGS=\"ncruces_direct ncruces_driver\""
+	@echo "  make benchstat-all TAGS=\"ncruces_direct ncruces_driver\""
+	@echo ""
+	@echo "  make benchstat-by-category"
+	@echo ""
+	@echo "  make benchstat-by-category BENCH_COUNT=3"
+	@echo ""
+	@echo "  make benchstat-by-category BENCH_SLOW=1"
+	@echo ""
+	@echo "  make benchstat-by-category BENCH_BIG=1"
+	@echo ""
+	@echo "  make benchstat-by-category BENCH_SLOW=1 BENCH_BIG=1"
+	@echo ""
+	@echo "  make benchstat-by-category TAGS=\"ncruces_direct ncruces_driver\""
+	@echo ""
+	@echo "  make test-all"
+	@echo ""
+	@echo "  make test-all TAGS=\"ncruces_direct ncruces_driver\""
+	@echo ""
+	@echo "  make clean"
+	@echo ""
 
 .PHONY: all
 all: bench-all test-all
@@ -150,7 +226,7 @@ $(addprefix bench-,$(TAGS)):
 .PHONY: benchstat
 benchstat:
 	@if ! command -v benchstat >/dev/null 2>&1; then \
-		echo "benchstat tool not found. Install with: go install golang.org/x/perf/cmd/benchstat@latest"; \
+		echo "benchstat not found. Install with: go install golang.org/x/perf/cmd/benchstat@latest"; \
 		exit 1; \
 	fi
 
