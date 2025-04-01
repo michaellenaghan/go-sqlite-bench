@@ -13,13 +13,9 @@ import (
 var (
 	ErrNew               = errors.New("failed to make new pool object")
 	ErrStoppingOrStopped = errors.New("pool is stopping or stopped")
+	ErrRingIsEmpty       = errors.New("ring is empty")
+	ErrRingIsFull        = errors.New("ring is full")
 )
-
-// poolObject represents an object in the pool along with its last usage time.
-type poolObject[T any] struct {
-	object   T
-	lastUsed time.Time
-}
 
 // Pool is a generic object pool that manages a collection of objects of type T.
 // It maintains a minimum and maximum number of objects, handles object creation
@@ -29,36 +25,64 @@ type Pool[T any] struct {
 	max         int               // must be >= min
 	idleTime    time.Duration     // must be >= 0; 0 == "never idle out"
 	newFunc     func() (T, error) // required
+	checkFunc   func(T) error     // optional
 	destroyFunc func(T)           // optional
 
-	mu   sync.Mutex
-	cond *sync.Cond // signal "available" (or, occassionally: ctx.Done())
+	mu sync.Mutex
 
-	objectCount int             // min <= objectCount <= max
-	objects     []poolObject[T] // available objects, ordered by lastUsed
+	count int // min <= count <= max
+
+	idle    ring[T] // idle object ring buffer, ordered by lastUsed
+	waiting chan T  // "Get"ers waiting for "Put"ers
 
 	stoppingOrStopped bool
 	stopping          chan struct{}
 
-	createdCount int // didn't have available, had capacity; created new pool object
-	blockedCount int // didn't have available, didn't have capacity; blocked waiting for old pool object
+	createdTotal   uint // created an object (stats only)
+	waitedTotal    uint // waited for an object (stats only)
+	destroyedTotal uint // destroyed an object (stats only)
 }
 
 // Stats represents statistical information about the pool's performance.
 type Stats struct {
-	// Didn't have available, had capacity; created new pool object.
-	Created int
-	// Didn't have available, didn't have capacity; blocked waiting for old pool object.
-	Blocked int
+	// Created an object.
+	CreatedTotal uint
+	// Waited for an object.
+	WaitedTotal uint
+	// Destroyed an object.
+	DestroyedTotal uint
+
+	// Number of objects (count == busy + idle)
+	CountNow int
+	// Number of busy objects (busy == count - idle)
+	BusyNow int
+	// Number of idle objects (idle == count - busy)
+	IdleNow int
+	// Number of waiting "Get"ers
+	WaitingNow int
 }
 
-// NewPool creates a new pool of objects of type T. The pool will maintain
-// somewhere between a minimum number of objects (min) and a maximum number
-// of objects (max). Objects will be reused up to the idle time (idleTime)
-// before being destroyed and recreated. The newFunc function is required
-// and used to create new objects, and the destroyFunc function is optional
-// and used to destroy objects when they're removed from the pool.
-func NewPool[T any](min, max int, idleTime time.Duration, newFunc func() (T, error), destroyFunc func(T)) (*Pool[T], error) {
+// NewPool creates a new pool of objects of type T.
+//
+// The pool will maintain somewhere between a minimum number of objects (min)
+// and a maximum number of objects (max).
+//
+// Objects will be reused up to the idle time (idleTime) before being destroyed
+// and recreated.
+//
+// An idle time of zero means that objects never idle out.
+//
+// (In that case, min and max should be the same.)
+//
+// The newFunc function is required and used to create new objects.
+//
+// The checkFunc function is optional and used to check objects when they're
+// returned to the pool. If check returns an error the object is destroyed
+// (via destroyFunc) and not returned.
+//
+// The destroyFunc function is optional and used to destroy objects when
+// they're no longer needed.
+func NewPool[T any](min, max int, idleTime time.Duration, newFunc func() (T, error), checkFunc func(T) error, destroyFunc func(T)) (*Pool[T], error) {
 	if min < 0 {
 		return nil, errors.New("min must be greater than or equal to zero")
 	}
@@ -68,6 +92,15 @@ func NewPool[T any](min, max int, idleTime time.Duration, newFunc func() (T, err
 	if idleTime < 0 {
 		return nil, errors.New("idle time must be greater than or equal to zero")
 	}
+	// This isn't *really* an error, it's just an indication that someone's
+	// mental model isn't quite right. If idle time is zero, the only
+	// difference between min and max is that min objects might be created
+	// immediately during `Start()`. Other than that, once more than min
+	// objects exist, they'll continue to exist until `Stop()`. Again, not
+	// *really* an error, but probably not what was intended?
+	if idleTime == 0 && min != max {
+		return nil, errors.New("when idle time equals zero min should equal max")
+	}
 	if newFunc == nil {
 		return nil, errors.New("newFunc is required")
 	}
@@ -76,22 +109,26 @@ func NewPool[T any](min, max int, idleTime time.Duration, newFunc func() (T, err
 		max:         max,
 		idleTime:    idleTime,
 		newFunc:     newFunc,
+		checkFunc:   checkFunc,
 		destroyFunc: destroyFunc,
+		idle:        newRing[T](max, idleTime),
+		waiting:     make(chan T),
 		stopping:    make(chan struct{}),
 	}
-	p.cond = sync.NewCond(&p.mu)
 	return p, nil
 }
 
-// Start initializes the pool and prepares it for use. If immediately is true,
-// it creates the minimum number of pool objects right away. If immediately is
-// false, it doesn't create any pool objects right away; rather, it creates
-// them lazily, on demand.
+// Start initializes the pool and prepares it for use.
 //
-// If immediately is true and there's an error creating an initial object, the
-// pool will destroy any objects it created and return the error.
+// If the pool is already stopping or stopped, Start returns an error.
 //
-// This function should be called after Init to ensure the pool is ready to use.
+// If immediately is true, Start creates the minimum number of pool objects
+// right away. If there's an error creating one of the objects Start destroys
+// any objects it created and returns an error.
+//
+// If immediately is false, Start doesn't create any pool objects right away.
+//
+// Start should be called after NewPool to ensure the pool is ready to use.
 func (p *Pool[T]) Start(immediately bool) error {
 	// log.Println("> Start")
 	// defer log.Println("< Start")
@@ -104,21 +141,23 @@ func (p *Pool[T]) Start(immediately bool) error {
 
 	// Immediately create the minimum number of objects?
 	if immediately {
-		for i := 0; i < p.min; i++ {
+		for range p.min {
 			object, err := p.newFunc()
 			if err != nil {
-				for _, pObject := range p.objects {
+				for p.idle.count > 0 {
+					object := p.idle.popOldest()
 					if p.destroyFunc != nil {
-						p.destroyFunc(pObject.object)
+						p.destroyFunc(object)
 					}
-					p.objectCount--
+					p.destroyedTotal++
+					p.count--
 				}
-				p.objects = nil
 
 				return errors.Join(ErrNew, err)
 			}
-			p.objects = append(p.objects, poolObject[T]{object: object, lastUsed: time.Now()})
-			p.objectCount++
+			p.idle.pushNewest(object)
+			p.createdTotal++
+			p.count++
 		}
 	}
 
@@ -127,10 +166,12 @@ func (p *Pool[T]) Start(immediately bool) error {
 	return nil
 }
 
-// Stop stops the pool. It marks the pool as stopping or stopped, closes the
-// stopping channel, broadcasts the condition variable to wake up any waiting
-// goroutines, and destroys all objects in the pool. If the pool is already
-// stopping or stopped, this function does nothing.
+// Stop stops the pool.
+//
+// Stop marks the pool as stopping or stopped, closes the waiting and stopping
+// channels, and destroys all idle objects.
+//
+// If the pool is already stopping or stopped, Stop does nothing.
 func (p *Pool[T]) Stop() {
 	// log.Println("> Stop")
 	// defer log.Println("< Stop")
@@ -144,122 +185,136 @@ func (p *Pool[T]) Stop() {
 	p.stoppingOrStopped = true
 	close(p.stopping)
 
-	p.cond.Broadcast()
-
-	for _, pObject := range p.objects {
+	for p.idle.count > 0 {
+		object := p.idle.popOldest()
 		if p.destroyFunc != nil {
-			p.destroyFunc(pObject.object)
+			p.destroyFunc(object)
 		}
-		p.objectCount--
+		p.destroyedTotal++
+		p.count--
 	}
-	p.objects = nil
 }
 
-// Get retrieves an object from the pool. If an object is available, it is
-// returned immediately. If no objects are available and the pool has not
-// reached its maximum capacity, a new object is created. If the pool is at
-// capacity, the call blocks until an object becomes available or the provided
-// context is cancelled.
+// Get returns an object from the pool.
 //
-// If the pool is stopping or stopped, an error is returned.
+// If the pool is stopping or stopped, Get returns an error.
+//
+// If there are idle objects, Get returns an idle object.
+//
+// If there are no idle objects and the pool has capacity, Get returns a newly
+// created object.
+//
+// If there are no idle objects and the pool has no capacity, Get waits for an
+// object to be returned to the pool by Put. Get stops waiting when Stop is
+// called or when the provided context is cancelled.
 func (p *Pool[T]) Get(ctx context.Context) (T, error) {
 	// log.Println("> Get")
 	// defer log.Println("< Get")
 	p.mu.Lock()
 
-	for {
-		// 1. pool is stopping or stopped
-		if p.stoppingOrStopped {
-			p.mu.Unlock()
-
-			var zero T
-			return zero, ErrStoppingOrStopped
-		}
-
-		// 2. pool has available objects
-		if len(p.objects) > 0 {
-			// Pop from the front to preserve lastUsed ordering.
-			object := p.objects[0].object
-			p.objects = p.objects[1:]
-			p.mu.Unlock()
-
-			return object, nil
-		}
-
-		// 3. pool has available capacity
-		if p.objectCount < p.max {
-			// Don't hold the lock while we call newFunc().
-			p.createdCount++
-			p.objectCount++
-			p.mu.Unlock()
-
-			object, err := p.newFunc()
-			if err != nil {
-				p.mu.Lock()
-				p.objectCount--
-				p.mu.Unlock()
-
-				var zero T
-				return zero, errors.Join(ErrNew, err)
-			}
-
-			return object, nil
-		}
-
-		// 4. pool is full, wait for an object
-		p.blockedCount++
-
-		waitCh := make(chan struct{})
-		go func() {
-			p.mu.Lock()
-			p.cond.Wait() // signalled by `Put()`, `Stop()` -- and `ctx.Done()`
-			p.mu.Unlock()
-
-			close(waitCh)
-		}()
-
+	// 1. pool is stopping or stopped
+	if p.stoppingOrStopped {
 		p.mu.Unlock()
-		select {
-		case <-waitCh:
-			// Lock and loop.
+
+		var zero T
+		return zero, ErrStoppingOrStopped
+	}
+
+	// 2. pool has idle objects
+	if p.idle.count > 0 {
+		// popOldest() makes the oldest connections less likely to idle out
+		// since they get used more frequently.
+		//
+		// popNewest() makes the oldest connections more likely to idle out
+		// since they get used less frequently.
+		object := p.idle.popNewest()
+		p.mu.Unlock()
+
+		return object, nil
+	}
+
+	// 3. pool has capacity
+	if p.count < p.max {
+		// Don't hold the lock while we call newFunc().
+		p.createdTotal++
+		p.count++
+		p.mu.Unlock()
+
+		object, err := p.newFunc()
+		if err != nil {
 			p.mu.Lock()
-		case <-ctx.Done():
-			// Broadcast the condition to ensure that the `Wait()` in the
-			// goroutine is triggered; otherwise the goroutine will remain
-			// blocked until `Stop()` is eventually called. `Broadcast()`
-			// may result in spurious wakeups, but it's our only choice;
-			// `Signal()` will only signal *one* waiter, and it may not be
-			// *our* waiter.
-			p.mu.Lock()
-			p.cond.Broadcast()
+			p.count--
 			p.mu.Unlock()
 
 			var zero T
-			return zero, ctx.Err()
+			return zero, errors.Join(ErrNew, err)
 		}
+
+		return object, nil
+	}
+
+	// 4. pool has no idle objects and no capacity; wait for an object
+	p.waitedTotal++
+	p.mu.Unlock()
+
+	select {
+	case <-ctx.Done():
+		var zero T
+		return zero, ctx.Err()
+	case object := <-p.waiting:
+		return object, nil
+	case <-p.stopping:
+		var zero T
+		return zero, ErrStoppingOrStopped
 	}
 }
 
-// Put returns an object to the pool. If the pool is stopping or stopped,
-// the object is destroyed immediately instead of being returned to the
-// pool.
+// Put returns an object to the pool.
+//
+// If the pool is stopping or stopped, Put destroys the object rather than
+// return it.
 func (p *Pool[T]) Put(object T) {
 	// log.Println("> Put")
 	// defer log.Println("< Put")
+	if p.checkFunc != nil {
+		err := p.checkFunc(object)
+		if err != nil {
+			// Don't hold the lock while we call destroyFunc().
+			p.mu.Lock()
+			p.destroyedTotal++
+			p.count--
+			p.mu.Unlock()
+
+			if p.destroyFunc != nil {
+				p.destroyFunc(object)
+			}
+
+			return
+		}
+	}
+
 	p.mu.Lock()
-	defer p.mu.Unlock()
 
 	if p.stoppingOrStopped {
+		// Don't hold the lock while we call destroyFunc().
+		p.destroyedTotal++
+		p.count--
+		p.mu.Unlock()
+
 		if p.destroyFunc != nil {
 			p.destroyFunc(object)
 		}
-		p.objectCount--
 
 		return
 	}
 
-	p.objects = append(p.objects, poolObject[T]{object: object, lastUsed: time.Now()})
-	p.cond.Signal()
+	select {
+	case p.waiting <- object:
+	default:
+		p.idle.pushNewest(object)
+	}
+
+	p.mu.Unlock()
 }
 
 // cleanupTick is an internal method that periodically checks for and removes
@@ -280,59 +335,138 @@ func (p *Pool[T]) cleanupTick() {
 	}
 }
 
-// cleanupTock is an internal method that performs the actual cleanup of idle
-// objects in the pool.
+// cleanupTock is an internal method that periodically checks for and removes
+// idle objects from the pool.
 func (p *Pool[T]) cleanupTock() {
 	p.mu.Lock()
-	defer p.mu.Unlock()
+	for !p.stoppingOrStopped && p.count > p.min && p.idle.count > 0 && p.idle.oldestIdleTooLong() {
+		// Don't hold the lock while we call destroyFunc().
+		object := p.idle.popOldest()
+		p.destroyedTotal++
+		p.count--
+		p.mu.Unlock()
 
-	if p.stoppingOrStopped {
-		// If stopping or stopped, don't clean up.
-		return
-	}
-
-	if p.objectCount <= p.min {
-		// If there are too few total objects, don't clean up.
-		return
-	}
-	if len(p.objects) <= 0 {
-		// If there are too few available objects, don't clean up.
-		return
-	}
-
-	if time.Since(p.objects[0].lastUsed) < p.idleTime {
-		// If the first available object hasn't idled out, don't clean up.
-		return
-	}
-
-	// Now we know at least one available object has idled out;
-	// filter the queue. (Since the queue is ordered by lastUsed
-	// the objects that have idled out will all be at the front.)
-
-	for i, pObject := range p.objects {
-		if p.objectCount > p.min && time.Since(pObject.lastUsed) >= p.idleTime {
-			if p.destroyFunc != nil {
-				p.destroyFunc(pObject.object)
-			}
-			p.objectCount--
-		} else {
-			p.objects = p.objects[i:]
-			return
+		if p.destroyFunc != nil {
+			p.destroyFunc(object)
 		}
-	}
 
-	// If we get here, all objects were idle and destroyed. Clear
-	// the slice to avoid keeping references to destroyed objects.
-	p.objects = p.objects[:0]
+		p.mu.Lock()
+	}
+	p.mu.Unlock()
 }
 
-// Stats returns statistical information about the pool's performance.
+// Stats returns statistics about the pool.
 func (p *Pool[T]) Stats() Stats {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	return Stats{
-		Created: p.createdCount,
-		Blocked: p.blockedCount,
+		CreatedTotal:   p.createdTotal,
+		WaitedTotal:    p.waitedTotal,
+		DestroyedTotal: p.destroyedTotal,
+
+		CountNow:   p.count,
+		BusyNow:    p.count - p.idle.count,
+		IdleNow:    p.idle.count,
+		WaitingNow: len(p.waiting),
+	}
+}
+
+// ===
+
+// ring is a generic ring buffer that stores objects along with their last
+// used time.
+type ring[T any] struct {
+	buffer   []ringObject[T] // The actual ring buffer storage
+	head     int             // Index of the first object (0 <= head < cap(buffer))
+	tail     int             // Index of the next object (0 <= tail < cap(buffer))
+	count    int             // Current number of items in the buffer (0 <= count <= cap(buffer))
+	idleTime time.Duration   // Maximum time an object should be idle (>= 0; 0 == "never idle out")
+}
+
+// ringObject represents a generic object in the ring buffer along with its
+// last used time.
+type ringObject[T any] struct {
+	object   T
+	lastUsed time.Time
+}
+
+// newRing creates a new generic ring buffer with the given capacity.
+func newRing[T any](max int, idleTime time.Duration) ring[T] {
+	return ring[T]{
+		buffer:   make([]ringObject[T], max),
+		idleTime: idleTime,
+	}
+}
+
+// oldestIdleTooLong returns true if the oldest object has been idle too long.
+func (r *ring[T]) oldestIdleTooLong() bool {
+	if r.count > 0 {
+		return r.idleTime > 0 && time.Since(r.buffer[r.head].lastUsed) >= r.idleTime
+	} else {
+		panic(ErrRingIsEmpty)
+	}
+}
+
+// popOldest removes and returns an object from the head of the ring buffer.
+// This implements FIFO (First-In-First-Out) behavior.
+func (r *ring[T]) popOldest() T {
+	if r.count > 0 {
+		var zero T
+		object := r.buffer[r.head].object
+		r.buffer[r.head].object = zero
+
+		if r.head < cap(r.buffer)-1 {
+			r.head++
+		} else {
+			r.head = 0
+		}
+		r.count--
+
+		return object
+	} else {
+		panic(ErrRingIsEmpty)
+	}
+}
+
+// popNewest removes and returns an object from the tail of the ring buffer.
+// This implements LIFO (Last-In-First-Out) behavior.
+func (r *ring[T]) popNewest() T {
+	if r.count > 0 {
+		if r.tail > 0 {
+			r.tail--
+		} else {
+			r.tail = cap(r.buffer) - 1
+		}
+		r.count--
+
+		var zero T
+		object := r.buffer[r.tail].object
+		r.buffer[r.tail].object = zero
+
+		return object
+	} else {
+		panic(ErrRingIsEmpty)
+	}
+}
+
+// pushNewest adds an object to the tail of the ring buffer.
+func (r *ring[T]) pushNewest(object T) {
+	if r.count < cap(r.buffer) {
+		r.buffer[r.tail].object = object
+		// Don't record lastUsed time if we don't need it.
+		// (Recording time takes time.)
+		if r.idleTime > 0 {
+			r.buffer[r.tail].lastUsed = time.Now()
+		}
+
+		if r.tail < cap(r.buffer)-1 {
+			r.tail++
+		} else {
+			r.tail = 0
+		}
+		r.count++
+	} else {
+		panic(ErrRingIsFull)
 	}
 }

@@ -38,18 +38,18 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	}
 
 	if maxReadConnections == 0 {
-		pool, err := newPool(filename, 0, maxWriteConnections, 0)
+		pool, err := newPool(filename, maxWriteConnections, maxWriteConnections, 0)
 		if err != nil {
 			return nil, err
 		}
 
 		return &DB{readPool: pool, writePool: pool}, nil
 	} else {
-		readPool, err := newPool(filename, 0, maxReadConnections, 0)
+		readPool, err := newPool(filename, maxReadConnections, maxReadConnections, 0)
 		if err != nil {
 			return nil, err
 		}
-		writePool, err := newPool(filename, 0, maxWriteConnections, 0)
+		writePool, err := newPool(filename, maxWriteConnections, maxWriteConnections, 0)
 		if err != nil {
 			readPool.Stop()
 			return nil, err
@@ -74,6 +74,14 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 			}
 
 			return &Conn{Conn: conn}, nil
+		}, func(conn *Conn) error {
+			if conn.TxnState("") != sqlite3.TXN_NONE {
+				err := errors.New("connection has a pending transaction")
+				log.Printf("failed check: %v", err)
+				return err
+			}
+
+			return nil
 		}, func(conn *Conn) {
 			defer conn.Close()
 
