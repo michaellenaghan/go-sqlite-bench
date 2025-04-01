@@ -1,4 +1,4 @@
-This project, inspired by [Benchmarking SQLite Performance in Go](https://www.golang.dk/articles/benchmarking-sqlite-performance-in-go), bechmarks various Go SQLite implementations:
+This project, originally inspired by [Benchmarking SQLite Performance in Go](https://www.golang.dk/articles/benchmarking-sqlite-performance-in-go), bechmarks various SQLite implementations:
 
 * [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) (aka "mattn")
 * [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) (aka "ncruces")
@@ -44,7 +44,7 @@ Among other things, the tests capture the compile-time options, pragmas, and ver
 
 There are lots of ways to play the benchmark game; take a look at the examples below.
 
-```sh
+```
 $ make help
 Targets:
 
