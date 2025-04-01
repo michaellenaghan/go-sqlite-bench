@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -52,6 +53,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 			return nil, err
 		}
 
+		readWriteDB.SetMaxIdleConns(runtime.GOMAXPROCS(0))
 		readWriteDB.SetMaxOpenConns(maxWriteConnections)
 
 		db = &DB{readDB: readWriteDB, writeDB: readWriteDB}
@@ -61,6 +63,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 			return nil, err
 		}
 
+		readDB.SetMaxIdleConns(runtime.GOMAXPROCS(0))
 		readDB.SetMaxOpenConns(maxReadConnections)
 
 		writeDB, err := OpenDB(filename)
@@ -69,6 +72,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 			return nil, err
 		}
 
+		writeDB.SetMaxIdleConns(runtime.GOMAXPROCS(0))
 		writeDB.SetMaxOpenConns(maxWriteConnections)
 
 		db = &DB{readDB: readDB, writeDB: writeDB}
