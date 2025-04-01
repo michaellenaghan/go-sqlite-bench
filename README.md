@@ -1,12 +1,12 @@
-This project bechmarks various Go SQLite implementations:
+This project, inspired by [Benchmarking SQLite Performance in Go](https://www.golang.dk/articles/benchmarking-sqlite-performance-in-go), bechmarks various Go SQLite implementations:
 
-* github.com/mattn/go-sqlite3 (aka "mattn")
-* github.com/ncruces/go-sqlite3 (aka "ncruces")
-* github.com/tailscale/sqlite (aka "tailscale")
-*	modernc.org/sqlite (aka "modernc")
-*	zombiezen.com/go/sqlite (aka "zombiezen")
+* [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) (aka "mattn")
+* [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) (aka "ncruces")
+* [github.com/tailscale/sqlite](https://github.com/tailscale/sqlite) (aka "tailscale")
+*	[github.com/zombiezen/go-sqlite](https://github.com/zombiezen/go-sqlite) (aka "zombiezen")
+*	[gitlab.com/cznic/sqlite](https://gitlab.com/cznic/sqlite) (aka "modernc")
 
-Here's a quick description of each one:
+Here are some quick descriptions:
 
 * **mattn** is a CGO-based implementation. mattn offers a `database/sql` interface.
 
