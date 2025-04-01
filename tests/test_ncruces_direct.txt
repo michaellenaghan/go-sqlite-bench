@@ -1,0 +1,131 @@
+=== RUN   TestOptions
+    go-sqlite-bench_test.go:34: OPTION ALLOW_URI_AUTHORITY
+    go-sqlite-bench_test.go:34: OPTION ATOMIC_INTRINSICS=1
+    go-sqlite-bench_test.go:34: OPTION COMPILER=clang-19.1.5
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_AUTOVACUUM
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_CACHE_SIZE=-2000
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_FILE_FORMAT=4
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_FOREIGN_KEYS
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_JOURNAL_SIZE_LIMIT=-1
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_MMAP_SIZE=0
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_PAGE_SIZE=4096
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_PCACHE_INITSZ=20
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_RECURSIVE_TRIGGERS
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_SECTOR_SIZE=4096
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_SYNCHRONOUS=2
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_WAL_AUTOCHECKPOINT=1000
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_WAL_SYNCHRONOUS=1
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_WORKER_THREADS=0
+    go-sqlite-bench_test.go:34: OPTION DIRECT_OVERFLOW_READ
+    go-sqlite-bench_test.go:34: OPTION DQS=0
+    go-sqlite-bench_test.go:34: OPTION ENABLE_ATOMIC_WRITE
+    go-sqlite-bench_test.go:34: OPTION ENABLE_BATCH_ATOMIC_WRITE
+    go-sqlite-bench_test.go:34: OPTION ENABLE_COLUMN_METADATA
+    go-sqlite-bench_test.go:34: OPTION ENABLE_FTS5
+    go-sqlite-bench_test.go:34: OPTION ENABLE_GEOPOLY
+    go-sqlite-bench_test.go:34: OPTION ENABLE_MATH_FUNCTIONS
+    go-sqlite-bench_test.go:34: OPTION ENABLE_RTREE
+    go-sqlite-bench_test.go:34: OPTION ENABLE_STAT4
+    go-sqlite-bench_test.go:34: OPTION HAVE_ISNAN
+    go-sqlite-bench_test.go:34: OPTION LIKE_DOESNT_MATCH_BLOBS
+    go-sqlite-bench_test.go:34: OPTION MALLOC_SOFT_LIMIT=1024
+    go-sqlite-bench_test.go:34: OPTION MAX_ATTACHED=10
+    go-sqlite-bench_test.go:34: OPTION MAX_COLUMN=2000
+    go-sqlite-bench_test.go:34: OPTION MAX_COMPOUND_SELECT=500
+    go-sqlite-bench_test.go:34: OPTION MAX_DEFAULT_PAGE_SIZE=8192
+    go-sqlite-bench_test.go:34: OPTION MAX_EXPR_DEPTH=0
+    go-sqlite-bench_test.go:34: OPTION MAX_FUNCTION_ARG=1000
+    go-sqlite-bench_test.go:34: OPTION MAX_LENGTH=1000000000
+    go-sqlite-bench_test.go:34: OPTION MAX_LIKE_PATTERN_LENGTH=50000
+    go-sqlite-bench_test.go:34: OPTION MAX_MMAP_SIZE=0
+    go-sqlite-bench_test.go:34: OPTION MAX_PAGE_COUNT=0xfffffffe
+    go-sqlite-bench_test.go:34: OPTION MAX_PAGE_SIZE=65536
+    go-sqlite-bench_test.go:34: OPTION MAX_SQL_LENGTH=1000000000
+    go-sqlite-bench_test.go:34: OPTION MAX_TRIGGER_DEPTH=1000
+    go-sqlite-bench_test.go:34: OPTION MAX_VARIABLE_NUMBER=32766
+    go-sqlite-bench_test.go:34: OPTION MAX_VDBE_OP=250000000
+    go-sqlite-bench_test.go:34: OPTION MAX_WORKER_THREADS=0
+    go-sqlite-bench_test.go:34: OPTION MUTEX_OMIT
+    go-sqlite-bench_test.go:34: OPTION OMIT_AUTOINIT
+    go-sqlite-bench_test.go:34: OPTION OMIT_DEPRECATED
+    go-sqlite-bench_test.go:34: OPTION OMIT_DESERIALIZE
+    go-sqlite-bench_test.go:34: OPTION OMIT_LOAD_EXTENSION
+    go-sqlite-bench_test.go:34: OPTION OMIT_SHARED_CACHE
+    go-sqlite-bench_test.go:34: OPTION SOUNDEX
+    go-sqlite-bench_test.go:34: OPTION SYSTEM_MALLOC
+    go-sqlite-bench_test.go:34: OPTION TEMP_STORE=1
+    go-sqlite-bench_test.go:34: OPTION THREADSAFE=0
+    go-sqlite-bench_test.go:34: OPTION UNTESTABLE
+    go-sqlite-bench_test.go:34: OPTION USE_ALLOCA
+--- PASS: TestOptions (0.00s)
+=== RUN   TestPragma
+--- PASS: TestPragma (0.00s)
+=== RUN   TestPragmas
+    go-sqlite-bench_test.go:102: PRAGMA auto_vacuum=0
+    go-sqlite-bench_test.go:102: PRAGMA automatic_index=1
+    go-sqlite-bench_test.go:102: PRAGMA busy_timeout=10000
+    go-sqlite-bench_test.go:102: PRAGMA cache_size=-2000
+    go-sqlite-bench_test.go:102: PRAGMA cache_spill=489
+    go-sqlite-bench_test.go:102: PRAGMA cell_size_check=0
+    go-sqlite-bench_test.go:102: PRAGMA checkpoint_fullfsync=0
+    go-sqlite-bench_test.go:102: PRAGMA defer_foreign_keys=0
+    go-sqlite-bench_test.go:102: PRAGMA encoding=UTF-8
+    go-sqlite-bench_test.go:102: PRAGMA foreign_keys=1
+    go-sqlite-bench_test.go:102: PRAGMA fullfsync=0
+    go-sqlite-bench_test.go:102: PRAGMA hard_heap_limit=0
+    go-sqlite-bench_test.go:102: PRAGMA journal_mode=wal
+    go-sqlite-bench_test.go:102: PRAGMA journal_size_limit=-1
+    go-sqlite-bench_test.go:102: PRAGMA locking_mode=normal
+    go-sqlite-bench_test.go:102: PRAGMA mmap_size=0
+    go-sqlite-bench_test.go:102: PRAGMA page_size=4096
+    go-sqlite-bench_test.go:102: PRAGMA query_only=0
+    go-sqlite-bench_test.go:102: PRAGMA read_uncommitted=0
+    go-sqlite-bench_test.go:102: PRAGMA recursive_triggers=0
+    go-sqlite-bench_test.go:102: PRAGMA reverse_unordered_selects=0
+    go-sqlite-bench_test.go:102: PRAGMA secure_delete=0
+    go-sqlite-bench_test.go:102: PRAGMA soft_heap_limit=0
+    go-sqlite-bench_test.go:102: PRAGMA synchronous=1
+    go-sqlite-bench_test.go:102: PRAGMA temp_store=0
+    go-sqlite-bench_test.go:102: PRAGMA threads=0
+    go-sqlite-bench_test.go:102: PRAGMA wal_autocheckpoint=1000
+--- PASS: TestPragmas (0.00s)
+=== RUN   TestTime
+    go-sqlite-bench_test.go:120: TIME 2025-04-01 15:48:55 -0400 EDT 2025-04-01 15:48:55 -0400 EDT
+--- PASS: TestTime (0.00s)
+=== RUN   TestVersion
+    go-sqlite-bench_test.go:131: VERSION 3.49.1
+--- PASS: TestVersion (0.00s)
+=== RUN   TestPopulate
+=== RUN   TestPopulate/PopulateDB
+=== RUN   TestPopulate/PopulateDBWithTx
+=== RUN   TestPopulate/PopulateDBWithTxs
+--- PASS: TestPopulate (0.02s)
+    --- PASS: TestPopulate/PopulateDB (0.01s)
+    --- PASS: TestPopulate/PopulateDBWithTx (0.01s)
+    --- PASS: TestPopulate/PopulateDBWithTxs (0.00s)
+=== RUN   TestReadWrite
+=== RUN   TestReadWrite/ReadWritePost
+=== RUN   TestReadWrite/ReadWritePostWithTx
+=== RUN   TestReadWrite/ReadWritePostAndComments
+=== RUN   TestReadWrite/ReadWritePostAndCommentsWithTx
+--- PASS: TestReadWrite (0.00s)
+    --- PASS: TestReadWrite/ReadWritePost (0.00s)
+    --- PASS: TestReadWrite/ReadWritePostWithTx (0.00s)
+    --- PASS: TestReadWrite/ReadWritePostAndComments (0.00s)
+    --- PASS: TestReadWrite/ReadWritePostAndCommentsWithTx (0.00s)
+=== RUN   TestQuery
+=== RUN   TestQuery/Correlated
+=== RUN   TestQuery/GroupBy
+=== RUN   TestQuery/JSON
+=== RUN   TestQuery/NonRecursiveCTE
+=== RUN   TestQuery/OrderBy
+=== RUN   TestQuery/RecursiveCTE
+--- PASS: TestQuery (0.01s)
+    --- PASS: TestQuery/Correlated (0.00s)
+    --- PASS: TestQuery/GroupBy (0.00s)
+    --- PASS: TestQuery/JSON (0.00s)
+    --- PASS: TestQuery/NonRecursiveCTE (0.00s)
+    --- PASS: TestQuery/OrderBy (0.00s)
+    --- PASS: TestQuery/RecursiveCTE (0.00s)
+PASS
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.987s

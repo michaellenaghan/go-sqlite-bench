@@ -3,14 +3,14 @@ goos: darwin
 goarch: arm64
 pkg: github.com/michaellenaghan/go-sqlite-bench
 cpu: Apple M2 Pro
-                   │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │      bench_modernc_driver.txt      │     bench_zombiezen_direct.txt     │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
-                   │          sec/op          │   sec/op     vs base              │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │
-Query/Correlated-4                644.6m ± 1%   704.9m ± 1%  +9.36% (p=0.002 n=6)   306.8m ± 0%  -52.40% (p=0.002 n=6)   328.4m ± 3%  -49.06% (p=0.002 n=6)   175.8m ± 1%  -72.72% (p=0.002 n=6)   170.8m ± 2%  -73.51% (p=0.002 n=6)
+                    │ bench_ncruces_direct.txt │   bench_ncruces_driver.txt   │      bench_modernc_driver.txt      │     bench_zombiezen_direct.txt     │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
+                    │          sec/op          │   sec/op     vs base         │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │   sec/op     vs base               │
+Query/Correlated-12                647.3m ± 1%   646.3m ± 1%  ~ (p=0.589 n=6)   303.6m ± 2%  -53.10% (p=0.002 n=6)   326.3m ± 3%  -49.60% (p=0.002 n=6)   175.8m ± 1%  -72.85% (p=0.002 n=6)   172.4m ± 1%  -73.37% (p=0.002 n=6)
 
-                   │ bench_ncruces_direct.txt │        bench_ncruces_driver.txt         │        bench_modernc_driver.txt        │  bench_zombiezen_direct.txt   │          bench_mattn_driver.txt          │       bench_tailscale_driver.txt       │
-                   │           B/op           │     B/op       vs base                  │     B/op      vs base                  │     B/op      vs base         │     B/op       vs base                   │     B/op      vs base                  │
-Query/Correlated-4              176.0 ± 4757%   47367.5 ± 33%  +26813.35% (p=0.002 n=6)   71233.0 ± 0%  +40373.30% (p=0.002 n=6)   2469.0 ± 21%  ~ (p=0.052 n=6)   207186.0 ± 0%  +117619.32% (p=0.002 n=6)   47203.5 ± 0%  +26720.17% (p=0.002 n=6)
+                    │ bench_ncruces_direct.txt │         bench_ncruces_driver.txt          │         bench_modernc_driver.txt         │       bench_zombiezen_direct.txt       │          bench_mattn_driver.txt           │       bench_tailscale_driver.txt        │
+                    │           B/op           │      B/op       vs base                   │     B/op       vs base                   │     B/op       vs base                 │      B/op       vs base                   │     B/op       vs base                  │
+Query/Correlated-12              48.00 ± 6092%   71030.00 ± 24%  +147879.17% (p=0.002 n=6)   63029.00 ± 0%  +131210.42% (p=0.002 n=6)   2343.00 ± 78%  +4781.25% (p=0.035 n=6)   207147.00 ± 0%  +431456.25% (p=0.002 n=6)   46971.00 ± 0%  +97756.25% (p=0.002 n=6)
 
-                   │ bench_ncruces_direct.txt │         bench_ncruces_driver.txt         │         bench_modernc_driver.txt         │     bench_zombiezen_direct.txt      │          bench_mattn_driver.txt          │       bench_tailscale_driver.txt        │
-                   │        allocs/op         │   allocs/op    vs base                   │   allocs/op    vs base                   │  allocs/op   vs base                │   allocs/op    vs base                   │   allocs/op    vs base                  │
-Query/Correlated-4                4.000 ± 25%   4772.000 ± 0%  +119200.00% (p=0.002 n=6)   7777.000 ± 0%  +194325.00% (p=0.002 n=6)   41.000 ± 5%  +925.00% (p=0.002 n=6)   6772.000 ± 0%  +169200.00% (p=0.002 n=6)   3769.000 ± 0%  +94125.00% (p=0.002 n=6)
+                    │ bench_ncruces_direct.txt │   bench_ncruces_driver.txt    │   bench_modernc_driver.txt    │  bench_zombiezen_direct.txt  │    bench_mattn_driver.txt     │  bench_tailscale_driver.txt   │
+                    │        allocs/op         │  allocs/op    vs base         │  allocs/op    vs base         │  allocs/op   vs base         │  allocs/op    vs base         │  allocs/op    vs base         │
+Query/Correlated-12                   0.00 ± ?   5768.00 ± 0%  ? (p=0.002 n=6)   6768.00 ± 0%  ? (p=0.002 n=6)   28.00 ± 75%  ? (p=0.002 n=6)   6771.00 ± 0%  ? (p=0.002 n=6)   3766.00 ± 0%  ? (p=0.002 n=6)
