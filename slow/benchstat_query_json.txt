@@ -1,16 +1,29 @@
-benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_modernc_driver.txt bench_zombiezen_direct.txt bench_mattn_driver.txt bench_tailscale_driver.txt
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_modernc_driver.txt bench_glebarez_driver.txt bench_zombiezen_direct.txt bench_mattn_driver.txt bench_tailscale_driver.txt
 goos: darwin
 goarch: arm64
 pkg: github.com/michaellenaghan/go-sqlite-bench
 cpu: Apple M2 Pro
-              │ bench_ncruces_direct.txt │   bench_ncruces_driver.txt   │     bench_modernc_driver.txt      │     bench_zombiezen_direct.txt      │       bench_mattn_driver.txt       │     bench_tailscale_driver.txt     │
-              │          sec/op          │   sec/op     vs base         │   sec/op     vs base              │    sec/op      vs base              │   sec/op     vs base               │   sec/op     vs base               │
-Query/JSON-12                9.739m ± 7%   9.932m ± 8%  ~ (p=0.065 n=6)   9.361m ± 2%  -3.89% (p=0.002 n=6)   10.115m ± 11%  +3.86% (p=0.026 n=6)   8.490m ± 2%  -12.82% (p=0.002 n=6)   7.072m ± 2%  -27.39% (p=0.002 n=6)
+                      │ bench_ncruces_direct.txt │       bench_ncruces_driver.txt       │        bench_modernc_driver.txt        │       bench_glebarez_driver.txt        │       bench_zombiezen_direct.txt       │        bench_mattn_driver.txt        │      bench_tailscale_driver.txt       │
+                      │          sec/op          │    sec/op     vs base                │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op     vs base                │    sec/op     vs base                 │
+Query/JSON-12                       9.625m ± ∞ ¹   9.763m ± ∞ ¹       ~ (p=0.200 n=3) ²    9.363m ± ∞ ¹        ~ (p=0.100 n=3) ²   16.932m ± ∞ ¹        ~ (p=0.100 n=3) ²   11.131m ± ∞ ¹        ~ (p=0.100 n=3) ²   9.051m ± ∞ ¹       ~ (p=0.100 n=3) ²   8.175m ± ∞ ¹        ~ (p=0.100 n=3) ²
+Query/JSONParallel-12               9.514m ± ∞ ¹   9.602m ± ∞ ¹       ~ (p=0.200 n=3) ²   14.407m ± ∞ ¹        ~ (p=0.100 n=3) ²   17.198m ± ∞ ¹        ~ (p=0.100 n=3) ²   13.650m ± ∞ ¹        ~ (p=0.100 n=3) ²   9.009m ± ∞ ¹       ~ (p=0.100 n=3) ²   8.983m ± ∞ ¹        ~ (p=0.100 n=3) ²
+geomean                             9.569m         9.682m        +1.18%                    11.61m        +21.37%                    17.06m        +78.33%                    12.33m        +28.82%                   9.030m        -5.64%                   8.569m        -10.45%
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
 
-              │ bench_ncruces_direct.txt │   bench_ncruces_driver.txt    │   bench_modernc_driver.txt    │  bench_zombiezen_direct.txt  │     bench_mattn_driver.txt     │  bench_tailscale_driver.txt   │
-              │           B/op           │     B/op      vs base         │     B/op      vs base         │    B/op      vs base         │     B/op       vs base         │     B/op      vs base         │
-Query/JSON-12                    0.0 ± ?   64876.5 ± 1%  ? (p=0.002 n=6)   56964.0 ± 0%  ? (p=0.002 n=6)   376.0 ± 97%  ? (p=0.002 n=6)   201028.0 ± 0%  ? (p=0.002 n=6)   32889.0 ± 0%  ? (p=0.002 n=6)
+                      │ bench_ncruces_direct.txt │           bench_ncruces_driver.txt           │           bench_modernc_driver.txt           │          bench_glebarez_driver.txt           │        bench_zombiezen_direct.txt        │             bench_mattn_driver.txt             │          bench_tailscale_driver.txt          │
+                      │           B/op           │      B/op        vs base                     │      B/op        vs base                     │      B/op        vs base                     │     B/op       vs base                   │       B/op        vs base                      │      B/op        vs base                     │
+Query/JSON-12                        1.000 ± ∞ ¹   64866.000 ± ∞ ¹            ~ (p=0.100 n=3) ²   56966.000 ± ∞ ¹            ~ (p=0.100 n=3) ²   56952.000 ± ∞ ¹            ~ (p=0.100 n=3) ²   406.000 ± ∞ ¹          ~ (p=0.100 n=3) ²   201031.000 ± ∞ ¹             ~ (p=0.100 n=3) ²   32891.000 ± ∞ ¹            ~ (p=0.100 n=3) ²
+Query/JSONParallel-12                44.00 ± ∞ ¹    64909.00 ± ∞ ¹            ~ (p=0.100 n=3) ²    56997.00 ± ∞ ¹            ~ (p=0.100 n=3) ²    56995.00 ± ∞ ¹            ~ (p=0.100 n=3) ²    437.00 ± ∞ ¹          ~ (p=0.100 n=3) ²    201222.00 ± ∞ ¹             ~ (p=0.100 n=3) ²    32936.00 ± ∞ ¹            ~ (p=0.100 n=3) ²
+geomean                              6.633           63.37Ki        +978115.81%                     55.65Ki        +858928.40%                     55.64Ki        +858807.77%                     421.2        +6250.05%                      196.4Ki        +3031995.73%                     32.14Ki        +496089.57%
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
 
-              │ bench_ncruces_direct.txt │    bench_ncruces_driver.txt    │    bench_modernc_driver.txt    │  bench_zombiezen_direct.txt  │     bench_mattn_driver.txt     │   bench_tailscale_driver.txt   │
-              │        allocs/op         │   allocs/op    vs base         │   allocs/op    vs base         │  allocs/op   vs base         │   allocs/op    vs base         │   allocs/op    vs base         │
-Query/JSON-12                 0.000 ± 0%   4019.000 ± 0%  ? (p=0.002 n=6)   4022.000 ± 0%  ? (p=0.002 n=6)   6.000 ± 50%  ? (p=0.002 n=6)   5021.000 ± 0%  ? (p=0.002 n=6)   2020.000 ± 0%  ? (p=0.002 n=6)
+                      │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │     bench_modernc_driver.txt      │     bench_glebarez_driver.txt     │   bench_zombiezen_direct.txt   │      bench_mattn_driver.txt       │    bench_tailscale_driver.txt     │
+                      │        allocs/op         │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │  allocs/op   vs base           │   allocs/op     vs base           │   allocs/op     vs base           │
+Query/JSON-12                        0.000 ± ∞ ¹   4019.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4022.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4022.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   5021.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   2020.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/JSONParallel-12                0.000 ± ∞ ¹   4019.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4022.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4022.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   5021.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   2020.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+geomean                                        ³     4.019k        ?                     4.022k        ?                     4.022k        ?                   6.000        ?                     5.021k        ?                     2.020k        ?
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+³ summaries must be >0 to compute geomean
