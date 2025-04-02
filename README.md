@@ -48,34 +48,46 @@ There are lots of ways to play the benchmark game; take a look at the examples b
 $ make help
 Targets:
 
-  bench-all                                - Run all benchmarks
-  bench-by-category                        - Run all benchmark categories
-  bench-category-baseline                  - Run baseline benchmarks
-  bench-category-baseline-parallel         - Run baseline benchmarks in parallel
-  bench-category-populate                  - Run populate benchmarks
-  bench-category-readwrite                 - Run readwrite benchmarks
-  bench-category-readwrite-parallel        - Run readwrite benchmarks in parallel
-  bench-category-query-correlated          - Run correlated query benchmarks
-  bench-category-query-groupby             - Run groupby query benchmarks
-  bench-category-query-json                - Run json query benchmarks
-  bench-category-query-nonrecursivecte     - Run nonrecursivecte query benchmarks
-  bench-category-query-orderby             - Run orderby query benchmarks
-  bench-category-query-recursivecte        - Run recursivecte query benchmarks
-  benchstat-all                            - Compare all benchmarks
-  benchstat-by-category                    - Run and compare all benchmark categories
-  benchstat-category-baseline              - Run and compare baseline benchmarks
-  benchstat-category-baseline-parallel     - Run and compare baseline benchmarks in parallel
-  benchstat-category-populate              - Run and compare populate benchmarks
-  benchstat-category-readwrite             - Run and compare readwrite benchmarks
-  benchstat-category-readwrite-parallel    - Run and compare readwrite benchmarks in parallel
-  benchstat-category-query-correlated      - Run and compare correlated query benchmarks
-  benchstat-category-query-groupby         - Run and compare groupby query benchmarks
-  benchstat-category-query-json            - Run and compare json query benchmarks
-  benchstat-category-query-nonrecursivecte - Run and compare nonrecursivecte query benchmarks
-  benchstat-category-query-orderby         - Run and compare orderby query benchmarks
-  benchstat-category-query-recursivecte    - Run and compare recursivecte query benchmarks
-  clean                                    - Remove all benchmark, benchstat and test files
-  test-all                                 - Run all tests
+  bench-all                                          - Run all benchmarks
+  bench-by-category                                  - Run all benchmark categories
+  bench-category-baseline                            - Run baseline benchmarks
+  bench-category-baseline-parallel                   - Run baseline benchmarks in parallel
+  bench-category-populate                            - Run populate benchmarks
+  bench-category-readwrite                           - Run readwrite benchmarks
+  bench-category-readwrite-parallel                  - Run readwrite benchmarks in parallel
+  bench-category-query-correlated                    - Run correlated query benchmarks
+  bench-category-query-correlated-parallel           - Run correlated query benchmarks in parallel
+  bench-category-query-groupby                       - Run groupby query benchmarks
+  bench-category-query-groupby-parallel              - Run groupby query benchmarks in parallel
+  bench-category-query-json                          - Run json query benchmarks
+  bench-category-query-json-parallel                 - Run json query benchmarks in parallel
+  bench-category-query-nonrecursivecte               - Run nonrecursivecte query benchmarks
+  bench-category-query-nonrecursivecte-parallel      - Run nonrecursivecte query benchmarks in parallel
+  bench-category-query-orderby                       - Run orderby query benchmarks
+  bench-category-query-orderby-parallel              - Run orderby query benchmarks in parallel
+  bench-category-query-recursivecte                  - Run recursivecte query benchmarks
+  bench-category-query-recursivecte-parallel         - Run recursivecte query benchmarks in parallel
+  benchstat-all                                      - Compare all benchmarks
+  benchstat-by-category                              - Run and compare all benchmark categories
+  benchstat-category-baseline                        - Run and compare baseline benchmarks
+  benchstat-category-baseline-parallel               - Run and compare baseline benchmarks in parallel
+  benchstat-category-populate                        - Run and compare populate benchmarks
+  benchstat-category-readwrite                       - Run and compare readwrite benchmarks
+  benchstat-category-readwrite-parallel              - Run and compare readwrite benchmarks in parallel
+  benchstat-category-query-correlated                - Run and compare correlated query benchmarks
+  benchstat-category-query-correlated-parallel       - Run and compare correlated query benchmarks in parallel
+  benchstat-category-query-groupby                   - Run and compare groupby query benchmarks
+  benchstat-category-query-groupby-parallel          - Run and compare groupby query benchmarks in parallel
+  benchstat-category-query-json                      - Run and compare json query benchmarks
+  benchstat-category-query-json-parallel             - Run and compare json query benchmarks in parallel
+  benchstat-category-query-nonrecursivecte           - Run and compare nonrecursivecte query benchmarks
+  benchstat-category-query-nonrecursivecte-parallel  - Run and compare nonrecursivecte query benchmarks in parallel
+  benchstat-category-query-orderby                   - Run and compare orderby query benchmarks
+  benchstat-category-query-orderby-parallel          - Run and compare orderby query benchmarks in parallel
+  benchstat-category-query-recursivecte              - Run and compare recursivecte query benchmarks
+  benchstat-category-query-recursivecte-parallel     - Run and compare recursivecte query benchmarks in parallel
+  clean                                              - Remove all benchmark, benchstat and test files
+  test-all                                           - Run all tests
 
 Variables:
 

@@ -897,12 +897,32 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryCorrelated Query benchmark in parallel.
+	b.Run("CorrelatedParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryCorrelated(b.Context())
+				noErr(b, err)
+			}
+		})
+	})
+
 	// Run the QueryGroupBy Query benchmark.
 	b.Run("GroupBy", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryGroupBy(b.Context())
 			noErr(b, err)
 		}
+	})
+
+	// Run the QueryGroupBy Query benchmark in parallel.
+	b.Run("GroupByParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryGroupBy(b.Context())
+				noErr(b, err)
+			}
+		})
 	})
 
 	// Run the QueryJSON Query benchmark.
@@ -913,12 +933,32 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryJSON Query benchmark in parallel.
+	b.Run("JSONParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryJSON(b.Context())
+				noErr(b, err)
+			}
+		})
+	})
+
 	// Run the QueryNonRecursiveCTE Query benchmark.
 	b.Run("NonRecursiveCTE", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryNonRecursiveCTE(b.Context())
 			noErr(b, err)
 		}
+	})
+
+	// Run the QueryNonRecursiveCTE Query benchmark in parallel.
+	b.Run("NonRecursiveCTEParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryNonRecursiveCTE(b.Context())
+				noErr(b, err)
+			}
+		})
 	})
 
 	// Run the QueryOrderBy Query benchmark.
@@ -929,12 +969,32 @@ func BenchmarkQuery(b *testing.B) {
 		}
 	})
 
+	// Run the QueryOrderBy Query benchmark in parallel.
+	b.Run("OrderByParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryOrderBy(b.Context())
+				noErr(b, err)
+			}
+		})
+	})
+
 	// Run the QueryRecursiveCTE Query benchmark.
 	b.Run("RecursiveCTE", func(b *testing.B) {
 		for b.Loop() {
 			_, err := db.QueryRecursiveCTE(b.Context())
 			noErr(b, err)
 		}
+	})
+
+	// Run the QueryRecursiveCTE Query benchmark in parallel.
+	b.Run("RecursiveCTEParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryRecursiveCTE(b.Context())
+				noErr(b, err)
+			}
+		})
 	})
 }
 
