@@ -10,9 +10,8 @@ BENCH_TIME := 1s
 BENCH_TIMEOUT := 15m
 
 ifdef BENCH_SLOW
-	BENCH_COUNT := 6
+	BENCH_COUNT := 10
 	BENCH_OPTS := -benchmem
-	BENCH_TIME := 2s
 	BENCH_TIMEOUT := 30m
 endif
 
