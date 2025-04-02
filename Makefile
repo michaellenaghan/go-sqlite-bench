@@ -1,4 +1,4 @@
-TAGS := ncruces_direct ncruces_driver modernc_driver zombiezen_direct mattn_driver tailscale_driver
+TAGS := ncruces_direct ncruces_driver modernc_driver glebarez_driver zombiezen_direct mattn_driver tailscale_driver
 
 BENCH_COUNT := 1
 BENCH_CPU := ''

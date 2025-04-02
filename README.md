@@ -1,5 +1,6 @@
 This project, originally inspired by [Benchmarking SQLite Performance in Go](https://www.golang.dk/articles/benchmarking-sqlite-performance-in-go), bechmarks various SQLite implementations:
 
+* [github.com/glebarez/go-sqlite](https://github.com/glebarez/go-sqlite) (aka "glebarez")
 * [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) (aka "mattn")
 * [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) (aka "ncruces")
 * [github.com/tailscale/sqlite](https://github.com/tailscale/sqlite) (aka "tailscale")
@@ -7,6 +8,8 @@ This project, originally inspired by [Benchmarking SQLite Performance in Go](htt
 *	[gitlab.com/cznic/sqlite](https://gitlab.com/cznic/sqlite) (aka "modernc")
 
 Here are some quick descriptions:
+
+* **glebarez** is a non-CGO transpilation-based implementation, based on modernc. glebarez offers a `database/sql` interface.
 
 * **mattn** is a CGO-based implementation. mattn offers a `database/sql` interface.
 

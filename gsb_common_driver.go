@@ -1,4 +1,4 @@
-//go:build mattn_driver || modernc_driver || ncruces_driver || tailscale_driver
+//go:build glebarez_driver || mattn_driver || modernc_driver || ncruces_driver || tailscale_driver
 
 package go_sqlite_bench
 
