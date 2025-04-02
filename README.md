@@ -10,13 +10,13 @@ Here are some quick descriptions:
 
 * **mattn** is a CGO-based implementation. mattn offers a `database/sql` interface.
 
-* **modernc** is a transpiled implementation. modernc offers a `database/sql` interface.
+* **modernc** is a non-CGO transpilation-based implementation. modernc offers a `database/sql` interface.
 
-* **ncruces** is a WAL-based implementation. ncruces offers both direct and `database/sql` interfaces.
+* **ncruces** is a non-CGO WASM-based implementation. ncruces offers both direct and `database/sql` interfaces.
 
 * **tailscale** is a CGO-based implementation. tailscale offers both direct and `database/sql` interfaces.
 
-* **zombiezen** is a transpiled implementation, based on modernc. zombiezen offers a direct interface.
+* **zombiezen** is a non-CGO transpilation-based implementation, based on modernc. zombiezen offers a direct interface.
 
 The benchmark results in the [quick](./quick/) directory were generated using:
 
@@ -40,7 +40,7 @@ The tests in the [tests](./tests/) directory were generated using:
 make test-all
 ```
 
-Among other things, the tests capture the compile-time options, pragmas, and versions of SQLite used by each implementation.
+Among other things, the tests capture the compile-time options, pragmas, and SQLite version used by each implementation.
 
 There are lots of ways to play the benchmark game; take a look at the examples below.
 
