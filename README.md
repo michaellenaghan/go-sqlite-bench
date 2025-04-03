@@ -91,6 +91,10 @@ Targets:
   benchstat-category-query-recursivecte-parallel     - Run and compare recursivecte query benchmarks in parallel
   clean                                              - Remove all benchmark, benchstat and test files
   test-all                                           - Run all tests
+  update-all                                         - Clean and then update the quick/, slow/, and tests/ directories
+  update-quick                                       - Update the quick/ directory
+  update-slow                                        - Update the slow/ directory
+  update-tests                                       - Update the tests/ directory
 
 Variables:
 
