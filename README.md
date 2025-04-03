@@ -1,5 +1,6 @@
 This project, originally inspired by [Benchmarking SQLite Performance in Go](https://www.golang.dk/articles/benchmarking-sqlite-performance-in-go), bechmarks various SQLite implementations:
 
+* [github.com/eatonphil/gosqlite](https://github.com/eatonphil/gosqlite) (aka "eatonphil")
 * [github.com/glebarez/go-sqlite](https://github.com/glebarez/go-sqlite) (aka "glebarez")
 * [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) (aka "mattn")
 * [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3) (aka "ncruces")
@@ -8,6 +9,8 @@ This project, originally inspired by [Benchmarking SQLite Performance in Go](htt
 *	[gitlab.com/cznic/sqlite](https://gitlab.com/cznic/sqlite) (aka "modernc")
 
 Here are some quick descriptions:
+
+* **eatonphil** is a CGO-based implementation. eatonphil offers a direct interface.
 
 * **glebarez** is a non-CGO transpilation-based implementation, based on modernc. glebarez offers a `database/sql` interface.
 
@@ -98,7 +101,7 @@ Targets:
 
 Variables:
 
-  TAGS="ncruces_direct ncruces_driver modernc_driver zombiezen_direct mattn_driver tailscale_driver"
+  TAGS="ncruces_direct ncruces_driver eatonphil_direct glebarez_driver mattn_driver modernc_driver tailscale_driver zombiezen_direct"
 
     The first TAG listed becomes the baseline for benchstat comparisons.
 
