@@ -83,8 +83,8 @@
 === RUN   TestPopulate/PopulateDB
 === RUN   TestPopulate/PopulateDBWithTx
 === RUN   TestPopulate/PopulateDBWithTxs
---- PASS: TestPopulate (0.02s)
-    --- PASS: TestPopulate/PopulateDB (0.01s)
+--- PASS: TestPopulate (0.04s)
+    --- PASS: TestPopulate/PopulateDB (0.02s)
     --- PASS: TestPopulate/PopulateDBWithTx (0.01s)
     --- PASS: TestPopulate/PopulateDBWithTxs (0.01s)
 === RUN   TestReadWrite
@@ -92,7 +92,7 @@
 === RUN   TestReadWrite/ReadWritePostWithTx
 === RUN   TestReadWrite/ReadWritePostAndComments
 === RUN   TestReadWrite/ReadWritePostAndCommentsWithTx
---- PASS: TestReadWrite (0.00s)
+--- PASS: TestReadWrite (0.01s)
     --- PASS: TestReadWrite/ReadWritePost (0.00s)
     --- PASS: TestReadWrite/ReadWritePostWithTx (0.00s)
     --- PASS: TestReadWrite/ReadWritePostAndComments (0.00s)
@@ -112,4 +112,4 @@
     --- PASS: TestQuery/OrderBy (0.00s)
     --- PASS: TestQuery/RecursiveCTE (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.214s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.268s

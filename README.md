@@ -30,7 +30,7 @@ The benchmark results in the [quick](./quick/) directory were generated using:
 make benchstat-by-category
 ```
 
-It takes ~15m to run the "quick" benchmarks on my laptop.
+It takes ~20m to run the "quick" benchmarks on my laptop.
 
 The benchmark results in the [slow](./slow/) directory were generated using:
 
@@ -38,7 +38,7 @@ The benchmark results in the [slow](./slow/) directory were generated using:
 make benchstat-by-category BENCH_BIG=1 BENCH_SLOW=1
 ```
 
-It takes ~1h to run the "slow" benchmarks on my laptop.
+It takes ~1h10m  to run the "slow" benchmarks on my laptop.
 
 The tests in the [tests](./tests/) directory were generated using:
 

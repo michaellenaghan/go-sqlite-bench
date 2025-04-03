@@ -1,30 +1,31 @@
-benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_modernc_driver.txt bench_glebarez_driver.txt bench_zombiezen_direct.txt bench_mattn_driver.txt bench_tailscale_driver.txt
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_eatonphil_direct.txt bench_glebarez_driver.txt bench_mattn_driver.txt bench_modernc_driver.txt bench_tailscale_driver.txt bench_zombiezen_direct.txt
 goos: darwin
 goarch: arm64
 pkg: github.com/michaellenaghan/go-sqlite-bench
 cpu: Apple M2 Pro
-                      │ bench_ncruces_direct.txt │       bench_ncruces_driver.txt        │        bench_modernc_driver.txt         │        bench_glebarez_driver.txt        │       bench_zombiezen_direct.txt        │         bench_mattn_driver.txt          │      bench_tailscale_driver.txt       │
-                      │          sec/op          │    sec/op     vs base                 │    sec/op      vs base                  │    sec/op      vs base                  │    sec/op      vs base                  │    sec/op      vs base                  │    sec/op     vs base                 │
-Query/JSON-12                       364.0µ ± ∞ ¹   428.7µ ± ∞ ¹        ~ (p=1.000 n=1) ²    392.9µ ± ∞ ¹         ~ (p=1.000 n=1) ²    383.8µ ± ∞ ¹         ~ (p=1.000 n=1) ²    359.0µ ± ∞ ¹         ~ (p=1.000 n=1) ²    476.9µ ± ∞ ¹         ~ (p=1.000 n=1) ²   192.1µ ± ∞ ¹        ~ (p=1.000 n=1) ²
-Query/JSONParallel-12               38.87µ ± ∞ ¹   63.74µ ± ∞ ¹        ~ (p=1.000 n=1) ²   357.76µ ± ∞ ¹         ~ (p=1.000 n=1) ²   359.20µ ± ∞ ¹         ~ (p=1.000 n=1) ²   359.98µ ± ∞ ¹         ~ (p=1.000 n=1) ²   217.57µ ± ∞ ¹         ~ (p=1.000 n=1) ²   24.90µ ± ∞ ¹        ~ (p=1.000 n=1) ²
-geomean                             119.0µ         165.3µ        +38.97%                    374.9µ        +215.17%                    371.3µ        +212.16%                    359.5µ        +202.23%                    322.1µ        +170.79%                   69.16µ        -41.86%
+                      │ bench_ncruces_direct.txt │       bench_ncruces_driver.txt        │       bench_eatonphil_direct.txt       │        bench_glebarez_driver.txt        │         bench_mattn_driver.txt          │        bench_modernc_driver.txt         │      bench_tailscale_driver.txt       │       bench_zombiezen_direct.txt        │
+                      │          sec/op          │    sec/op     vs base                 │    sec/op      vs base                 │    sec/op      vs base                  │    sec/op      vs base                  │    sec/op      vs base                  │    sec/op     vs base                 │    sec/op      vs base                  │
+Query/JSON-12                       357.8µ ± ∞ ¹   426.7µ ± ∞ ¹        ~ (p=1.000 n=1) ²    162.6µ ± ∞ ¹        ~ (p=1.000 n=1) ²    379.8µ ± ∞ ¹         ~ (p=1.000 n=1) ²    416.8µ ± ∞ ¹         ~ (p=1.000 n=1) ²    393.6µ ± ∞ ¹         ~ (p=1.000 n=1) ²   196.9µ ± ∞ ¹        ~ (p=1.000 n=1) ²    358.6µ ± ∞ ¹         ~ (p=1.000 n=1) ²
+Query/JSONParallel-12               38.81µ ± ∞ ¹   59.88µ ± ∞ ¹        ~ (p=1.000 n=1) ²   238.42µ ± ∞ ¹        ~ (p=1.000 n=1) ²   360.71µ ± ∞ ¹         ~ (p=1.000 n=1) ²   213.98µ ± ∞ ¹         ~ (p=1.000 n=1) ²   359.08µ ± ∞ ¹         ~ (p=1.000 n=1) ²   24.87µ ± ∞ ¹        ~ (p=1.000 n=1) ²   358.66µ ± ∞ ¹         ~ (p=1.000 n=1) ²
+geomean                             117.8µ         159.8µ        +35.63%                    196.9µ        +67.07%                    370.2µ        +214.09%                    298.7µ        +153.42%                    376.0µ        +219.02%                   69.98µ        -40.62%                    358.6µ        +204.31%
 ¹ need >= 6 samples for confidence interval at level 0.95
 ² need >= 4 samples to detect a difference at alpha level 0.05
 
-                      │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │      bench_modernc_driver.txt      │     bench_glebarez_driver.txt      │    bench_zombiezen_direct.txt    │       bench_mattn_driver.txt       │    bench_tailscale_driver.txt     │
-                      │           B/op           │      B/op        vs base           │      B/op        vs base           │      B/op        vs base           │     B/op       vs base           │      B/op        vs base           │      B/op       vs base           │
-Query/JSON-12                        3.000 ± ∞ ¹   13673.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   12196.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   12170.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   382.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   41033.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   7301.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
-Query/JSONParallel-12                  0.0 ± ∞ ¹     13639.0 ± ∞ ¹  ~ (p=1.000 n=1) ²     12179.0 ± ∞ ¹  ~ (p=1.000 n=1) ²     12150.0 ± ∞ ¹  ~ (p=1.000 n=1) ²     370.0 ± ∞ ¹  ~ (p=1.000 n=1) ²     41038.0 ± ∞ ¹  ~ (p=1.000 n=1) ²     7221.0 ± ∞ ¹  ~ (p=1.000 n=1) ²
-geomean                                        ³     13.34Ki        ?                     11.90Ki        ?                     11.87Ki        ?                     376.0        ?                     40.07Ki        ?                    7.091Ki        ?
+                      │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │   bench_eatonphil_direct.txt   │     bench_glebarez_driver.txt      │       bench_mattn_driver.txt       │      bench_modernc_driver.txt      │    bench_tailscale_driver.txt     │    bench_zombiezen_direct.txt    │
+                      │           B/op           │      B/op        vs base           │    B/op      vs base           │      B/op        vs base           │      B/op        vs base           │      B/op        vs base           │      B/op       vs base           │     B/op       vs base           │
+Query/JSON-12                        3.000 ± ∞ ¹   13685.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   0.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   12179.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   41044.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   12191.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   7302.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   382.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
+Query/JSONParallel-12                0.000 ± ∞ ¹   13638.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   2.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   12153.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   41028.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   12179.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   7214.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   371.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
+geomean                                        ³     13.34Ki        ?                                ?               ³     11.88Ki        ?                     40.07Ki        ?                     11.90Ki        ?                    7.088Ki        ?                     376.5        ?
 ¹ need >= 6 samples for confidence interval at level 0.95
 ² need >= 4 samples to detect a difference at alpha level 0.05
 ³ summaries must be >0 to compute geomean
 
-                      │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt     │     bench_modernc_driver.txt     │    bench_glebarez_driver.txt     │   bench_zombiezen_direct.txt   │      bench_mattn_driver.txt       │    bench_tailscale_driver.txt    │
-                      │        allocs/op         │   allocs/op    vs base           │   allocs/op    vs base           │   allocs/op    vs base           │  allocs/op   vs base           │   allocs/op     vs base           │   allocs/op    vs base           │
-Query/JSON-12                        0.000 ± ∞ ¹   819.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   6.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   1021.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   420.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
-Query/JSONParallel-12                0.000 ± ∞ ¹   819.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   6.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   1021.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   419.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
-geomean                                        ³     819.0        ?                     822.0        ?                     822.0        ?                   6.000        ?                     1.021k        ?                     419.5        ?
+                      │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt     │     bench_eatonphil_direct.txt      │    bench_glebarez_driver.txt     │      bench_mattn_driver.txt       │     bench_modernc_driver.txt     │    bench_tailscale_driver.txt    │   bench_zombiezen_direct.txt   │
+                      │        allocs/op         │   allocs/op    vs base           │  allocs/op   vs base                │   allocs/op    vs base           │   allocs/op     vs base           │   allocs/op    vs base           │   allocs/op    vs base           │  allocs/op   vs base           │
+Query/JSON-12                        0.000 ± ∞ ¹   819.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=1) ³   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   1021.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   420.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   6.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
+Query/JSONParallel-12                0.000 ± ∞ ¹   819.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=1) ³   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   1021.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   822.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   419.000 ± ∞ ¹  ~ (p=1.000 n=1) ²   6.000 ± ∞ ¹  ~ (p=1.000 n=1) ²
+geomean                                        ⁴     819.0        ?                                +0.00%               ⁴     822.0        ?                     1.021k        ?                     822.0        ?                     419.5        ?                   6.000        ?
 ¹ need >= 6 samples for confidence interval at level 0.95
 ² need >= 4 samples to detect a difference at alpha level 0.05
-³ summaries must be >0 to compute geomean
+³ all samples are equal
+⁴ summaries must be >0 to compute geomean

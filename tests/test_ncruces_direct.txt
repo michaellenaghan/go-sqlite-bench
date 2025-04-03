@@ -57,7 +57,7 @@
     go-sqlite-bench_test.go:34: OPTION THREADSAFE=0
     go-sqlite-bench_test.go:34: OPTION UNTESTABLE
     go-sqlite-bench_test.go:34: OPTION USE_ALLOCA
---- PASS: TestOptions (0.01s)
+--- PASS: TestOptions (0.00s)
 === RUN   TestPragma
 --- PASS: TestPragma (0.00s)
 === RUN   TestPragmas
@@ -90,7 +90,7 @@
     go-sqlite-bench_test.go:102: PRAGMA wal_autocheckpoint=1000
 --- PASS: TestPragmas (0.00s)
 === RUN   TestTime
-    go-sqlite-bench_test.go:120: TIME 2025-04-02 19:54:39 -0400 EDT 2025-04-02 19:54:39 -0400 EDT
+    go-sqlite-bench_test.go:120: TIME 2025-04-03 17:55:09 -0400 EDT 2025-04-03 17:55:09 -0400 EDT
 --- PASS: TestTime (0.00s)
 === RUN   TestVersion
     go-sqlite-bench_test.go:131: VERSION 3.49.1
@@ -101,8 +101,8 @@
 === RUN   TestPopulate/PopulateDBWithTxs
 --- PASS: TestPopulate (0.02s)
     --- PASS: TestPopulate/PopulateDB (0.01s)
-    --- PASS: TestPopulate/PopulateDBWithTx (0.00s)
-    --- PASS: TestPopulate/PopulateDBWithTxs (0.00s)
+    --- PASS: TestPopulate/PopulateDBWithTx (0.01s)
+    --- PASS: TestPopulate/PopulateDBWithTxs (0.01s)
 === RUN   TestReadWrite
 === RUN   TestReadWrite/ReadWritePost
 === RUN   TestReadWrite/ReadWritePostWithTx
@@ -128,4 +128,4 @@
     --- PASS: TestQuery/OrderBy (0.00s)
     --- PASS: TestQuery/RecursiveCTE (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	1.028s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.793s
