@@ -100,6 +100,8 @@ Variables:
 
   TAGS="ncruces_direct ncruces_driver modernc_driver zombiezen_direct mattn_driver tailscale_driver"
 
+    The first TAG listed becomes the baseline for benchstat comparisons.
+
   BENCH_COUNT=1
   BENCH_CPU=''
   BENCH_CPU_PARALLEL=1,2,4,8,16
@@ -170,13 +172,3 @@ Examples:
 
   make clean
 ```
-
-One thing to note: the first implementation in `TAGS` becomes the baseline for `benchstat` comparisons.
-
-For example:
-
-```sh
-make benchstat-by-category TAGS="tailscale_driver mattn_driver modernc_driver ncruces_driver"
-```
-
-compares `mattn_driver`, `modernc_driver` and `ncruces_driver` against `tailscale_driver`.

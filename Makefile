@@ -93,6 +93,8 @@ help:
 	@echo ""
 	@echo "  TAGS=\"$(TAGS)\""
 	@echo ""
+	@echo "    The first TAG listed becomes the baseline for benchstat comparisons."
+	@echo ""
 	@echo "  BENCH_COUNT=$(BENCH_COUNT)"
 	@echo "  BENCH_CPU=$(BENCH_CPU)"
 	@echo "  BENCH_CPU_PARALLEL=$(BENCH_CPU_PARALLEL)"
