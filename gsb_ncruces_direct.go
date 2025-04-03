@@ -25,6 +25,8 @@ type Conn struct {
 	prepared map[string]*sqlite3.Stmt
 }
 
+// ===
+
 func init() {
 	sqlite3.Initialize()
 }
@@ -68,7 +70,7 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 			// "Order matters: encryption keys, busy timeout and locking mode
 			// should be the first PRAGMAs set, in that order."
 			// https://github.com/ncruces/go-sqlite3/blob/main/driver/driver.go
-			conn, err := sqlite3.Open("file:" + filename + "?_pragma=busy_timeout(10000)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
+			conn, err := sqlite3.Open("file:" + filename + "?_pragma=busy_timeout(10000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
 			if err != nil {
 				return nil, err
 			}
@@ -83,16 +85,7 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 
 			return nil
 		}, func(conn *Conn) {
-			defer conn.Close()
-
-			if conn.Stmts() != nil {
-				for stmt := range conn.Stmts() {
-					err := stmt.Close()
-					if err != nil {
-						log.Printf("failed to close: %v", err)
-					}
-				}
-			}
+			conn.Close()
 		},
 	)
 	if err != nil {
@@ -453,6 +446,8 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 }
 
 func (db *DB) CountPosts(ctx context.Context) (int64, error) {
+	n := int64(0)
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return 0, err
@@ -464,8 +459,6 @@ func (db *DB) CountPosts(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 	defer stmt.Reset() // Purely defensive.
-
-	var n int64
 
 	for stmt.Step() {
 		n = stmt.ColumnInt64(0)
@@ -480,6 +473,8 @@ func (db *DB) CountPosts(ctx context.Context) (int64, error) {
 }
 
 func (db *DB) CountComments(ctx context.Context) (int64, error) {
+	n := int64(0)
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return 0, err
@@ -491,8 +486,6 @@ func (db *DB) CountComments(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 	defer stmt.Reset() // Purely defensive.
-
-	var n int64
 
 	for stmt.Step() {
 		n = stmt.ColumnInt64(0)
@@ -507,6 +500,8 @@ func (db *DB) CountComments(ctx context.Context) (int64, error) {
 }
 
 func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
+	p := &Post{ID: id}
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return nil, err
@@ -524,8 +519,6 @@ func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
 		return nil, err
 	}
 
-	p := &Post{ID: id}
-
 	for stmt.Step() {
 		p.Title = stmt.ColumnText(0)
 		p.Content = stmt.ColumnText(1)
@@ -542,6 +535,8 @@ func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
 }
 
 func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
+	p := &Post{ID: id}
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return nil, err
@@ -562,8 +557,6 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
 		return nil, err
 	}
 
-	p := &Post{ID: id}
-
 	for stmt.Step() {
 		p.Title = stmt.ColumnText(0)
 		p.Content = stmt.ColumnText(1)
@@ -580,6 +573,9 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
 }
 
 func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comment, error) {
+	p := &Post{ID: id}
+	cs := make([]*Comment, 0)
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -596,8 +592,6 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 	if err != nil {
 		return nil, nil, err
 	}
-
-	p := &Post{ID: id}
 
 	for stmt.Step() {
 		p.Title = stmt.ColumnText(0)
@@ -621,8 +615,6 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 	if err != nil {
 		return nil, nil, err
 	}
-
-	cs := make([]*Comment, 0)
 
 	for stmt.Step() {
 		c := &Comment{}
@@ -645,6 +637,9 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 }
 
 func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, []*Comment, error) {
+	p := &Post{ID: id}
+	cs := make([]*Comment, 0)
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -664,8 +659,6 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 	if err != nil {
 		return nil, nil, err
 	}
-
-	p := &Post{ID: id}
 
 	for stmt.Step() {
 		p.Title = stmt.ColumnText(0)
@@ -690,8 +683,6 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 		return nil, nil, err
 	}
 
-	cs := make([]*Comment, 0)
-
 	for stmt.Step() {
 		c := &Comment{}
 
@@ -713,6 +704,8 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 }
 
 func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Get(ctx)
 	if err != nil {
 		return 0, err
@@ -743,7 +736,7 @@ func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int6
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
@@ -752,6 +745,8 @@ func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int6
 }
 
 func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Get(ctx)
 	if err != nil {
 		return 0, err
@@ -788,7 +783,7 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
@@ -797,6 +792,8 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 }
 
 func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Get(ctx)
 	if err != nil {
 		return 0, err
@@ -827,7 +824,7 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
@@ -866,6 +863,8 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 }
 
 func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Get(ctx)
 	if err != nil {
 		return 0, err
@@ -902,7 +901,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
@@ -942,7 +941,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 
 // ===
 
-func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+func (db *DB) query(ctx context.Context, sql string) (int, error) {
 	n := 0
 
 	conn, err := db.readPool.Get(ctx)
@@ -951,7 +950,7 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 	defer db.readPool.Put(conn)
 
-	stmt, _, err := conn.PrepareAndPersist(SQLForQueryCorrelated)
+	stmt, _, err := conn.PrepareAndPersist(sql)
 	if err != nil {
 		return 0, err
 	}
@@ -967,141 +966,30 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 
 	return n, nil
+}
+
+func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+	return db.query(ctx, SQLForQueryCorrelated)
 }
 
 func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, _, err := conn.PrepareAndPersist(SQLForQueryGroupBy)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	for stmt.Step() {
-		n += 1
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryGroupBy)
 }
 
 func (db *DB) QueryJSON(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, _, err := conn.PrepareAndPersist(SQLForQueryJSON)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	for stmt.Step() {
-		n += 1
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryJSON)
 }
 
 func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, _, err := conn.PrepareAndPersist(SQLForQueryNonRecursiveCTE)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	for stmt.Step() {
-		n += 1
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryNonRecursiveCTE)
 }
 
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, _, err := conn.PrepareAndPersist(SQLForQueryOrderBy)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	for stmt.Step() {
-		n += 1
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryOrderBy)
 }
 
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, _, err := conn.PrepareAndPersist(SQLForQueryRecursiveCTE)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	for stmt.Step() {
-		n += 1
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryRecursiveCTE)
 }
 
 // ===
@@ -1113,13 +1001,7 @@ func (db *DB) Analyze(ctx context.Context) error {
 	}
 	defer db.readPool.Put(conn)
 
-	stmt, _, err := conn.Prepare("ANALYZE")
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	err = stmt.Exec()
+	err = conn.Exec("ANALYZE")
 	if err != nil {
 		return err
 	}
@@ -1276,6 +1158,8 @@ func (db *DB) Select1PrePrepared(ctx context.Context) error {
 }
 
 func (db *DB) Time(ctx context.Context, in time.Time) (time.Time, error) {
+	out := time.Time{}
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return time.Time{}, err
@@ -1293,8 +1177,6 @@ func (db *DB) Time(ctx context.Context, in time.Time) (time.Time, error) {
 		return time.Time{}, err
 	}
 
-	var out time.Time
-
 	for stmt.Step() {
 		out = stmt.ColumnTime(0, sqlite3.TimeFormatDefault)
 	}
@@ -1308,6 +1190,8 @@ func (db *DB) Time(ctx context.Context, in time.Time) (time.Time, error) {
 }
 
 func (db *DB) Version(ctx context.Context) (string, error) {
+	version := ""
+
 	conn, err := db.readPool.Get(ctx)
 	if err != nil {
 		return "", err
@@ -1320,8 +1204,6 @@ func (db *DB) Version(ctx context.Context) (string, error) {
 	}
 	defer stmt.Close()
 
-	var version string
-
 	for stmt.Step() {
 		version = stmt.ColumnText(0)
 	}
@@ -1332,6 +1214,21 @@ func (db *DB) Version(ctx context.Context) (string, error) {
 	}
 
 	return version, nil
+}
+
+// ===
+
+func (c *Conn) Close() error {
+	for name, stmt := range c.prepared {
+		err := stmt.Close()
+		if err != nil {
+			log.Printf("failed to close: %v", err)
+		}
+
+		delete(c.prepared, name)
+	}
+
+	return c.Conn.Close()
 }
 
 func (c *Conn) PrepareAndPersist(sql string) (*sqlite3.Stmt, string, error) {

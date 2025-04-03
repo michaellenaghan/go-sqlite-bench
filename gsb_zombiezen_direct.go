@@ -18,6 +18,8 @@ type DB struct {
 	writePool *sqlitex.Pool
 }
 
+// ===
+
 func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteConnections int) (*DB, error) {
 	if !(maxReadConnections >= 0) {
 		return nil, errors.New("maxReadConnections must be >= 0")
@@ -26,7 +28,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 		return nil, errors.New("maxWriteConnections must be >= 1")
 	}
 
-	var prepareConn = func(conn *sqlite.Conn) error {
+	prepareConn := func(conn *sqlite.Conn) error {
 		err := sqlitex.ExecuteTransient(conn, "PRAGMA busy_timeout(10000)", &sqlitex.ExecOptions{})
 		if err != nil {
 			return err
@@ -295,6 +297,8 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 }
 
 func (db *DB) CountPosts(ctx context.Context) (int64, error) {
+	n := int64(0)
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return 0, err
@@ -307,7 +311,7 @@ func (db *DB) CountPosts(ctx context.Context) (int64, error) {
 	}
 	defer stmt.Finalize()
 
-	n, err := sqlitex.ResultInt64(stmt)
+	n, err = sqlitex.ResultInt64(stmt)
 	if err != nil {
 		return 0, err
 	}
@@ -316,6 +320,8 @@ func (db *DB) CountPosts(ctx context.Context) (int64, error) {
 }
 
 func (db *DB) CountComments(ctx context.Context) (int64, error) {
+	n := int64(0)
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return 0, err
@@ -328,7 +334,7 @@ func (db *DB) CountComments(ctx context.Context) (int64, error) {
 	}
 	defer stmt.Finalize()
 
-	n, err := sqlitex.ResultInt64(stmt)
+	n, err = sqlitex.ResultInt64(stmt)
 	if err != nil {
 		return 0, err
 	}
@@ -337,15 +343,15 @@ func (db *DB) CountComments(ctx context.Context) (int64, error) {
 }
 
 func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
+	p := &Post{ID: id}
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer db.readPool.Put(conn)
 
-	p := &Post{ID: id}
-
-	err = sqlitex.ExecuteTransient(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
 		Args: []any{id},
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			p.Title = stmt.ColumnText(0)
@@ -364,6 +370,8 @@ func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
 }
 
 func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
+	p := &Post{ID: id}
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return nil, err
@@ -373,9 +381,7 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
 	tx := sqlitex.Transaction(conn)
 	defer tx(&err)
 
-	p := &Post{ID: id}
-
-	err = sqlitex.ExecuteTransient(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
 		Args: []any{id},
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			p.Title = stmt.ColumnText(0)
@@ -394,15 +400,16 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
 }
 
 func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comment, error) {
+	p := &Post{ID: id}
+	cs := make([]*Comment, 0)
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
 	defer db.readPool.Put(conn)
 
-	p := &Post{ID: id}
-
-	err = sqlitex.ExecuteTransient(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
 		Args: []any{id},
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			p.Title = stmt.ColumnText(0)
@@ -417,9 +424,7 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 		return nil, nil, err
 	}
 
-	cs := make([]*Comment, 0)
-
-	err = sqlitex.ExecuteTransient(conn, SQLForSelectCommentsByPostID, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForSelectCommentsByPostID, &sqlitex.ExecOptions{
 		Args: []any{id},
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			c := &Comment{}
@@ -443,6 +448,9 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comm
 }
 
 func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, []*Comment, error) {
+	p := &Post{ID: id}
+	cs := make([]*Comment, 0)
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -452,9 +460,7 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 	tx := sqlitex.Transaction(conn)
 	defer tx(&err)
 
-	p := &Post{ID: id}
-
-	err = sqlitex.ExecuteTransient(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForSelectPostByID, &sqlitex.ExecOptions{
 		Args: []any{id},
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			p.Title = stmt.ColumnText(0)
@@ -469,9 +475,7 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 		return nil, nil, err
 	}
 
-	cs := make([]*Comment, 0)
-
-	err = sqlitex.ExecuteTransient(conn, SQLForSelectCommentsByPostID, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForSelectCommentsByPostID, &sqlitex.ExecOptions{
 		Args: []any{id},
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			c := &Comment{}
@@ -495,20 +499,22 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, [
 }
 
 func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Take(ctx)
 	if err != nil {
 		return 0, err
 	}
 	defer db.writePool.Put(conn)
 
-	err = sqlitex.ExecuteTransient(conn, SQLForInsertPost, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForInsertPost, &sqlitex.ExecOptions{
 		Args: []any{title, content, stats},
 	})
 	if err != nil {
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
@@ -517,6 +523,8 @@ func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int6
 }
 
 func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Take(ctx)
 	if err != nil {
 		return 0, err
@@ -529,14 +537,14 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 	}
 	defer tx(&err)
 
-	err = sqlitex.ExecuteTransient(conn, SQLForInsertPost, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForInsertPost, &sqlitex.ExecOptions{
 		Args: []any{title, content, stats},
 	})
 	if err != nil {
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
@@ -545,26 +553,28 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 }
 
 func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Take(ctx)
 	if err != nil {
 		return 0, err
 	}
 	defer db.writePool.Put(conn)
 
-	err = sqlitex.ExecuteTransient(conn, SQLForInsertPost, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForInsertPost, &sqlitex.ExecOptions{
 		Args: []any{postTitle, postContent, postStats},
 	})
 	if err != nil {
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
 
 	for range comments {
-		err = sqlitex.ExecuteTransient(conn, SQLForInsertComment, &sqlitex.ExecOptions{
+		err = sqlitex.Execute(conn, SQLForInsertComment, &sqlitex.ExecOptions{
 			Args: []any{postID, commentName, commentContent, commentStats},
 		})
 		if err != nil {
@@ -576,6 +586,8 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 }
 
 func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (int64, error) {
+	postID := int64(0)
+
 	conn, err := db.writePool.Take(ctx)
 	if err != nil {
 		return 0, err
@@ -588,20 +600,20 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 	}
 	defer tx(&err)
 
-	err = sqlitex.ExecuteTransient(conn, SQLForInsertPost, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, SQLForInsertPost, &sqlitex.ExecOptions{
 		Args: []any{postTitle, postContent, postStats},
 	})
 	if err != nil {
 		return 0, err
 	}
 
-	postID := conn.LastInsertRowID()
+	postID = conn.LastInsertRowID()
 	if err != nil {
 		return 0, err
 	}
 
 	for range comments {
-		err = sqlitex.ExecuteTransient(conn, SQLForInsertComment, &sqlitex.ExecOptions{
+		err = sqlitex.Execute(conn, SQLForInsertComment, &sqlitex.ExecOptions{
 			Args: []any{postID, commentName, commentContent, commentStats},
 		})
 		if err != nil {
@@ -614,7 +626,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 
 // ===
 
-func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+func (db *DB) query(ctx context.Context, sql string) (int, error) {
 	n := 0
 
 	conn, err := db.readPool.Take(ctx)
@@ -623,7 +635,7 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 	defer db.readPool.Put(conn)
 
-	err = sqlitex.Execute(conn, SQLForQueryCorrelated, &sqlitex.ExecOptions{
+	err = sqlitex.Execute(conn, sql, &sqlitex.ExecOptions{
 		ResultFunc: func(stmt *sqlite.Stmt) error {
 			n += 1
 
@@ -635,121 +647,30 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 
 	return n, nil
+}
+
+func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+	return db.query(ctx, SQLForQueryCorrelated)
 }
 
 func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Take(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	err = sqlitex.Execute(conn, SQLForQueryGroupBy, &sqlitex.ExecOptions{
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			n += 1
-
-			return nil
-		},
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryGroupBy)
 }
 
 func (db *DB) QueryJSON(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Take(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	err = sqlitex.Execute(conn, SQLForQueryJSON, &sqlitex.ExecOptions{
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			n += 1
-
-			return nil
-		},
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryJSON)
 }
 
 func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Take(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	err = sqlitex.Execute(conn, SQLForQueryNonRecursiveCTE, &sqlitex.ExecOptions{
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			n += 1
-
-			return nil
-		},
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryNonRecursiveCTE)
 }
 
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Take(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	err = sqlitex.Execute(conn, SQLForQueryOrderBy, &sqlitex.ExecOptions{
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			n += 1
-
-			return nil
-		},
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryOrderBy)
 }
 
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Take(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	err = sqlitex.Execute(conn, SQLForQueryRecursiveCTE, &sqlitex.ExecOptions{
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			n += 1
-
-			return nil
-		},
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryRecursiveCTE)
 }
 
 // ===
@@ -885,39 +806,17 @@ func (db *DB) Select1PrePrepared(ctx context.Context) error {
 }
 
 func (db *DB) Time(ctx context.Context, in time.Time) (time.Time, error) {
-	conn, err := db.readPool.Take(ctx)
-	if err != nil {
-		return time.Time{}, err
-	}
-	defer db.readPool.Put(conn)
-
-	var out time.Time
-
-	err = sqlitex.ExecuteTransient(conn, "SELECT ?", &sqlitex.ExecOptions{
-		Args: []any{in.Format(time.RFC3339)},
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			out, err = time.Parse(time.RFC3339, stmt.ColumnText(0))
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-	})
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	return out, nil
+	return time.Time{}, errors.New("no built-in support for time")
 }
 
 func (db *DB) Version(ctx context.Context) (string, error) {
+	version := ""
+
 	conn, err := db.readPool.Take(ctx)
 	if err != nil {
 		return "", err
 	}
 	defer db.readPool.Put(conn)
-
-	var version string
 
 	err = sqlitex.ExecuteTransient(conn, "SELECT sqlite_version()", &sqlitex.ExecOptions{
 		ResultFunc: func(stmt *sqlite.Stmt) error {

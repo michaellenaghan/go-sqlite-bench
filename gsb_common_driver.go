@@ -37,15 +37,17 @@ type DB struct {
 	readDBQueryRecursiveCTE    *sql.Stmt
 }
 
+// ===
+
 func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteConnections int) (*DB, error) {
+	var db *DB
+
 	if !(maxReadConnections >= 0) {
 		return nil, errors.New("maxReadConnections must be >= 0")
 	}
 	if !(maxWriteConnections >= 1) {
 		return nil, errors.New("maxWriteConnections must be >= 1")
 	}
-
-	var db *DB
 
 	if maxReadConnections == 0 {
 		readWriteDB, err := OpenDB(filename)
@@ -88,17 +90,13 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 }
 
 func (db *DB) prepareNewDBStatements() error {
-	var err error
-
-	var stmt *sql.Stmt
-
-	stmt, err = db.readDB.Prepare("SELECT 1")
+	stmt, err := db.readDB.Prepare("SELECT 1")
 	if err != nil {
 		return err
 	}
 	db.readDBSelect1 = stmt
 
-	return err
+	return nil
 }
 
 func (db *DB) closeNewDBStatements() error {
@@ -116,7 +114,6 @@ func (db *DB) Close() error {
 	var err error
 
 	err = errors.Join(db.closePrepareDBStatements(), err)
-
 	err = errors.Join(db.closeNewDBStatements(), err)
 
 	err = errors.Join(db.writeDB.Close(), err)
@@ -127,7 +124,7 @@ func (db *DB) Close() error {
 	return err
 }
 
-func (db *DB) PrepareDBWithTx(ctx context.Context) (err error) {
+func (db *DB) PrepareDBWithTx(ctx context.Context) error {
 	tx, err := db.writeDB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		return err
@@ -155,15 +152,11 @@ func (db *DB) PrepareDBWithTx(ctx context.Context) (err error) {
 		return err
 	}
 
-	return
+	return nil
 }
 
 func (db *DB) preparePrepareDBStatements() error {
-	var err error
-
-	var stmt *sql.Stmt
-
-	stmt, err = db.writeDB.Prepare(SQLForInsertPost)
+	stmt, err := db.writeDB.Prepare(SQLForInsertPost)
 	if err != nil {
 		return err
 	}
@@ -304,7 +297,7 @@ func (db *DB) closePrepareDBStatements() error {
 	return err
 }
 
-func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) (err error) {
+func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) error {
 	postContent := Paragraphs(LoremIpsum, postParagraphs)
 	postStats := LoremIpsumJSON
 	postDate := NewPostDate(posts)
@@ -344,10 +337,10 @@ func (db *DB) PopulateDB(ctx context.Context, posts, postParagraphs, comments, c
 		}
 	}
 
-	return
+	return nil
 }
 
-func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) (err error) {
+func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) error {
 	postContent := Paragraphs(LoremIpsum, postParagraphs)
 	postStats := LoremIpsumJSON
 	postDate := NewPostDate(posts)
@@ -402,10 +395,10 @@ func (db *DB) PopulateDBWithTx(ctx context.Context, posts, postParagraphs, comme
 		return err
 	}
 
-	return
+	return nil
 }
 
-func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) (err error) {
+func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comments, commentParagraphs int) error {
 	postContent := Paragraphs(LoremIpsum, postParagraphs)
 	postStats := LoremIpsumJSON
 	postDate := NewPostDate(posts)
@@ -463,50 +456,54 @@ func (db *DB) PopulateDBWithTxs(ctx context.Context, posts, postParagraphs, comm
 	}
 
 	for i := range posts {
-		err = writePostAndComments(i)
+		err := writePostAndComments(i)
 		if err != nil {
 			return err
 		}
 	}
 
-	return
+	return nil
 }
 
-func (db *DB) CountPosts(ctx context.Context) (n int64, err error) {
+func (db *DB) CountPosts(ctx context.Context) (int64, error) {
+	n := int64(0)
+
 	row := db.readDB.QueryRowContext(ctx, SQLForCountPosts)
-	if err = row.Scan(&n); err != nil {
-		n = 0
-		return
+	err := row.Scan(&n)
+	if err != nil {
+		return 0, err
 	}
 
-	return
+	return n, nil
 }
 
-func (db *DB) CountComments(ctx context.Context) (n int64, err error) {
+func (db *DB) CountComments(ctx context.Context) (int64, error) {
+	n := int64(0)
+
 	row := db.readDB.QueryRowContext(ctx, SQLForCountComments)
-	if err = row.Scan(&n); err != nil {
-		n = 0
-		return
+	err := row.Scan(&n)
+	if err != nil {
+		return 0, err
 	}
 
-	return
+	return n, nil
 }
 
-func (db *DB) ReadPost(ctx context.Context, id int64) (p *Post, err error) {
-	p = &Post{ID: id}
+func (db *DB) ReadPost(ctx context.Context, id int64) (*Post, error) {
+	p := &Post{ID: id}
 
 	row := db.readDBSelectPostByID.QueryRowContext(ctx, id)
-	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			p = nil
-		}
-		return
+	err := row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats)
+	if err != nil {
+		return nil, err
 	}
 
-	return
+	return p, nil
 }
 
-func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (p *Post, err error) {
+func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (*Post, error) {
+	p := &Post{ID: id}
+
 	tx, err := db.readDB.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -517,10 +514,9 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (p *Post, err error)
 		}
 	}()
 
-	p = &Post{ID: id}
-
 	row := tx.Stmt(db.readDBSelectPostByID).QueryRowContext(ctx, id)
-	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
+	err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
 		}
@@ -532,14 +528,16 @@ func (db *DB) ReadPostWithTx(ctx context.Context, id int64) (p *Post, err error)
 		return nil, err
 	}
 
-	return
+	return p, nil
 }
 
-func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (p *Post, cs []*Comment, err error) {
-	p = &Post{ID: id}
+func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (*Post, []*Comment, error) {
+	p := &Post{ID: id}
+	cs := make([]*Comment, 0)
 
 	row := db.readDBSelectPostByID.QueryRowContext(ctx, id)
-	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
+	err := row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
 		}
@@ -554,9 +552,12 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (p *Post, cs []
 
 	for rows.Next() {
 		c := &Comment{}
-		if err = rows.Scan(&c.ID, &c.Name, &c.Content, &c.Created, &c.Stats); err != nil {
+
+		err = rows.Scan(&c.ID, &c.Name, &c.Content, &c.Created, &c.Stats)
+		if err != nil {
 			return nil, nil, err
 		}
+
 		cs = append(cs, c)
 	}
 
@@ -565,10 +566,13 @@ func (db *DB) ReadPostAndComments(ctx context.Context, id int64) (p *Post, cs []
 		return nil, nil, err
 	}
 
-	return
+	return p, cs, nil
 }
 
-func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post, cs []*Comment, err error) {
+func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (*Post, []*Comment, error) {
+	p := &Post{ID: id}
+	cs := make([]*Comment, 0)
+
 	tx, err := db.readDB.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, nil, err
@@ -579,10 +583,9 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post,
 		}
 	}()
 
-	p = &Post{ID: id}
-
 	row := tx.Stmt(db.readDBSelectPostByID).QueryRowContext(ctx, id)
-	if err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats); err != nil {
+	err = row.Scan(&p.Title, &p.Content, &p.Created, &p.Stats)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			p = nil
 		}
@@ -597,9 +600,12 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post,
 
 	for rows.Next() {
 		c := &Comment{}
-		if err = rows.Scan(&c.ID, &c.Name, &c.Content, &c.Created, &c.Stats); err != nil {
+
+		err = rows.Scan(&c.ID, &c.Name, &c.Content, &c.Created, &c.Stats)
+		if err != nil {
 			return nil, nil, err
 		}
+
 		cs = append(cs, c)
 	}
 
@@ -613,10 +619,12 @@ func (db *DB) ReadPostAndCommentsWithTx(ctx context.Context, id int64) (p *Post,
 		return nil, nil, err
 	}
 
-	return
+	return p, cs, nil
 }
 
-func (db *DB) WritePost(ctx context.Context, title, content, stats string) (postID int64, err error) {
+func (db *DB) WritePost(ctx context.Context, title, content, stats string) (int64, error) {
+	postID := int64(0)
+
 	result, err := db.writeDBInsertPost.ExecContext(ctx, title, content, stats)
 	if err != nil {
 		return 0, err
@@ -630,7 +638,9 @@ func (db *DB) WritePost(ctx context.Context, title, content, stats string) (post
 	return postID, nil
 }
 
-func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string) (postID int64, err error) {
+func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string) (int64, error) {
+	postID := int64(0)
+
 	tx, err := db.writeDB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		return 0, err
@@ -659,7 +669,9 @@ func (db *DB) WritePostWithTx(ctx context.Context, title, content, stats string)
 	return postID, nil
 }
 
-func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (postID int64, err error) {
+func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (int64, error) {
+	postID := int64(0)
+
 	result, err := db.writeDBInsertPost.ExecContext(ctx, postTitle, postContent, postStats)
 	if err != nil {
 		return 0, err
@@ -680,7 +692,9 @@ func (db *DB) WritePostAndComments(ctx context.Context, postTitle, postContent, 
 	return postID, nil
 }
 
-func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (postID int64, err error) {
+func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postContent, postStats string, comments int, commentName, commentContent, commentStats string) (int64, error) {
+	postID := int64(0)
+
 	tx, err := db.writeDB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		return 0, err
@@ -718,10 +732,10 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 
 // ===
 
-func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+func (db *DB) query(ctx context.Context, stmt *sql.Stmt) (int, error) {
 	n := 0
 
-	rows, err := db.readDBQueryCorrelated.QueryContext(ctx)
+	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -737,111 +751,30 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 
 	return n, nil
+}
+
+func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+	return db.query(ctx, db.readDBQueryCorrelated)
 }
 
 func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
-	n := 0
-
-	rows, err := db.readDBQueryGroupBy.QueryContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		n += 1
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, db.readDBQueryGroupBy)
 }
 
 func (db *DB) QueryJSON(ctx context.Context) (int, error) {
-	n := 0
-
-	rows, err := db.readDBQueryJSON.QueryContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		n += 1
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, db.readDBQueryJSON)
 }
 
 func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	rows, err := db.readDBQueryNonRecursiveCTE.QueryContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		n += 1
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, db.readDBQueryNonRecursiveCTE)
 }
 
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
-	n := 0
-
-	rows, err := db.readDBQueryOrderBy.QueryContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		n += 1
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, db.readDBQueryOrderBy)
 }
 
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	rows, err := db.readDBQueryRecursiveCTE.QueryContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		n += 1
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, db.readDBQueryRecursiveCTE)
 }
 
 // ===
@@ -871,10 +804,13 @@ func (db *DB) Options(ctx context.Context) ([]string, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var option string
-		if err = rows.Scan(&option); err != nil {
+		option := ""
+
+		err = rows.Scan(&option)
+		if err != nil {
 			return nil, err
 		}
+
 		options = append(options, option)
 	}
 
@@ -901,11 +837,13 @@ func (db *DB) Pragmas(ctx context.Context, names []string) ([]string, error) {
 	pragmas := make([]string, 0)
 
 	for _, name := range names {
-		var value string
+		value := ""
+
 		err := db.readDB.QueryRowContext(ctx, "PRAGMA"+" "+name).Scan(&value)
 		if err != nil {
 			return nil, err
 		}
+
 		pragmas = append(pragmas, fmt.Sprintf("%s=%s", name, value))
 	}
 
@@ -923,13 +861,13 @@ func (db *DB) Select1PrePrepared(ctx context.Context) error {
 }
 
 func (db *DB) Time(ctx context.Context, in time.Time) (time.Time, error) {
-	var out time.Time
+	out := time.Time{}
 	err := db.readDB.QueryRowContext(ctx, "SELECT ?", in).Scan(&out)
 	return out, err
 }
 
 func (db *DB) Version(ctx context.Context) (string, error) {
-	var s string
-	err := db.readDB.QueryRowContext(ctx, "SELECT sqlite_version()").Scan(&s)
-	return s, err
+	version := ""
+	err := db.readDB.QueryRowContext(ctx, "SELECT sqlite_version()").Scan(&version)
+	return version, err
 }

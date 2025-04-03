@@ -45,5 +45,5 @@ import (
 // for a more detailed explanation.
 
 func OpenDB(filename string) (*sql.DB, error) {
-	return sql.Open("sqlite3", "file:"+filename+"?_busy_timeout=10000&_foreign_keys=true&_journal_mode=WAL&_synchronous=normal")
+	return sql.Open("sqlite3", "file:"+filename+"?_busy_timeout=10000&_foreign_keys=true&_journal_mode=WAL&_synchronous=normal&_mutex=no")
 }

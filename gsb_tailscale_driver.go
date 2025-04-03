@@ -31,7 +31,12 @@ import (
 
 func OpenDB(filename string) (*sql.DB, error) {
 	connInitFunc := func(ctx context.Context, conn driver.ConnPrepareContext) error {
-		return sqlite.ExecScript(conn.(sqlite.SQLConn), "PRAGMA busy_timeout=10000; PRAGMA foreign_keys=true; PRAGMA journal_mode=WAL; PRAGMA synchronous=normal;")
+		return sqlite.ExecScript(conn.(sqlite.SQLConn), `
+			PRAGMA busy_timeout(10000);
+			PRAGMA foreign_keys(true);
+			PRAGMA journal_mode(WAL);
+			PRAGMA synchronous(normal);
+		`)
 	}
 	return sql.OpenDB(sqlite.Connector("file:"+filename, connInitFunc, nil)), nil
 }
