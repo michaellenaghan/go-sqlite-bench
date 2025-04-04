@@ -84,10 +84,11 @@ help:
 	@echo "  benchstat-category-query-recursivecte-parallel     - Run and compare recursivecte query benchmarks in parallel"
 	@echo "  clean                                              - Remove all benchmark, benchstat and test files"
 	@echo "  test-all                                           - Run all tests"
-	@echo "  update-all                                         - Update the quick/, slow/, and tests/ directories"
+	@echo "  update-all                                         - Update the quick/, slow/, and tests/ directories and README"
 	@echo "  update-quick                                       - Update the quick/ directory"
 	@echo "  update-slow                                        - Update the slow/ directory"
 	@echo "  update-tests                                       - Update the tests/ directory"
+	@echo "  update-readme                                      - Update the README"
 	@echo ""
 	@echo "Variables:"
 	@echo ""
@@ -394,7 +395,7 @@ $(addprefix test-,$(TAGS)):
 		| tee $(addprefix test_,$(addsuffix .txt,$(subst test-,,$@)))
 
 .PHONY: update-all
-update-all: update-quick update-slow update-tests
+update-all: update-quick update-slow update-tests update-readme
 
 .PHONY: update-quick
 update-quick: clean
@@ -410,6 +411,10 @@ update-slow: clean
 update-tests: clean
 	time $(MAKE) test-all
 	mv test_*.txt tests/
+
+.PHONY: update-readme
+update-readme:
+	./README.sh
 
 .PHONY: clean
 clean:
