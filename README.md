@@ -184,7 +184,7 @@ Examples:
 
 ## Baseline
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_baseline.txt-->
 ```
@@ -355,7 +355,7 @@ geomean                                     140.0k         700.5k        +400.31
 
 ## ReadWrite
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_readwrite.txt-->
 ```
@@ -525,17 +525,19 @@ geomean                                                                         
 
 ## Query - Correlated
 
+<!--SQL:gsb_common_sql_query_correlated.sql-->
 ```sql
 SELECT
-	id,
-	title,
-	(SELECT COUNT(*) FROM comments WHERE post_id = posts.id) as comment_count,
-	(SELECT AVG(LENGTH(content)) FROM comments WHERE post_id = posts.id) AS avg_comment_length,
-	(SELECT MAX(LENGTH(content)) FROM comments WHERE post_id = posts.id) AS max_comment_length
+  id,
+  title,
+  (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) as comment_count,
+  (SELECT AVG(LENGTH(content)) FROM comments WHERE post_id = posts.id) AS avg_comment_length,
+  (SELECT MAX(LENGTH(content)) FROM comments WHERE post_id = posts.id) AS max_comment_length
 FROM posts
 ```
+<!--END_SQL-->
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_query_correlated.txt-->
 ```
@@ -618,16 +620,18 @@ geomean                                    2.702           5.782k        +213879
 
 ## Query - GroupBy
 
+<!--SQL:gsb_common_sql_query_groupby.sql-->
 ```sql
 SELECT
-	strftime('%Y-%m', created) AS month,
-	COUNT(*) as month_total
+  strftime('%Y-%m', created) AS month,
+  COUNT(*) as month_total
 FROM posts
 GROUP BY month
 ORDER BY month
 ```
+<!--END_SQL-->
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_query_groupby.txt-->
 ```
@@ -715,18 +719,20 @@ geomean                                           ⁴     118.0        ?        
 
 ## Query - JSON
 
+<!--SQL:gsb_common_sql_query_json.sql-->
 ```sql
 SELECT
-	date(created) as day,
-	SUM(json_extract(stats, '$.lorem')) as sum_lorem,
-	AVG(json_extract(stats, '$.ipsum.dolor')) as avg_dolor,
-	MAX(json_extract(stats, '$.lorem.sit')) as max_sit
+  date(created) as day,
+  SUM(json_extract(stats, '$.lorem')) as sum_lorem,
+  AVG(json_extract(stats, '$.ipsum.dolor')) as avg_dolor,
+  MAX(json_extract(stats, '$.lorem.sit')) as max_sit
 FROM posts
 GROUP BY day
 ORDER BY day
 ```
+<!--END_SQL-->
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_query_json.txt-->
 ```
@@ -813,19 +819,21 @@ geomean                                        ⁴     4.019k        ?          
 
 ## Query - NonRecursiveCTE
 
+<!--SQL:gsb_common_sql_query_nonrecursivecte.sql-->
 ```sql
 WITH day_totals AS (
-	SELECT date(created) as day, COUNT(*) as day_total
-	FROM posts
-	GROUP BY day
+  SELECT date(created) as day, COUNT(*) as day_total
+  FROM posts
+  GROUP BY day
 )
 SELECT day, day_total,
-	SUM(day_total) OVER (ORDER BY day) as running_total
+  SUM(day_total) OVER (ORDER BY day) as running_total
 FROM day_totals
 ORDER BY day
 ```
+<!--END_SQL-->
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_query_nonrecursivecte.txt-->
 ```
@@ -913,14 +921,16 @@ geomean                                                   ⁴     3.763k        
 
 ## Query - OrderBy
 
+<!--SQL:gsb_common_sql_query_orderby.sql-->
 ```sql
 SELECT
-	name, created, id
+  name, created, id
 FROM comments
 ORDER BY name, created, id
 ```
+<!--END_SQL-->
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_query_orderby.txt-->
 ```
@@ -1005,19 +1015,21 @@ geomean                                 8.365             349.8k        +4181293
 
 ## Query - RecursiveCTE
 
+<!--SQL:gsb_common_sql_query_nonrecursivecte.sql-->
 ```sql
 WITH day_totals AS (
-	SELECT date(created) as day, COUNT(*) as day_total
-	FROM posts
-	GROUP BY day
+  SELECT date(created) as day, COUNT(*) as day_total
+  FROM posts
+  GROUP BY day
 )
 SELECT day, day_total,
-	SUM(day_total) OVER (ORDER BY day) as running_total
+  SUM(day_total) OVER (ORDER BY day) as running_total
 FROM day_totals
 ORDER BY day
 ```
+<!--END_SQL-->
 
-### - Sequential Performance
+### - Sequential & Parallel Performance
 
 <!--BENCHMARK:slow/benchstat_query_recursivecte.txt-->
 ```

@@ -44,6 +44,24 @@ while IFS= read -r line; do
       eval "$command" >> "$temp_file"
       echo '```' >> "$temp_file"
 
+    elif [[ $line =~ ^\<\!--SQL:([^>]+)--\> ]]; then
+      # We found a sql start marker
+      sql_file="${BASH_REMATCH[1]}"
+      in_section=true
+      section_type="sql"
+
+      # Write the marker
+      echo "$line" >> "$temp_file"
+
+      # Add sql content
+      if [[ -f "$sql_file" ]]; then
+        echo '```sql' >> "$temp_file"
+        cat "$sql_file" >> "$temp_file"
+        echo '```' >> "$temp_file"
+      else
+        echo "Warning: SQL file $sql_file not found" >&2
+      fi
+
     else
       # Regular line, just copy it
       echo "$line" >> "$temp_file"
@@ -59,6 +77,12 @@ while IFS= read -r line; do
 
     elif [[ "$section_type" = "command" && $line =~ ^\<\!--END_COMMAND--\> ]]; then
       # Found the end command marker
+      echo "$line" >> "$temp_file"
+      in_section=false
+      section_type=""
+
+    elif [[ "$section_type" = "sql" && $line =~ ^\<\!--END_SQL--\> ]]; then
+      # Found the end sql marker
       echo "$line" >> "$temp_file"
       in_section=false
       section_type=""
