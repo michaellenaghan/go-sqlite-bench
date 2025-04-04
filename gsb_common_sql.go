@@ -60,14 +60,16 @@ const SQLForQueryCorrelated = `
 		(SELECT COUNT(*) FROM comments WHERE post_id = posts.id) as comment_count,
 		(SELECT AVG(LENGTH(content)) FROM comments WHERE post_id = posts.id) AS avg_comment_length,
 		(SELECT MAX(LENGTH(content)) FROM comments WHERE post_id = posts.id) AS max_comment_length
-	FROM posts`
+	FROM posts
+	`
 const SQLForQueryGroupBy = `
 	SELECT
 		strftime('%Y-%m', created) AS month,
 		COUNT(*) as month_total
 	FROM posts
 	GROUP BY month
-	ORDER BY month`
+	ORDER BY month
+	`
 const SQLForQueryJSON = `
 	SELECT
 		date(created) as day,
@@ -76,7 +78,8 @@ const SQLForQueryJSON = `
 		MAX(json_extract(stats, '$.lorem.sit')) as max_sit
 	FROM posts
 	GROUP BY day
-	ORDER BY day`
+	ORDER BY day
+	`
 const SQLForQueryNonRecursiveCTE = `
 	WITH day_totals AS (
 		SELECT date(created) as day, COUNT(*) as day_total
@@ -86,12 +89,14 @@ const SQLForQueryNonRecursiveCTE = `
 	SELECT day, day_total,
 		SUM(day_total) OVER (ORDER BY day) as running_total
 	FROM day_totals
-	ORDER BY day`
+	ORDER BY day
+	`
 const SQLForQueryOrderBy = `
 	SELECT
 		name, created, id
 	FROM comments
-	ORDER BY name, created, id`
+	ORDER BY name, created, id
+	`
 const SQLForQueryRecursiveCTE = `
 	WITH RECURSIVE dates(day) AS (
 		SELECT date('now', '-30 days')
@@ -103,4 +108,5 @@ const SQLForQueryRecursiveCTE = `
 	SELECT day,
 		(SELECT COUNT(*) FROM posts WHERE date(created) = day) as day_total
 	FROM dates
-	ORDER BY day`
+	ORDER BY day
+	`
