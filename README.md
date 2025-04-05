@@ -1126,7 +1126,7 @@ geomean                                          ⁴     3.763k        ?        
 
 ## eatonphil
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_eatonphil_direct.txt:OPTION-->
 ```
@@ -1223,7 +1223,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_eatonphil_direct.txt:VERSION-->
 ```
@@ -1233,7 +1233,7 @@ wal_autocheckpoint=1000
 
 ## glebarez
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_glebarez_driver.txt:OPTION-->
 ```
@@ -1328,7 +1328,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_glebarez_driver.txt:VERSION-->
 ```
@@ -1338,7 +1338,7 @@ wal_autocheckpoint=1000
 
 ## mattn
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_mattn_driver.txt:OPTION-->
 ```
@@ -1421,7 +1421,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_mattn_driver.txt:VERSION-->
 ```
@@ -1431,7 +1431,7 @@ wal_autocheckpoint=1000
 
 ## modernc
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_modernc_driver.txt:OPTION-->
 ```
@@ -1526,7 +1526,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_modernc_driver.txt:VERSION-->
 ```
@@ -1536,7 +1536,7 @@ wal_autocheckpoint=1000
 
 ## ncruces
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_ncruces_direct.txt:OPTION-->
 ```
@@ -1635,7 +1635,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_ncruces_direct.txt:VERSION-->
 ```
@@ -1645,7 +1645,7 @@ wal_autocheckpoint=1000
 
 ## tailscale
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_tailscale_driver.txt:OPTION-->
 ```
@@ -1740,7 +1740,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_tailscale_driver.txt:VERSION-->
 ```
@@ -1750,7 +1750,7 @@ wal_autocheckpoint=1000
 
 ## zombiezen
 
-### Compile-time options
+### Compile-time Options
 
 <!--GREP:tests/test_zombiezen_direct.txt:OPTION-->
 ```
@@ -1845,7 +1845,7 @@ wal_autocheckpoint=1000
 ```
 <!--END_GREP-->
 
-### Version
+### SQLite Version
 
 <!--GREP:tests/test_zombiezen_direct.txt:VERSION-->
 ```
