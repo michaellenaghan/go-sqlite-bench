@@ -44,6 +44,25 @@ while IFS= read -r line; do
       eval "$command" >> "$temp_file"
       echo '```' >> "$temp_file"
 
+    elif [[ $line =~ ^\<\!--GREP:([^:]+):([^>]+)--\> ]]; then
+      # We found a grep start marker
+      grep_file="${BASH_REMATCH[1]}"
+      grep_keyword="${BASH_REMATCH[2]}"
+      in_section=true
+      section_type="grep"
+
+      # Write the marker
+      echo "$line" >> "$temp_file"
+
+      # Extract the lines with the keyword and the content after it
+      if [[ -f "$grep_file" ]]; then
+        echo '```' >> "$temp_file"
+        grep "$grep_keyword" "$grep_file" | sed -n "s/.*$grep_keyword \(.*\)/\1/p" >> "$temp_file"
+        echo '```' >> "$temp_file"
+      else
+        echo "Warning: Grep file $grep_file not found" >&2
+      fi
+
     elif [[ $line =~ ^\<\!--SQL:([^>]+)--\> ]]; then
       # We found a sql start marker
       sql_file="${BASH_REMATCH[1]}"
@@ -77,6 +96,12 @@ while IFS= read -r line; do
 
     elif [[ "$section_type" = "command" && $line =~ ^\<\!--END_COMMAND--\> ]]; then
       # Found the end command marker
+      echo "$line" >> "$temp_file"
+      in_section=false
+      section_type=""
+
+    elif [[ "$section_type" = "grep" && $line =~ ^\<\!--END_GREP--\> ]]; then
+      # Found the end grep marker
       echo "$line" >> "$temp_file"
       in_section=false
       section_type=""
