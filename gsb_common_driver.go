@@ -29,12 +29,12 @@ type DB struct {
 	readDBSelectPostByID         *sql.Stmt
 	readDBSelectCommentsByPostID *sql.Stmt
 
-	readDBQueryCorrelated      *sql.Stmt
-	readDBQueryGroupBy         *sql.Stmt
-	readDBQueryJSON            *sql.Stmt
-	readDBQueryNonRecursiveCTE *sql.Stmt
-	readDBQueryOrderBy         *sql.Stmt
-	readDBQueryRecursiveCTE    *sql.Stmt
+	readDBQueryCorrelated   *sql.Stmt
+	readDBQueryGroupBy      *sql.Stmt
+	readDBQueryJSON         *sql.Stmt
+	readDBQueryOrderBy      *sql.Stmt
+	readDBQueryRecursiveCTE *sql.Stmt
+	readDBQueryWindow       *sql.Stmt
 }
 
 // ===
@@ -210,12 +210,6 @@ func (db *DB) preparePrepareDBStatements() error {
 	}
 	db.readDBQueryJSON = stmt
 
-	stmt, err = db.readDB.Prepare(SQLForQueryNonRecursiveCTE)
-	if err != nil {
-		return err
-	}
-	db.readDBQueryNonRecursiveCTE = stmt
-
 	stmt, err = db.readDB.Prepare(SQLForQueryOrderBy)
 	if err != nil {
 		return err
@@ -227,6 +221,12 @@ func (db *DB) preparePrepareDBStatements() error {
 		return err
 	}
 	db.readDBQueryRecursiveCTE = stmt
+
+	stmt, err = db.readDB.Prepare(SQLForQueryWindow)
+	if err != nil {
+		return err
+	}
+	db.readDBQueryWindow = stmt
 
 	return nil
 }
@@ -279,11 +279,6 @@ func (db *DB) closePrepareDBStatements() error {
 		db.readDBQueryJSON = nil
 	}
 
-	if db.readDBQueryNonRecursiveCTE != nil {
-		err = errors.Join(db.readDBQueryNonRecursiveCTE.Close(), err)
-		db.readDBQueryNonRecursiveCTE = nil
-	}
-
 	if db.readDBQueryOrderBy != nil {
 		err = errors.Join(db.readDBQueryOrderBy.Close(), err)
 		db.readDBQueryOrderBy = nil
@@ -292,6 +287,11 @@ func (db *DB) closePrepareDBStatements() error {
 	if db.readDBQueryRecursiveCTE != nil {
 		err = errors.Join(db.readDBQueryRecursiveCTE.Close(), err)
 		db.readDBQueryRecursiveCTE = nil
+	}
+
+	if db.readDBQueryWindow != nil {
+		err = errors.Join(db.readDBQueryWindow.Close(), err)
+		db.readDBQueryWindow = nil
 	}
 
 	return err
@@ -765,16 +765,16 @@ func (db *DB) QueryJSON(ctx context.Context) (int, error) {
 	return db.query(ctx, db.readDBQueryJSON)
 }
 
-func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
-	return db.query(ctx, db.readDBQueryNonRecursiveCTE)
-}
-
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
 	return db.query(ctx, db.readDBQueryOrderBy)
 }
 
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 	return db.query(ctx, db.readDBQueryRecursiveCTE)
+}
+
+func (db *DB) QueryWindow(ctx context.Context) (int, error) {
+	return db.query(ctx, db.readDBQueryWindow)
 }
 
 // ===

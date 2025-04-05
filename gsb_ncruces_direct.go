@@ -980,16 +980,16 @@ func (db *DB) QueryJSON(ctx context.Context) (int, error) {
 	return db.query(ctx, SQLForQueryJSON)
 }
 
-func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
-	return db.query(ctx, SQLForQueryNonRecursiveCTE)
-}
-
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
 	return db.query(ctx, SQLForQueryOrderBy)
 }
 
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
 	return db.query(ctx, SQLForQueryRecursiveCTE)
+}
+
+func (db *DB) QueryWindow(ctx context.Context) (int, error) {
+	return db.query(ctx, SQLForQueryWindow)
 }
 
 // ===

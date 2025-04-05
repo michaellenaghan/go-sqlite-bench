@@ -64,11 +64,11 @@ var SQLForQueryGroupBy string
 //go:embed gsb_common_sql_query_json.sql
 var SQLForQueryJSON string
 
-//go:embed gsb_common_sql_query_nonrecursivecte.sql
-var SQLForQueryNonRecursiveCTE string
-
 //go:embed gsb_common_sql_query_orderby.sql
 var SQLForQueryOrderBy string
 
 //go:embed gsb_common_sql_query_recursivecte.sql
 var SQLForQueryRecursiveCTE string
+
+//go:embed gsb_common_sql_query_window.sql
+var SQLForQueryWindow string

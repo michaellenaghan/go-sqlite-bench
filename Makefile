@@ -57,12 +57,12 @@ help:
 	@echo "  bench-category-query-groupby-parallel              - Run groupby query benchmarks in parallel"
 	@echo "  bench-category-query-json                          - Run json query benchmarks"
 	@echo "  bench-category-query-json-parallel                 - Run json query benchmarks in parallel"
-	@echo "  bench-category-query-nonrecursivecte               - Run nonrecursivecte query benchmarks"
-	@echo "  bench-category-query-nonrecursivecte-parallel      - Run nonrecursivecte query benchmarks in parallel"
 	@echo "  bench-category-query-orderby                       - Run orderby query benchmarks"
 	@echo "  bench-category-query-orderby-parallel              - Run orderby query benchmarks in parallel"
 	@echo "  bench-category-query-recursivecte                  - Run recursivecte query benchmarks"
 	@echo "  bench-category-query-recursivecte-parallel         - Run recursivecte query benchmarks in parallel"
+	@echo "  bench-category-query-window                        - Run window query benchmarks"
+	@echo "  bench-category-query-window-parallel               - Run window query benchmarks in parallel"
 	@echo "  benchstat-all                                      - Compare all benchmarks"
 	@echo "  benchstat-by-category                              - Run and compare all benchmark categories"
 	@echo "  benchstat-category-baseline                        - Run and compare baseline benchmarks"
@@ -76,12 +76,12 @@ help:
 	@echo "  benchstat-category-query-groupby-parallel          - Run and compare groupby query benchmarks in parallel"
 	@echo "  benchstat-category-query-json                      - Run and compare json query benchmarks"
 	@echo "  benchstat-category-query-json-parallel             - Run and compare json query benchmarks in parallel"
-	@echo "  benchstat-category-query-nonrecursivecte           - Run and compare nonrecursivecte query benchmarks"
-	@echo "  benchstat-category-query-nonrecursivecte-parallel  - Run and compare nonrecursivecte query benchmarks in parallel"
 	@echo "  benchstat-category-query-orderby                   - Run and compare orderby query benchmarks"
 	@echo "  benchstat-category-query-orderby-parallel          - Run and compare orderby query benchmarks in parallel"
 	@echo "  benchstat-category-query-recursivecte              - Run and compare recursivecte query benchmarks"
 	@echo "  benchstat-category-query-recursivecte-parallel     - Run and compare recursivecte query benchmarks in parallel"
+	@echo "  benchstat-category-query-window                    - Run and compare window query benchmarks"
+	@echo "  benchstat-category-query-window-parallel           - Run and compare window query benchmarks in parallel"
 	@echo "  clean                                              - Remove all benchmark, benchstat and test files"
 	@echo "  test-all                                           - Run all tests"
 	@echo "  update-all                                         - Update the quick/, slow/, and tests/ directories and README"
@@ -186,12 +186,12 @@ bench-by-category: \
   bench-category-query-groupby-parallel \
   bench-category-query-json \
   bench-category-query-json-parallel \
-  bench-category-query-nonrecursivecte \
-  bench-category-query-nonrecursivecte-parallel \
   bench-category-query-orderby \
   bench-category-query-orderby-parallel \
   bench-category-query-recursivecte \
-  bench-category-query-recursivecte-parallel
+  bench-category-query-recursivecte-parallel \
+  bench-category-query-window \
+  bench-category-query-window-parallel
 
 .PHONY: bench-category-baseline
 bench-category-baseline:
@@ -237,14 +237,6 @@ bench-category-query-json:
 bench-category-query-json-parallel:
 	$(MAKE) bench-all BENCH_PATTERN="Query/JSONParallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
 
-.PHONY: bench-category-query-nonrecursivecte
-bench-category-query-nonrecursivecte:
-	$(MAKE) bench-all BENCH_PATTERN="Query/NonRecursiveCTE"
-
-.PHONY: bench-category-query-nonrecursivecte-parallel
-bench-category-query-nonrecursivecte-parallel:
-	$(MAKE) bench-all BENCH_PATTERN="Query/NonRecursiveCTEParallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
-
 .PHONY: bench-category-query-orderby
 bench-category-query-orderby:
 	$(MAKE) bench-all BENCH_PATTERN="Query/OrderBy"
@@ -260,6 +252,14 @@ bench-category-query-recursivecte:
 .PHONY: bench-category-query-recursivecte-parallel
 bench-category-query-recursivecte-parallel:
 	$(MAKE) bench-all BENCH_PATTERN="Query/^RecursiveCTEParallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
+
+.PHONY: bench-category-query-window
+bench-category-query-window:
+	$(MAKE) bench-all BENCH_PATTERN="Query/Window"
+
+.PHONY: bench-category-query-window-parallel
+bench-category-query-window-parallel:
+	$(MAKE) bench-all BENCH_PATTERN="Query/WindowParallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
 
 .PHONY: $(addprefix bench-,$(TAGS))
 $(addprefix bench-,$(TAGS)):
@@ -305,12 +305,12 @@ benchstat-by-category: \
   benchstat-category-query-groupby-parallel \
   benchstat-category-query-json \
   benchstat-category-query-json-parallel \
-  benchstat-category-query-nonrecursivecte \
-  benchstat-category-query-nonrecursivecte-parallel \
   benchstat-category-query-orderby \
   benchstat-category-query-orderby-parallel \
   benchstat-category-query-recursivecte \
-  benchstat-category-query-recursivecte-parallel
+  benchstat-category-query-recursivecte-parallel \
+  benchstat-category-query-window \
+  benchstat-category-query-window-parallel
 
 .PHONY: benchstat-category-baseline
 benchstat-category-baseline: benchstat bench-category-baseline
@@ -356,14 +356,6 @@ benchstat-category-query-json: benchstat bench-category-query-json
 benchstat-category-query-json-parallel: benchstat bench-category-query-json-parallel
 	$(MAKE) benchstat-all | tee benchstat_query_json_parallel.txt
 
-.PHONY: benchstat-category-query-nonrecursivecte
-benchstat-category-query-nonrecursivecte: benchstat bench-category-query-nonrecursivecte
-	$(MAKE) benchstat-all | tee benchstat_query_nonrecursivecte.txt
-
-.PHONY: benchstat-category-query-nonrecursivecte-parallel
-benchstat-category-query-nonrecursivecte-parallel: benchstat bench-category-query-nonrecursivecte-parallel
-	$(MAKE) benchstat-all | tee benchstat_query_nonrecursivecte_parallel.txt
-
 .PHONY: benchstat-category-query-orderby
 benchstat-category-query-orderby: benchstat bench-category-query-orderby
 	$(MAKE) benchstat-all | tee benchstat_query_orderby.txt
@@ -379,6 +371,14 @@ benchstat-category-query-recursivecte: benchstat bench-category-query-recursivec
 .PHONY: benchstat-category-query-recursivecte-parallel
 benchstat-category-query-recursivecte-parallel: benchstat bench-category-query-recursivecte-parallel
 	$(MAKE) benchstat-all | tee benchstat_query_recursivecte_parallel.txt
+
+.PHONY: benchstat-category-query-window
+benchstat-category-query-window: benchstat bench-category-query-window
+	$(MAKE) benchstat-all | tee benchstat_query_window.txt
+
+.PHONY: benchstat-category-query-window-parallel
+benchstat-category-query-window-parallel: benchstat bench-category-query-window-parallel
+	$(MAKE) benchstat-all | tee benchstat_query_window_parallel.txt
 
 .PHONY: test-all
 test-all: $(addprefix test-,$(TAGS))

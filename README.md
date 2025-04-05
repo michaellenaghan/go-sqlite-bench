@@ -70,12 +70,12 @@ Targets:
   bench-category-query-groupby-parallel              - Run groupby query benchmarks in parallel
   bench-category-query-json                          - Run json query benchmarks
   bench-category-query-json-parallel                 - Run json query benchmarks in parallel
-  bench-category-query-nonrecursivecte               - Run nonrecursivecte query benchmarks
-  bench-category-query-nonrecursivecte-parallel      - Run nonrecursivecte query benchmarks in parallel
   bench-category-query-orderby                       - Run orderby query benchmarks
   bench-category-query-orderby-parallel              - Run orderby query benchmarks in parallel
   bench-category-query-recursivecte                  - Run recursivecte query benchmarks
   bench-category-query-recursivecte-parallel         - Run recursivecte query benchmarks in parallel
+  bench-category-query-window                        - Run window query benchmarks
+  bench-category-query-window-parallel               - Run window query benchmarks in parallel
   benchstat-all                                      - Compare all benchmarks
   benchstat-by-category                              - Run and compare all benchmark categories
   benchstat-category-baseline                        - Run and compare baseline benchmarks
@@ -89,12 +89,12 @@ Targets:
   benchstat-category-query-groupby-parallel          - Run and compare groupby query benchmarks in parallel
   benchstat-category-query-json                      - Run and compare json query benchmarks
   benchstat-category-query-json-parallel             - Run and compare json query benchmarks in parallel
-  benchstat-category-query-nonrecursivecte           - Run and compare nonrecursivecte query benchmarks
-  benchstat-category-query-nonrecursivecte-parallel  - Run and compare nonrecursivecte query benchmarks in parallel
   benchstat-category-query-orderby                   - Run and compare orderby query benchmarks
   benchstat-category-query-orderby-parallel          - Run and compare orderby query benchmarks in parallel
   benchstat-category-query-recursivecte              - Run and compare recursivecte query benchmarks
   benchstat-category-query-recursivecte-parallel     - Run and compare recursivecte query benchmarks in parallel
+  benchstat-category-query-window                    - Run and compare window query benchmarks
+  benchstat-category-query-window-parallel           - Run and compare window query benchmarks in parallel
   clean                                              - Remove all benchmark, benchstat and test files
   test-all                                           - Run all tests
   update-all                                         - Update the quick/, slow/, and tests/ directories and README
@@ -817,108 +817,6 @@ geomean                                        ⁴     4.019k        ?          
 ```
 <!--END_BENCHMARK-->
 
-## Query - NonRecursiveCTE
-
-<!--SQL:gsb_common_sql_query_nonrecursivecte.sql-->
-```sql
-WITH day_totals AS (
-  SELECT date(created) as day, COUNT(*) as day_total
-  FROM posts
-  GROUP BY day
-)
-SELECT day, day_total,
-  SUM(day_total) OVER (ORDER BY day) as running_total
-FROM day_totals
-ORDER BY day
-```
-<!--END_SQL-->
-
-### - Sequential & Parallel Performance
-
-<!--BENCHMARK:slow/benchstat_query_nonrecursivecte.txt-->
-```
-benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_eatonphil_direct.txt bench_glebarez_driver.txt bench_mattn_driver.txt bench_modernc_driver.txt bench_tailscale_driver.txt bench_zombiezen_direct.txt
-goos: darwin
-goarch: arm64
-pkg: github.com/michaellenaghan/go-sqlite-bench
-cpu: Apple M2 Pro
-                                 │ bench_ncruces_direct.txt │        bench_ncruces_driver.txt        │       bench_eatonphil_direct.txt       │       bench_glebarez_driver.txt        │         bench_mattn_driver.txt          │        bench_modernc_driver.txt        │       bench_tailscale_driver.txt       │       bench_zombiezen_direct.txt       │
-                                 │          sec/op          │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                  │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │
-Query/NonRecursiveCTE-12                      2151.8µ ± ∞ ¹   2435.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²    968.0µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1866.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²   2107.0µ ± ∞ ¹         ~ (p=0.100 n=3) ²   1888.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1040.2µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1626.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-12               237.6µ ± ∞ ¹    324.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1496.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    906.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1049.9µ ± ∞ ¹         ~ (p=0.100 n=3) ²    896.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    131.3µ ± ∞ ¹        ~ (p=0.100 n=3) ²    852.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-geomean                                        715.0µ          889.2µ        +24.36%                    1.204m        +68.34%                    1.301m        +81.94%                    1.487m        +108.02%                    1.301m        +82.01%                    369.5µ        -48.32%                    1.178m        +64.74%
-¹ need >= 6 samples for confidence interval at level 0.95
-² need >= 4 samples to detect a difference at alpha level 0.05
-
-                                 │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │      bench_eatonphil_direct.txt       │     bench_glebarez_driver.txt      │       bench_mattn_driver.txt        │      bench_modernc_driver.txt      │     bench_tailscale_driver.txt     │    bench_zombiezen_direct.txt    │
-                                 │           B/op           │      B/op        vs base           │    B/op      vs base                  │      B/op        vs base           │       B/op        vs base           │      B/op        vs base           │      B/op        vs base           │     B/op       vs base           │
-Query/NonRecursiveCTE-12                          0.0 ± ∞ ¹     62762.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     0.0 ± ∞ ¹         ~ (p=1.000 n=3) ²     54883.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     198934.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     54936.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     30794.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     374.0 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-12                1.000 ± ∞ ¹   62761.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   7.000 ± ∞ ¹         ~ (p=0.100 n=3) ²   54884.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   198945.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54908.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   30762.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   372.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-geomean                                                   ³     61.29Ki        ?                                +164.58%               ³     53.60Ki        ?                      194.3Ki        ?                     53.63Ki        ?                     30.06Ki        ?                     373.0        ?
-¹ need >= 6 samples for confidence interval at level 0.95
-² need >= 4 samples to detect a difference at alpha level 0.05
-³ summaries must be >0 to compute geomean
-
-                                 │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │     bench_eatonphil_direct.txt      │     bench_glebarez_driver.txt     │      bench_mattn_driver.txt       │     bench_modernc_driver.txt      │    bench_tailscale_driver.txt     │   bench_zombiezen_direct.txt   │
-                                 │        allocs/op         │   allocs/op     vs base           │  allocs/op   vs base                │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │  allocs/op   vs base           │
-Query/NonRecursiveCTE-12                        0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-12                0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-geomean                                                   ⁴     3.763k        ?                                +0.00%               ⁴     3.766k        ?                     4.765k        ?                     3.766k        ?                     1.763k        ?                   6.000        ?
-¹ need >= 6 samples for confidence interval at level 0.95
-² need >= 4 samples to detect a difference at alpha level 0.05
-³ all samples are equal
-⁴ summaries must be >0 to compute geomean
-```
-<!--END_BENCHMARK-->
-
-### - Parallel Performance
-
-<!--BENCHMARK:slow/benchstat_query_nonrecursivecte_parallel.txt-->
-```
-benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_eatonphil_direct.txt bench_glebarez_driver.txt bench_mattn_driver.txt bench_modernc_driver.txt bench_tailscale_driver.txt bench_zombiezen_direct.txt
-goos: darwin
-goarch: arm64
-pkg: github.com/michaellenaghan/go-sqlite-bench
-cpu: Apple M2 Pro
-                                 │ bench_ncruces_direct.txt │        bench_ncruces_driver.txt        │       bench_eatonphil_direct.txt       │       bench_glebarez_driver.txt        │         bench_mattn_driver.txt         │        bench_modernc_driver.txt        │       bench_tailscale_driver.txt       │       bench_zombiezen_direct.txt       │
-                                 │          sec/op          │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │
-Query/NonRecursiveCTEParallel                 2100.4µ ± ∞ ¹   2377.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    993.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1894.3µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1593.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1882.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1049.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1611.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-2               1060.2µ ± ∞ ¹   1217.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²    617.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²    972.2µ ± ∞ ¹        ~ (p=0.100 n=3) ²    828.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    975.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    537.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²    833.0µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-4                542.4µ ± ∞ ¹    629.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²    888.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²    525.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    470.2µ ± ∞ ¹        ~ (p=0.100 n=3) ²    531.1µ ± ∞ ¹        ~ (p=0.400 n=3) ²    280.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    452.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-8                272.6µ ± ∞ ¹    343.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1636.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    877.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²    992.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²    871.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²    149.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    842.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-16               231.7µ ± ∞ ¹    313.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1448.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    918.0µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1027.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    906.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²    138.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    854.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²
-geomean                                        597.7µ          722.3µ        +20.84%                    1.053m        +76.13%                    951.4µ        +59.18%                    912.8µ        +52.71%                    949.3µ        +58.82%                    318.6µ        -46.70%                    847.7µ        +41.82%
-¹ need >= 6 samples for confidence interval at level 0.95
-² need >= 4 samples to detect a difference at alpha level 0.05
-
-                                 │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │   bench_eatonphil_direct.txt   │     bench_glebarez_driver.txt      │       bench_mattn_driver.txt        │      bench_modernc_driver.txt      │     bench_tailscale_driver.txt     │    bench_zombiezen_direct.txt    │
-                                 │           B/op           │      B/op        vs base           │    B/op      vs base           │      B/op        vs base           │       B/op        vs base           │      B/op        vs base           │      B/op        vs base           │     B/op       vs base           │
-Query/NonRecursiveCTEParallel                     0.0 ± ∞ ¹     62762.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     0.0 ± ∞ ¹  ~ (p=1.000 n=3) ³     54775.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     198936.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     54788.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     30792.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     360.0 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-2                   0.0 ± ∞ ¹     62761.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     0.0 ± ∞ ¹  ~ (p=1.000 n=3) ³     54821.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     198838.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     54812.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     30793.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     361.0 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-4                 0.000 ± ∞ ¹   62762.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1.000 ± ∞ ¹  ~ (p=0.400 n=3) ²   54878.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   198852.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54883.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   30793.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   363.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-8                 0.000 ± ∞ ¹   62766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   8.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54881.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   198906.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54906.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   30794.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   364.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-16                 0.00 ± ∞ ¹    62768.00 ± ∞ ¹  ~ (p=0.100 n=3) ²   11.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    54893.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    198971.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    54922.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    30772.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    375.00 ± ∞ ¹  ~ (p=0.100 n=3) ²
-geomean                                                   ⁴     61.29Ki        ?                                ?               ⁴     53.56Ki        ?                      194.2Ki        ?                     53.58Ki        ?                     30.07Ki        ?                     364.6        ?
-¹ need >= 6 samples for confidence interval at level 0.95
-² need >= 4 samples to detect a difference at alpha level 0.05
-³ all samples are equal
-⁴ summaries must be >0 to compute geomean
-
-                                 │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │     bench_eatonphil_direct.txt      │     bench_glebarez_driver.txt     │      bench_mattn_driver.txt       │     bench_modernc_driver.txt      │    bench_tailscale_driver.txt     │   bench_zombiezen_direct.txt   │
-                                 │        allocs/op         │   allocs/op     vs base           │  allocs/op   vs base                │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │  allocs/op   vs base           │
-Query/NonRecursiveCTEParallel                   0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-2                 0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-4                 0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-8                 0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-Query/NonRecursiveCTEParallel-16                0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
-geomean                                                   ⁴     3.763k        ?                                +0.00%               ⁴     3.766k        ?                     4.764k        ?                     3.765k        ?                     1.764k        ?                   6.000        ?
-¹ need >= 6 samples for confidence interval at level 0.95
-² need >= 4 samples to detect a difference at alpha level 0.05
-³ all samples are equal
-⁴ summaries must be >0 to compute geomean
-```
-<!--END_BENCHMARK-->
-
 ## Query - OrderBy
 
 <!--SQL:gsb_common_sql_query_orderby.sql-->
@@ -1015,16 +913,18 @@ geomean                                 8.365             349.8k        +4181293
 
 ## Query - RecursiveCTE
 
-<!--SQL:gsb_common_sql_query_nonrecursivecte.sql-->
+<!--SQL:gsb_common_sql_query_recursivecte.sql-->
 ```sql
-WITH day_totals AS (
-  SELECT date(created) as day, COUNT(*) as day_total
-  FROM posts
-  GROUP BY day
+WITH RECURSIVE dates(day) AS (
+  SELECT date('now', '-30 days')
+  UNION ALL
+  SELECT date(day, '+1 day')
+  FROM dates
+  WHERE day < date('now')
 )
-SELECT day, day_total,
-  SUM(day_total) OVER (ORDER BY day) as running_total
-FROM day_totals
+SELECT day,
+  (SELECT COUNT(*) FROM posts WHERE date(created) = day) as day_total
+FROM dates
 ORDER BY day
 ```
 <!--END_SQL-->
@@ -1110,6 +1010,108 @@ Query/RecursiveCTEParallel-4                 0.000 ± ∞ ¹   110.000 ± ∞ ¹
 Query/RecursiveCTEParallel-8                 0.000 ± ∞ ¹   110.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   113.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   143.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   112.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   49.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
 Query/RecursiveCTEParallel-16                0.000 ± ∞ ¹   110.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   113.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   142.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   112.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   49.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
 geomean                                                ⁴     110.0        ?                                +0.00%               ⁴     112.4        ?                     142.4        ?                     112.0        ?                    48.80        ?                   6.000        ?
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+³ all samples are equal
+⁴ summaries must be >0 to compute geomean
+```
+<!--END_BENCHMARK-->
+
+## Query - Window
+
+<!--SQL:gsb_common_sql_query_window.sql-->
+```sql
+WITH day_totals AS (
+  SELECT date(created) as day, COUNT(*) as day_total
+  FROM posts
+  GROUP BY day
+)
+SELECT day, day_total,
+  SUM(day_total) OVER (ORDER BY day) as running_total
+FROM day_totals
+ORDER BY day
+```
+<!--END_SQL-->
+
+### - Sequential & Parallel Performance
+
+<!--BENCHMARK:slow/benchstat_query_window.txt-->
+```
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_eatonphil_direct.txt bench_glebarez_driver.txt bench_mattn_driver.txt bench_modernc_driver.txt bench_tailscale_driver.txt bench_zombiezen_direct.txt
+goos: darwin
+goarch: arm64
+pkg: github.com/michaellenaghan/go-sqlite-bench
+cpu: Apple M2 Pro
+                                 │ bench_ncruces_direct.txt │        bench_ncruces_driver.txt        │       bench_eatonphil_direct.txt       │       bench_glebarez_driver.txt        │         bench_mattn_driver.txt          │        bench_modernc_driver.txt        │       bench_tailscale_driver.txt       │       bench_zombiezen_direct.txt       │
+                                 │          sec/op          │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                  │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │
+Query/NonRecursiveCTE-12                      2151.8µ ± ∞ ¹   2435.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²    968.0µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1866.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²   2107.0µ ± ∞ ¹         ~ (p=0.100 n=3) ²   1888.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1040.2µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1626.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-12               237.6µ ± ∞ ¹    324.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1496.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    906.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1049.9µ ± ∞ ¹         ~ (p=0.100 n=3) ²    896.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    131.3µ ± ∞ ¹        ~ (p=0.100 n=3) ²    852.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+geomean                                        715.0µ          889.2µ        +24.36%                    1.204m        +68.34%                    1.301m        +81.94%                    1.487m        +108.02%                    1.301m        +82.01%                    369.5µ        -48.32%                    1.178m        +64.74%
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+
+                                 │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │      bench_eatonphil_direct.txt       │     bench_glebarez_driver.txt      │       bench_mattn_driver.txt        │      bench_modernc_driver.txt      │     bench_tailscale_driver.txt     │    bench_zombiezen_direct.txt    │
+                                 │           B/op           │      B/op        vs base           │    B/op      vs base                  │      B/op        vs base           │       B/op        vs base           │      B/op        vs base           │      B/op        vs base           │     B/op       vs base           │
+Query/NonRecursiveCTE-12                          0.0 ± ∞ ¹     62762.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     0.0 ± ∞ ¹         ~ (p=1.000 n=3) ²     54883.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     198934.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     54936.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     30794.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     374.0 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-12                1.000 ± ∞ ¹   62761.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   7.000 ± ∞ ¹         ~ (p=0.100 n=3) ²   54884.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   198945.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54908.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   30762.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   372.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+geomean                                                   ³     61.29Ki        ?                                +164.58%               ³     53.60Ki        ?                      194.3Ki        ?                     53.63Ki        ?                     30.06Ki        ?                     373.0        ?
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+³ summaries must be >0 to compute geomean
+
+                                 │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │     bench_eatonphil_direct.txt      │     bench_glebarez_driver.txt     │      bench_mattn_driver.txt       │     bench_modernc_driver.txt      │    bench_tailscale_driver.txt     │   bench_zombiezen_direct.txt   │
+                                 │        allocs/op         │   allocs/op     vs base           │  allocs/op   vs base                │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │  allocs/op   vs base           │
+Query/NonRecursiveCTE-12                        0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-12                0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+geomean                                                   ⁴     3.763k        ?                                +0.00%               ⁴     3.766k        ?                     4.765k        ?                     3.766k        ?                     1.763k        ?                   6.000        ?
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+³ all samples are equal
+⁴ summaries must be >0 to compute geomean
+```
+<!--END_BENCHMARK-->
+
+### - Parallel Performance
+
+<!--BENCHMARK:slow/benchstat_query_window_parallel.txt-->
+```
+benchstat bench_ncruces_direct.txt bench_ncruces_driver.txt bench_eatonphil_direct.txt bench_glebarez_driver.txt bench_mattn_driver.txt bench_modernc_driver.txt bench_tailscale_driver.txt bench_zombiezen_direct.txt
+goos: darwin
+goarch: arm64
+pkg: github.com/michaellenaghan/go-sqlite-bench
+cpu: Apple M2 Pro
+                                 │ bench_ncruces_direct.txt │        bench_ncruces_driver.txt        │       bench_eatonphil_direct.txt       │       bench_glebarez_driver.txt        │         bench_mattn_driver.txt         │        bench_modernc_driver.txt        │       bench_tailscale_driver.txt       │       bench_zombiezen_direct.txt       │
+                                 │          sec/op          │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │    sec/op      vs base                 │
+Query/NonRecursiveCTEParallel                 2100.4µ ± ∞ ¹   2377.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    993.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1894.3µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1593.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1882.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1049.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1611.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-2               1060.2µ ± ∞ ¹   1217.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²    617.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²    972.2µ ± ∞ ¹        ~ (p=0.100 n=3) ²    828.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    975.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    537.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²    833.0µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-4                542.4µ ± ∞ ¹    629.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²    888.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²    525.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    470.2µ ± ∞ ¹        ~ (p=0.100 n=3) ²    531.1µ ± ∞ ¹        ~ (p=0.400 n=3) ²    280.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    452.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-8                272.6µ ± ∞ ¹    343.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1636.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    877.1µ ± ∞ ¹        ~ (p=0.100 n=3) ²    992.4µ ± ∞ ¹        ~ (p=0.100 n=3) ²    871.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²    149.5µ ± ∞ ¹        ~ (p=0.100 n=3) ²    842.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-16               231.7µ ± ∞ ¹    313.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1448.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    918.0µ ± ∞ ¹        ~ (p=0.100 n=3) ²   1027.8µ ± ∞ ¹        ~ (p=0.100 n=3) ²    906.9µ ± ∞ ¹        ~ (p=0.100 n=3) ²    138.6µ ± ∞ ¹        ~ (p=0.100 n=3) ²    854.7µ ± ∞ ¹        ~ (p=0.100 n=3) ²
+geomean                                        597.7µ          722.3µ        +20.84%                    1.053m        +76.13%                    951.4µ        +59.18%                    912.8µ        +52.71%                    949.3µ        +58.82%                    318.6µ        -46.70%                    847.7µ        +41.82%
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+
+                                 │ bench_ncruces_direct.txt │      bench_ncruces_driver.txt      │   bench_eatonphil_direct.txt   │     bench_glebarez_driver.txt      │       bench_mattn_driver.txt        │      bench_modernc_driver.txt      │     bench_tailscale_driver.txt     │    bench_zombiezen_direct.txt    │
+                                 │           B/op           │      B/op        vs base           │    B/op      vs base           │      B/op        vs base           │       B/op        vs base           │      B/op        vs base           │      B/op        vs base           │     B/op       vs base           │
+Query/NonRecursiveCTEParallel                     0.0 ± ∞ ¹     62762.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     0.0 ± ∞ ¹  ~ (p=1.000 n=3) ³     54775.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     198936.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     54788.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     30792.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     360.0 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-2                   0.0 ± ∞ ¹     62761.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     0.0 ± ∞ ¹  ~ (p=1.000 n=3) ³     54821.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     198838.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     54812.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     30793.0 ± ∞ ¹  ~ (p=0.100 n=3) ²     361.0 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-4                 0.000 ± ∞ ¹   62762.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1.000 ± ∞ ¹  ~ (p=0.400 n=3) ²   54878.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   198852.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54883.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   30793.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   363.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-8                 0.000 ± ∞ ¹   62766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   8.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54881.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   198906.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   54906.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   30794.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   364.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-16                 0.00 ± ∞ ¹    62768.00 ± ∞ ¹  ~ (p=0.100 n=3) ²   11.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    54893.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    198971.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    54922.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    30772.00 ± ∞ ¹  ~ (p=0.100 n=3) ²    375.00 ± ∞ ¹  ~ (p=0.100 n=3) ²
+geomean                                                   ⁴     61.29Ki        ?                                ?               ⁴     53.56Ki        ?                      194.2Ki        ?                     53.58Ki        ?                     30.07Ki        ?                     364.6        ?
+¹ need >= 6 samples for confidence interval at level 0.95
+² need >= 4 samples to detect a difference at alpha level 0.05
+³ all samples are equal
+⁴ summaries must be >0 to compute geomean
+
+                                 │ bench_ncruces_direct.txt │     bench_ncruces_driver.txt      │     bench_eatonphil_direct.txt      │     bench_glebarez_driver.txt     │      bench_mattn_driver.txt       │     bench_modernc_driver.txt      │    bench_tailscale_driver.txt     │   bench_zombiezen_direct.txt   │
+                                 │        allocs/op         │   allocs/op     vs base           │  allocs/op   vs base                │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │   allocs/op     vs base           │  allocs/op   vs base           │
+Query/NonRecursiveCTEParallel                   0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-2                 0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-4                 0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-8                 0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1764.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+Query/NonRecursiveCTEParallel-16                0.000 ± ∞ ¹   3763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   0.000 ± ∞ ¹       ~ (p=1.000 n=3) ³   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   4765.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   3766.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   1763.000 ± ∞ ¹  ~ (p=0.100 n=3) ²   6.000 ± ∞ ¹  ~ (p=0.100 n=3) ²
+geomean                                                   ⁴     3.763k        ?                                +0.00%               ⁴     3.766k        ?                     4.764k        ?                     3.765k        ?                     1.764k        ?                   6.000        ?
 ¹ need >= 6 samples for confidence interval at level 0.95
 ² need >= 4 samples to detect a difference at alpha level 0.05
 ³ all samples are equal

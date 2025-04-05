@@ -792,7 +792,7 @@ func (db *DB) WritePostAndCommentsWithTx(ctx context.Context, postTitle, postCon
 
 // ===
 
-func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+func (db *DB) query(ctx context.Context, sql string) (int, error) {
 	n := 0
 
 	conn, err := db.readPool.Get(ctx)
@@ -801,7 +801,7 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 	defer db.readPool.Put(conn)
 
-	stmt, err := conn.PrepareAndPersist(SQLForQueryCorrelated)
+	stmt, err := conn.PrepareAndPersist(sql)
 	if err != nil {
 		return 0, err
 	}
@@ -823,171 +823,30 @@ func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
 	}
 
 	return n, nil
+}
+
+func (db *DB) QueryCorrelated(ctx context.Context) (int, error) {
+	return db.query(ctx, SQLForQueryCorrelated)
 }
 
 func (db *DB) QueryGroupBy(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, err := conn.PrepareAndPersist(SQLForQueryGroupBy)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	row, err := stmt.Step()
-	for row {
-		n += 1
-
-		row, err = stmt.Step()
-	}
-	if err != nil {
-		return 0, err
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryGroupBy)
 }
 
 func (db *DB) QueryJSON(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, err := conn.PrepareAndPersist(SQLForQueryJSON)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	row, err := stmt.Step()
-	for row {
-		n += 1
-
-		row, err = stmt.Step()
-	}
-	if err != nil {
-		return 0, err
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
-}
-
-func (db *DB) QueryNonRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, err := conn.PrepareAndPersist(SQLForQueryNonRecursiveCTE)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	row, err := stmt.Step()
-	for row {
-		n += 1
-
-		row, err = stmt.Step()
-	}
-	if err != nil {
-		return 0, err
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryJSON)
 }
 
 func (db *DB) QueryOrderBy(ctx context.Context) (int, error) {
-	n := 0
-
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, err := conn.PrepareAndPersist(SQLForQueryOrderBy)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	row, err := stmt.Step()
-	for row {
-		n += 1
-
-		row, err = stmt.Step()
-	}
-	if err != nil {
-		return 0, err
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+	return db.query(ctx, SQLForQueryOrderBy)
 }
 
 func (db *DB) QueryRecursiveCTE(ctx context.Context) (int, error) {
-	n := 0
+	return db.query(ctx, SQLForQueryRecursiveCTE)
+}
 
-	conn, err := db.readPool.Get(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer db.readPool.Put(conn)
-
-	stmt, err := conn.PrepareAndPersist(SQLForQueryRecursiveCTE)
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Reset() // Purely defensive.
-
-	row, err := stmt.Step()
-	for row {
-		n += 1
-
-		row, err = stmt.Step()
-	}
-	if err != nil {
-		return 0, err
-	}
-
-	err = stmt.Reset()
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
+func (db *DB) QueryWindow(ctx context.Context) (int, error) {
+	return db.query(ctx, SQLForQueryWindow)
 }
 
 // ===

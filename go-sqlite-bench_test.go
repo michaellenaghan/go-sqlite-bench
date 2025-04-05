@@ -540,17 +540,6 @@ func TestQuery(t *testing.T) {
 		}
 	})
 
-	// Test the QueryNonRecursiveCTE method.
-	t.Run("NonRecursiveCTE", func(t *testing.T) {
-		n, err := db.QueryNonRecursiveCTE(t.Context())
-		noErr(t, err)
-
-		// 1 row per day, 1 day per post
-		if n != posts {
-			t.Errorf("want n %d, got %d", posts, n)
-		}
-	})
-
 	// Test the QueryOrderBy method.
 	t.Run("OrderBy", func(t *testing.T) {
 		n, err := db.QueryOrderBy(t.Context())
@@ -570,6 +559,17 @@ func TestQuery(t *testing.T) {
 		// 1 row per day, always 31 days
 		if n != 31 {
 			t.Errorf("want n %d, got %d", 31, n)
+		}
+	})
+
+	// Test the QueryWindow method.
+	t.Run("Window", func(t *testing.T) {
+		n, err := db.QueryWindow(t.Context())
+		noErr(t, err)
+
+		// 1 row per day, 1 day per post
+		if n != posts {
+			t.Errorf("want n %d, got %d", posts, n)
 		}
 	})
 }
@@ -943,24 +943,6 @@ func BenchmarkQuery(b *testing.B) {
 		})
 	})
 
-	// Run the QueryNonRecursiveCTE Query benchmark.
-	b.Run("NonRecursiveCTE", func(b *testing.B) {
-		for b.Loop() {
-			_, err := db.QueryNonRecursiveCTE(b.Context())
-			noErr(b, err)
-		}
-	})
-
-	// Run the QueryNonRecursiveCTE Query benchmark in parallel.
-	b.Run("NonRecursiveCTEParallel", func(b *testing.B) {
-		b.RunParallel(func(pb *testing.PB) {
-			for pb.Next() {
-				_, err := db.QueryNonRecursiveCTE(b.Context())
-				noErr(b, err)
-			}
-		})
-	})
-
 	// Run the QueryOrderBy Query benchmark.
 	b.Run("OrderBy", func(b *testing.B) {
 		for b.Loop() {
@@ -992,6 +974,24 @@ func BenchmarkQuery(b *testing.B) {
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
 				_, err := db.QueryRecursiveCTE(b.Context())
+				noErr(b, err)
+			}
+		})
+	})
+
+	// Run the QueryWindow Query benchmark.
+	b.Run("Window", func(b *testing.B) {
+		for b.Loop() {
+			_, err := db.QueryWindow(b.Context())
+			noErr(b, err)
+		}
+	})
+
+	// Run the QueryWindow Query benchmark in parallel.
+	b.Run("WindowParallel", func(b *testing.B) {
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				_, err := db.QueryWindow(b.Context())
 				noErr(b, err)
 			}
 		})
