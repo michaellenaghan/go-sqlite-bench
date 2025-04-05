@@ -113,15 +113,15 @@
 === RUN   TestQuery/Correlated
 === RUN   TestQuery/GroupBy
 === RUN   TestQuery/JSON
-=== RUN   TestQuery/NonRecursiveCTE
 === RUN   TestQuery/OrderBy
 === RUN   TestQuery/RecursiveCTE
+=== RUN   TestQuery/Window
 --- PASS: TestQuery (0.01s)
     --- PASS: TestQuery/Correlated (0.00s)
     --- PASS: TestQuery/GroupBy (0.00s)
     --- PASS: TestQuery/JSON (0.00s)
-    --- PASS: TestQuery/NonRecursiveCTE (0.00s)
     --- PASS: TestQuery/OrderBy (0.00s)
     --- PASS: TestQuery/RecursiveCTE (0.00s)
+    --- PASS: TestQuery/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.293s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.292s
