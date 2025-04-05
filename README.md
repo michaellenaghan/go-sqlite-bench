@@ -50,7 +50,7 @@ The tests in the [tests](./tests/) directory were generated using:
 make test-all
 ```
 
-Among other things, the tests capture the [compile-time options, pragmas, and SQLite version](#implementations) used by each implementation.
+Among other things, the tests capture the [compile-time options, pragmas, and SQLite version](#reviewing-the-implementations) used by each implementation.
 
 There are lots of ways to play the benchmark game; take a look at the examples below.
 
@@ -1122,7 +1122,7 @@ geomean                                          ⁴     3.763k        ?        
 ```
 <!--END_BENCHMARK-->
 
-# Implementations
+# Reviewing the Implementations
 
 ## eatonphil
 
