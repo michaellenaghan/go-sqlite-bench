@@ -10,19 +10,33 @@ This project, originally inspired by [Benchmarking SQLite Performance in Go](htt
 
 Here are some quick descriptions:
 
-* **eatonphil** is a CGO-based implementation. eatonphil offers a direct interface.
+* **eatonphil**
 
-* **glebarez** is a non-CGO transpilation-based implementation, based on modernc. glebarez offers a `database/sql` interface.
+  eatonphil is a CGO-based implementation. It offers a direct interface.
 
-* **mattn** is a CGO-based implementation. mattn offers a `database/sql` interface.
+* **glebarez**
 
-* **modernc** is a non-CGO transpilation-based implementation. modernc offers a `database/sql` interface.
+  glebarez is a non-CGO transpilation-based implementation, based on modernc. It offers a `database/sql` interface.
 
-* **ncruces** is a non-CGO WASM-based implementation. ncruces offers both direct and `database/sql` interfaces.
+* **mattn**
 
-* **tailscale** is a CGO-based implementation. tailscale offers both direct and `database/sql` interfaces.
+  mattn is a CGO-based implementation. It offers a `database/sql` interface.
 
-* **zombiezen** is a non-CGO transpilation-based implementation, based on modernc. zombiezen offers a direct interface.
+* **modernc**
+
+  modernc is a non-CGO transpilation-based implementation. It offers a `database/sql` interface.
+
+* **ncruces**
+
+  ncruces is a non-CGO WASM-based implementation. It offers both direct and `database/sql` interfaces.
+
+* **tailscale**
+
+  tailscale is a CGO-based implementation. It offers both direct and `database/sql` interfaces.
+
+* **zombiezen**
+
+  zombiezen is a non-CGO transpilation-based implementation, based on modernc. It offers a direct interface.
 
 The benchmark results are [below](#reviewing-the-benchmarks).
 
@@ -186,7 +200,80 @@ Examples:
 
 # Reviewing the Benchmarks
 
+### What to Know
+
+* **Sequential vs. Parallel**
+
+  Benchmarks that don't end with "Parallel" are sequential benchmarks; they run on a single goroutine, in a loop:
+
+    for b.Loop() {
+      ...
+    }
+
+  Benchmarks that end with "Parallel" are parallel benchmarks; they run on `GOMAXPROCS` goroutines, in a loop:
+
+    b.RunParallel(func(pb *testing.PB) {
+      for pb.Next() {
+        ...
+      }
+    })
+
+  "Sequential & Parallel Performance" runs have lines like these:
+
+    Baseline/Conn-12
+    Baseline/ConnParallel-12
+
+  They show the same benchmark, "Conn", being run both sequentially and in parallel (with `GOMAXPROCS` set to 12 in this case, the default value on my laptop).
+
+  "Parallel Performance" runs have lines like these:
+
+    Baseline/ConnParallel
+    Baseline/ConnParallel-2
+    Baseline/ConnParallel-4
+    Baseline/ConnParallel-8
+    Baseline/ConnParallel-16
+
+  They show the same benchmark, "ConnParallel", being run in parallel (with `GOMAXPROCS` set to 1, 2, 4, 8, and 16 in this case).
+
+* **Queries**
+
+  The query benchmarks were really meant to push the non-CGO-based implementations. They do that — but they also revealed unexpected differences between the CGO-based implementations.
+
+### What to Look For
+
+* **Sequential Performance**
+
+  Sequential benchmarks answer the question: if I'm doing this *one* thing, how fast (or slow) will it be?
+
+* **Parallel Performance**
+
+  Parallel benchmarks answer the question: if I'm doing more than one of these things *at the same time*, how fast (or slow) will they be?
+
+  Depending on the nature of the task, the answer might be "faster than sequential;" "the same as sequential;" or "slower than sequential."
+
+* **Memory Usage**
+
+  How much memory does one implementation use compared to another? Is the difference big enough to matter in your environment?
+
+  (Just keep in mind that the benchmarks only measure memory usage that's visible to Go.)
+
+* **Queries**
+
+  How well does an implementation perform on different types of queries? How well does performance improve — or degrade! — with access to more CPUs?
+
 ## Baseline
+
+* **Conn**
+
+  Get and put one connection from the pool.
+
+* **Select1**
+
+  Execute a "SELECT 1" query, preparing it each time.
+
+* **Select1PrePrepared**
+
+  Execute a "SELECT 1" query, preparing it only once, at the beginning.
 
 ### - Sequential & Parallel Performance
 
@@ -319,6 +406,18 @@ geomean                                                         ⁴   1.260     
 
 ## Populate
 
+* **PopulateDB**
+
+  Populate the database without using any explicit transactions.
+
+* **PopulateDBWithTx**
+
+  Populate the database using one explicit transaction.
+
+* **PopulateDBWithTxs**
+
+  Populate the database using one explicit transaction per post + comments.
+
 ### - Sequential Performance
 
 <!--BENCHMARK:slow/benchstat_populate.txt-->
@@ -358,6 +457,50 @@ geomean                                     140.0k         700.5k        +400.32
 <!--END_BENCHMARK-->
 
 ## ReadWrite
+
+* **ReadPost**
+
+  Read one post, without a transaction.
+
+* **ReadPostWithTx**
+
+  Read one post, in a read transaction.
+
+* **ReadPostAndComments**
+
+  Read one post + comments, without a transaction.
+
+* **ReadPostAndCommentsWithTx**
+
+  Read one post + comments, in a read transaction.
+
+* **WritePost**
+
+  Write one post, without a transaction.
+
+* **WritePostWithTx**
+
+  Write one post, in a write transaction.
+
+* **WritePostAndComments**
+
+  Write one post + comments, without a transaction.
+
+* **WritePostAndCommentsWithTx**
+
+  Write one post + comments, in a write transaction.
+
+* **ReadOrWritePostAndComments**
+
+  Read or write one post + comments, without a transaction.
+
+  ("Read or write" is determined by a "write rate" — either 10% or 90% in the current benchmarks.)
+
+* **ReadOrWritePostAndCommentsWithTx**
+
+  Read or write one post + comments, in a read or write transaction.
+
+  ("Read or write" is determined by a "write rate" — either 10% or 90% in the current benchmarks.)
 
 ### - Sequential & Parallel Performance
 
@@ -1123,6 +1266,10 @@ geomean                                          ⁴     3.763k        ?        
 <!--END_BENCHMARK-->
 
 # Reviewing the Implementations
+
+* **Pragmas**
+
+  Please note that the benchmark framework sets the values of the `busy_timeout`, `foreign_keys`, `journal_mode` and `synchronous` pragmas, so what you're seeing below isn't their default values.
 
 ## eatonphil
 
