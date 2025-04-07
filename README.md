@@ -261,7 +261,7 @@ Examples:
 
 * **Conn**
 
-  Get one connection from the pool and then return it to the pool.
+  Get one connection from the pool and then return it to the pool. (*All* of the benchmarks do that!)
 
 * **Select1**
 
@@ -1263,9 +1263,7 @@ geomean                                          ⁴     3.763k        ?        
 
 # Reviewing the Implementations
 
-* **Pragmas**
-
-  Please note that the benchmark framework sets the `busy_timeout`, `foreign_keys`, `journal_mode` and `synchronous` pragmas; what you're seeing below isn't their default values.
+Please note that the benchmark framework sets the `busy_timeout`, `foreign_keys`, `journal_mode` and `synchronous` pragmas; what you're seeing below isn't their default values.
 
 ## eatonphil
 
