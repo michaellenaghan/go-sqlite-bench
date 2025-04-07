@@ -247,11 +247,11 @@ bench-category-query-orderby-parallel:
 
 .PHONY: bench-category-query-recursivecte
 bench-category-query-recursivecte:
-	$(MAKE) bench-all BENCH_PATTERN="Query/^RecursiveCTE"
+	$(MAKE) bench-all BENCH_PATTERN="Query/RecursiveCTE"
 
 .PHONY: bench-category-query-recursivecte-parallel
 bench-category-query-recursivecte-parallel:
-	$(MAKE) bench-all BENCH_PATTERN="Query/^RecursiveCTEParallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
+	$(MAKE) bench-all BENCH_PATTERN="Query/RecursiveCTEParallel\$$" BENCH_CPU=$(BENCH_CPU_PARALLEL)
 
 .PHONY: bench-category-query-window
 bench-category-query-window:
