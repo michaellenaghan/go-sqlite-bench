@@ -29,7 +29,7 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	}
 
 	prepareConn := func(conn *sqlite.Conn) error {
-		err := sqlitex.ExecuteTransient(conn, "PRAGMA busy_timeout(10000)", &sqlitex.ExecOptions{})
+		err := sqlitex.ExecuteTransient(conn, "PRAGMA busy_timeout(5000)", &sqlitex.ExecOptions{})
 		if err != nil {
 			return err
 		}

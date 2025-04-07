@@ -46,7 +46,7 @@ func TestPragma(t *testing.T) {
 	}
 
 	tests := []testCase{
-		{name: "busy_timeout", value: "10000"},
+		{name: "busy_timeout", value: "5000"},
 		{name: "foreign_keys", value: "1"},
 		{name: "journal_mode", value: "wal"},
 		{name: "synchronous", value: "1"},

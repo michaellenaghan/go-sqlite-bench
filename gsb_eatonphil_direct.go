@@ -67,7 +67,7 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 			}
 
 			err = conn.Exec(`
-				PRAGMA busy_timeout(10000);
+				PRAGMA busy_timeout(5000);
 				PRAGMA foreign_keys(true);
 				PRAGMA journal_mode(wal);
 				PRAGMA synchronous(normal);

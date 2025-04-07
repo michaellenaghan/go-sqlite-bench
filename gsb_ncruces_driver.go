@@ -32,5 +32,5 @@ func init() {
 }
 
 func OpenDB(filename string) (*sql.DB, error) {
-	return sql.Open("sqlite3", "file:"+filename+"?_pragma=busy_timeout(10000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
+	return sql.Open("sqlite3", "file:"+filename+"?_pragma=busy_timeout(5000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
 }

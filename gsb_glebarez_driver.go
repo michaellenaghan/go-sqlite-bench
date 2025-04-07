@@ -26,5 +26,5 @@ import (
 //     https://github.com/glebarez/go-sqlite/blob/e6de9fc0c320a357ddc0201f8086bf44b7603436/sqlite.go#L698
 
 func OpenDB(filename string) (*sql.DB, error) {
-	return sql.Open("sqlite", "file:"+filename+"?_pragma=busy_timeout(10000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)&_time_format=sqlite&_txlock=immediate")
+	return sql.Open("sqlite", "file:"+filename+"?_pragma=busy_timeout(5000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)&_time_format=sqlite&_txlock=immediate")
 }

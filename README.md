@@ -1343,7 +1343,7 @@ USE_URI
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=483
 cell_size_check=0
@@ -1447,7 +1447,7 @@ THREADSAFE=1
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=483
 cell_size_check=0
@@ -1540,7 +1540,7 @@ THREADSAFE=1
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=483
 cell_size_check=0
@@ -1645,7 +1645,7 @@ THREADSAFE=1
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=483
 cell_size_check=0
@@ -1754,7 +1754,7 @@ USE_ALLOCA
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=489
 cell_size_check=0
@@ -1859,7 +1859,7 @@ USE_ALLOCA
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=483
 cell_size_check=0
@@ -1964,7 +1964,7 @@ THREADSAFE=1
 ```
 auto_vacuum=0
 automatic_index=1
-busy_timeout=10000
+busy_timeout=5000
 cache_size=-2000
 cache_spill=483
 cell_size_check=0

@@ -63,7 +63,7 @@
 === RUN   TestPragmas
     go-sqlite-bench_test.go:102: PRAGMA auto_vacuum=0
     go-sqlite-bench_test.go:102: PRAGMA automatic_index=1
-    go-sqlite-bench_test.go:102: PRAGMA busy_timeout=10000
+    go-sqlite-bench_test.go:102: PRAGMA busy_timeout=5000
     go-sqlite-bench_test.go:102: PRAGMA cache_size=-2000
     go-sqlite-bench_test.go:102: PRAGMA cache_spill=489
     go-sqlite-bench_test.go:102: PRAGMA cell_size_check=0

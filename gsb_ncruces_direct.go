@@ -70,7 +70,7 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 			// "Order matters: encryption keys, busy timeout and locking mode
 			// should be the first PRAGMAs set, in that order."
 			// https://github.com/ncruces/go-sqlite3/blob/main/driver/driver.go
-			conn, err := sqlite3.Open("file:" + filename + "?_pragma=busy_timeout(10000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
+			conn, err := sqlite3.Open("file:" + filename + "?_pragma=busy_timeout(5000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
 			if err != nil {
 				return nil, err
 			}
