@@ -206,32 +206,32 @@ Examples:
 
   Benchmarks that don't end with "Parallel" are sequential benchmarks; they run on a single goroutine, in a loop:
 
-    for b.Loop() {
-      ...
-    }
+      for b.Loop() {
+        ...
+      }
 
   Benchmarks that end with "Parallel" are parallel benchmarks; they run on `GOMAXPROCS` goroutines, in a loop:
 
-    b.RunParallel(func(pb *testing.PB) {
-      for pb.Next() {
-        ...
-      }
-    })
+      b.RunParallel(func(pb *testing.PB) {
+        for pb.Next() {
+          ...
+        }
+      })
 
   "Sequential & Parallel Performance" runs have lines like these:
 
-    Baseline/Conn-12
-    Baseline/ConnParallel-12
+      Baseline/Conn-12
+      Baseline/ConnParallel-12
 
   They show the same benchmark, "Conn", being run both sequentially and in parallel (with `GOMAXPROCS` set to 12 in this case, the default value on my laptop).
 
   "Parallel Performance" runs have lines like these:
 
-    Baseline/ConnParallel
-    Baseline/ConnParallel-2
-    Baseline/ConnParallel-4
-    Baseline/ConnParallel-8
-    Baseline/ConnParallel-16
+      Baseline/ConnParallel
+      Baseline/ConnParallel-2
+      Baseline/ConnParallel-4
+      Baseline/ConnParallel-8
+      Baseline/ConnParallel-16
 
   They show the same benchmark, "ConnParallel", being run in parallel (with `GOMAXPROCS` set to 1, 2, 4, 8, and 16 in this case).
 
