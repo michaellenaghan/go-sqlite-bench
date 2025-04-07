@@ -257,15 +257,11 @@ Examples:
 
   (Just keep in mind that the benchmarks only measure memory usage that's visible to Go.)
 
-* **Queries**
-
-  How well does an implementation perform on different types of queries? How well does performance improve — or degrade! — with access to more CPUs?
-
 ## Baseline
 
 * **Conn**
 
-  Get and put one connection from the pool.
+  Get one connection from the pool and then return it to the pool.
 
 * **Select1**
 
@@ -273,7 +269,7 @@ Examples:
 
 * **Select1PrePrepared**
 
-  Execute a "SELECT 1" query, preparing it only once, at the beginning.
+  Execute a "SELECT 1" query, preparing it an advance.
 
 ### - Sequential & Parallel Performance
 
@@ -412,11 +408,11 @@ geomean                                                         ⁴   1.260     
 
 * **PopulateDBWithTx**
 
-  Populate the database using one explicit transaction.
+  Populate the database using one (big) explicit write transaction.
 
 * **PopulateDBWithTxs**
 
-  Populate the database using one explicit transaction per post + comments.
+  Populate the database using one explicit write transaction per post + comments.
 
 ### - Sequential Performance
 
@@ -1269,7 +1265,7 @@ geomean                                          ⁴     3.763k        ?        
 
 * **Pragmas**
 
-  Please note that the benchmark framework sets the values of the `busy_timeout`, `foreign_keys`, `journal_mode` and `synchronous` pragmas, so what you're seeing below isn't their default values.
+  Please note that the benchmark framework sets the `busy_timeout`, `foreign_keys`, `journal_mode` and `synchronous` pragmas; what you're seeing below isn't their default values.
 
 ## eatonphil
 
