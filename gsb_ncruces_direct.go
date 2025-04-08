@@ -1019,6 +1019,44 @@ func (db *DB) Conn(ctx context.Context) error {
 	return nil
 }
 
+func (db *DB) Explain(ctx context.Context, sql string) ([]Explain, error) {
+	explains := make([]Explain, 0)
+
+	conn, err := db.readPool.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer db.readPool.Put(conn)
+
+	stmt, _, err := conn.Prepare("EXPLAIN " + sql)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	for stmt.Step() {
+		explains = append(explains,
+			Explain{
+				Addr:    stmt.ColumnInt64(0),
+				Opcode:  stmt.ColumnText(1),
+				P1:      stmt.ColumnText(2),
+				P2:      stmt.ColumnText(3),
+				P3:      stmt.ColumnText(4),
+				P4:      stmt.ColumnText(5),
+				P5:      stmt.ColumnText(6),
+				Comment: stmt.ColumnText(7),
+			},
+		)
+	}
+
+	err = stmt.Reset()
+	if err != nil {
+		return nil, err
+	}
+
+	return explains, nil
+}
+
 func (db *DB) Options(ctx context.Context) ([]string, error) {
 	options := make([]string, 0)
 

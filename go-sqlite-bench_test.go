@@ -576,6 +576,91 @@ func TestQuery(t *testing.T) {
 
 // ===
 
+// Explain the Query plans.
+func TestExplain(t *testing.T) {
+	posts := 200
+	postParagraphs := 10
+
+	comments := 10
+	commentParagraphs := 1
+
+	db := newPopulatedDB(t, 0, 1, posts, postParagraphs, comments, commentParagraphs)
+	defer db.Close()
+
+	explain := func(t *testing.T, explains []Explain) {
+		for _, explain := range explains {
+			t.Log(
+				"EXPLAIN",
+				explain.Addr,
+				explain.Opcode,
+				explain.P1,
+				explain.P2,
+				explain.P3,
+				explain.P4,
+				explain.P5,
+				explain.Comment,
+			)
+		}
+	}
+
+	// These tests help determine whether or not different implementations are
+	// using different query plans.
+	//
+	// In fact, the answer is sometimes "yes, they are" — because different
+	// implementations sometimes use different versions of SQLite, and different
+	// versions of SQLite sometimes produce different query plans.
+
+	// Explain the QueryCorrelated plan.
+	t.Run("Correlated", func(t *testing.T) {
+		explains, err := db.Explain(t.Context(), SQLForQueryCorrelated)
+		noErr(t, err)
+
+		explain(t, explains)
+	})
+
+	// Explain the QueryGroupBy plan.
+	t.Run("GroupBy", func(t *testing.T) {
+		explains, err := db.Explain(t.Context(), SQLForQueryGroupBy)
+		noErr(t, err)
+
+		explain(t, explains)
+	})
+
+	// Explain the QueryJSON plan.
+	t.Run("JSON", func(t *testing.T) {
+		explains, err := db.Explain(t.Context(), SQLForQueryJSON)
+		noErr(t, err)
+
+		explain(t, explains)
+	})
+
+	// Explain the QueryOrderBy plan.
+	t.Run("OrderBy", func(t *testing.T) {
+		explains, err := db.Explain(t.Context(), SQLForQueryOrderBy)
+		noErr(t, err)
+
+		explain(t, explains)
+	})
+
+	// Explain the QueryRecursiveCTE plan.
+	t.Run("RecursiveCTE", func(t *testing.T) {
+		explains, err := db.Explain(t.Context(), SQLForQueryRecursiveCTE)
+		noErr(t, err)
+
+		explain(t, explains)
+	})
+
+	// Explain the QueryWindow plan.
+	t.Run("Window", func(t *testing.T) {
+		explains, err := db.Explain(t.Context(), SQLForQueryWindow)
+		noErr(t, err)
+
+		explain(t, explains)
+	})
+}
+
+// ===
+
 // Run the Baseline benchmarks.
 func BenchmarkBaseline(b *testing.B) {
 	db := newDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections)

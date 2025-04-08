@@ -794,6 +794,81 @@ func (db *DB) Conn(ctx context.Context) error {
 	return err
 }
 
+func (db *DB) Explain(ctx context.Context, sql string) ([]Explain, error) {
+	explains := make([]Explain, 0)
+
+	rows, err := db.readDB.QueryContext(ctx, "EXPLAIN "+sql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var addr int64
+		var opcode string
+		var p1 *string
+		var p2 *string
+		var p3 *string
+		var p4 *string
+		var p5 *string
+		var comment *string
+
+		err = rows.Scan(
+			&addr,
+			&opcode,
+			&p1,
+			&p2,
+			&p3,
+			&p4,
+			&p5,
+			&comment,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		nilStr := ""
+		if p1 == nil {
+			p1 = &nilStr
+		}
+		if p2 == nil {
+			p2 = &nilStr
+		}
+		if p3 == nil {
+			p3 = &nilStr
+		}
+		if p4 == nil {
+			p4 = &nilStr
+		}
+		if p5 == nil {
+			p5 = &nilStr
+		}
+		if comment == nil {
+			comment = &nilStr
+		}
+
+		explains = append(explains,
+			Explain{
+				Addr:    addr,
+				Opcode:  opcode,
+				P1:      *p1,
+				P2:      *p2,
+				P3:      *p3,
+				P4:      *p4,
+				P5:      *p5,
+				Comment: *comment,
+			},
+		)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return explains, nil
+}
+
 func (db *DB) Options(ctx context.Context) ([]string, error) {
 	options := make([]string, 0)
 

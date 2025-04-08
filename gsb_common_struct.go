@@ -49,3 +49,14 @@ func (cd *CommentDate) NextFormatted() string {
 
 	return prev.Format(time.RFC3339)
 }
+
+type Explain struct {
+	Addr    int64
+	Opcode  string
+	P1      string
+	P2      string
+	P3      string
+	P4      string
+	P5      string
+	Comment string
+}

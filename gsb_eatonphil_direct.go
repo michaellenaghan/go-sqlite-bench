@@ -876,6 +876,55 @@ func (db *DB) Conn(ctx context.Context) error {
 	return nil
 }
 
+func (db *DB) Explain(ctx context.Context, sql string) ([]Explain, error) {
+	explains := make([]Explain, 0)
+
+	conn, err := db.readPool.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer db.readPool.Put(conn)
+
+	stmt, err := conn.Prepare("EXPLAIN " + sql)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	row, err := stmt.Step()
+	for row {
+		var explain Explain
+
+		err = stmt.Scan(
+			&explain.Addr,
+			&explain.Opcode,
+			&explain.P1,
+			&explain.P2,
+			&explain.P3,
+			&explain.P4,
+			&explain.P5,
+			&explain.Comment,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		explains = append(explains, explain)
+
+		row, err = stmt.Step()
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	err = stmt.Reset()
+	if err != nil {
+		return nil, err
+	}
+
+	return explains, nil
+}
+
 func (db *DB) Options(ctx context.Context) ([]string, error) {
 	options := make([]string, 0)
 
