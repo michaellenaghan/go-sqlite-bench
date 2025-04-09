@@ -64,7 +64,7 @@ The tests in the [tests](./tests/) directory were generated using:
 make test-all
 ```
 
-Among other things, the tests capture the [compile-time options, pragmas, and SQLite version](#reviewing-the-implementations) used by each implementation.
+Among other things, the tests capture the [compile-time options, pragmas, query plans and SQLite version](#reviewing-the-implementations) used by each implementation. (You can diff one test file against another to get a sense of how and where implementations... well, differ.)
 
 There are lots of ways to play the benchmark game; take a look at the examples below.
 
@@ -261,7 +261,7 @@ Examples:
 
 * **Conn**
 
-  Get one connection from the pool and then return it to the pool. (*All* of the benchmarks do that!)
+  Get one connection from the pool and then return it to the pool. (Every benchmark does that.)
 
 * **Select1**
 
