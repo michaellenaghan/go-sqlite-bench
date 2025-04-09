@@ -5,6 +5,7 @@
     go-sqlite-bench_test.go:34: OPTION DEFAULT_CACHE_SIZE=-2000
     go-sqlite-bench_test.go:34: OPTION DEFAULT_FILE_FORMAT=4
     go-sqlite-bench_test.go:34: OPTION DEFAULT_JOURNAL_SIZE_LIMIT=-1
+    go-sqlite-bench_test.go:34: OPTION DEFAULT_MEMSTATUS=0
     go-sqlite-bench_test.go:34: OPTION DEFAULT_MMAP_SIZE=0
     go-sqlite-bench_test.go:34: OPTION DEFAULT_PAGE_SIZE=4096
     go-sqlite-bench_test.go:34: OPTION DEFAULT_PCACHE_INITSZ=20
@@ -97,7 +98,7 @@
 === RUN   TestPopulate/PopulateDB
 === RUN   TestPopulate/PopulateDBWithTx
 === RUN   TestPopulate/PopulateDBWithTxs
---- PASS: TestPopulate (0.02s)
+--- PASS: TestPopulate (0.03s)
     --- PASS: TestPopulate/PopulateDB (0.01s)
     --- PASS: TestPopulate/PopulateDBWithTx (0.01s)
     --- PASS: TestPopulate/PopulateDBWithTxs (0.01s)
@@ -541,4 +542,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.240s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.312s

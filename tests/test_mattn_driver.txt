@@ -77,13 +77,13 @@
     go-sqlite-bench_test.go:114: skip: can't roundtrip time without additional effort: sql: Scan error on column index 0, name "?": unsupported Scan, storing driver.Value type string into type *time.Time
 --- SKIP: TestTime (0.00s)
 === RUN   TestVersion
-    go-sqlite-bench_test.go:131: VERSION 3.45.1
+    go-sqlite-bench_test.go:131: VERSION 3.46.1
 --- PASS: TestVersion (0.00s)
 === RUN   TestPopulate
 === RUN   TestPopulate/PopulateDB
 === RUN   TestPopulate/PopulateDBWithTx
 === RUN   TestPopulate/PopulateDBWithTxs
---- PASS: TestPopulate (0.02s)
+--- PASS: TestPopulate (0.03s)
     --- PASS: TestPopulate/PopulateDB (0.01s)
     --- PASS: TestPopulate/PopulateDBWithTx (0.01s)
     --- PASS: TestPopulate/PopulateDBWithTxs (0.01s)
@@ -92,7 +92,7 @@
 === RUN   TestReadWrite/ReadWritePostWithTx
 === RUN   TestReadWrite/ReadWritePostAndComments
 === RUN   TestReadWrite/ReadWritePostAndCommentsWithTx
---- PASS: TestReadWrite (0.00s)
+--- PASS: TestReadWrite (0.01s)
     --- PASS: TestReadWrite/ReadWritePost (0.00s)
     --- PASS: TestReadWrite/ReadWritePostWithTx (0.00s)
     --- PASS: TestReadWrite/ReadWritePostAndComments (0.00s)
@@ -527,4 +527,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.258s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.298s
