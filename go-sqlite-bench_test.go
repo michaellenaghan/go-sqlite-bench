@@ -972,8 +972,6 @@ func BenchmarkQuery(b *testing.B) {
 	db := newPopulatedDB(b, *defaultMaxReadConnections, *defaultMaxWriteConnections, *defaultPosts, *defaultPostParagraphs, *defaultComments, *defaultCommentParagraphs)
 	defer db.Close()
 
-	b.ResetTimer()
-
 	// Run the QueryCorrelated Query benchmark.
 	b.Run("Correlated", func(b *testing.B) {
 		for b.Loop() {
