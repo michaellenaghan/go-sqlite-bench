@@ -395,7 +395,7 @@ $(addprefix test-,$(TAGS)):
 		| tee $(addprefix test_,$(addsuffix .txt,$(subst test-,,$@)))
 
 .PHONY: update-all
-update-all: update-quick update-slow update-tests update-readme
+update-all: update-tests update-quick update-slow update-readme
 
 .PHONY: update-quick
 update-quick: clean
