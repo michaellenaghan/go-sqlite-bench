@@ -65,9 +65,9 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*pool.Pool[*Conn], error) {
 	pool, err := pool.New(
 		pool.Config[*Conn]{
-			Min:      minConnections,
-			Max:      maxConnections,
-			IdleTime: maxConnectionIdleTime,
+			Min:         minConnections,
+			Max:         maxConnections,
+			IdleTimeout: maxConnectionIdleTime,
 			NewFunc: func() (*Conn, error) {
 				// "Order matters: encryption keys, busy timeout and locking mode
 				// should be the first PRAGMAs set, in that order."
@@ -84,11 +84,6 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 			},
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	err = pool.Start()
 	if err != nil {
 		return nil, err
 	}

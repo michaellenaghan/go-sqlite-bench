@@ -59,9 +59,9 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*pool.Pool[*Conn], error) {
 	pool, err := pool.New(
 		pool.Config[*Conn]{
-			Min:      minConnections,
-			Max:      maxConnections,
-			IdleTime: maxConnectionIdleTime,
+			Min:         minConnections,
+			Max:         maxConnections,
+			IdleTimeout: maxConnectionIdleTime,
 			NewFunc: func() (*Conn, error) {
 				conn, err := gosqlite.Open("file:"+filename, gosqlite.OPEN_CREATE|gosqlite.OPEN_READWRITE|gosqlite.OPEN_URI|gosqlite.OPEN_NOMUTEX)
 				if err != nil {
@@ -86,11 +86,6 @@ func newPool(filename string, minConnections, maxConnections int, maxConnectionI
 			},
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	err = pool.Start()
 	if err != nil {
 		return nil, err
 	}
