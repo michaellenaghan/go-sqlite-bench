@@ -64,7 +64,9 @@ The tests in the [tests](./tests/) directory were generated using:
 make test-all
 ```
 
-Among other things, the tests capture the [compile-time options, pragmas and SQLite version](#reviewing-the-implementations) used by each implementation. (You can diff one test file against another to get a sense of how and where the implementations... well, differ.)
+Among other things, the tests capture the [compile-time options, pragmas and SQLite version](#reviewing-the-implementations) used by each implementation.
+
+(You can diff one test file against another to get a sense of how and where the implementations... well, differ.)
 
 There are lots of ways to play the benchmark game; take a look at the examples below.
 
