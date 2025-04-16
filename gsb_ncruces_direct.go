@@ -9,14 +9,15 @@ import (
 	"log"
 	"time"
 
+	"github.com/michaellenaghan/go-pool"
 	"github.com/ncruces/go-sqlite3"
 
 	_ "github.com/ncruces/go-sqlite3/embed"
 )
 
 type DB struct {
-	readPool  *Pool[*Conn]
-	writePool *Pool[*Conn]
+	readPool  *pool.Pool[*Conn]
+	writePool *pool.Pool[*Conn]
 }
 
 type Conn struct {
@@ -61,38 +62,33 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	}
 }
 
-func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*Pool[*Conn], error) {
-	pool, err := NewPool(
-		minConnections,
-		maxConnections,
-		maxConnectionIdleTime,
-		func() (*Conn, error) {
-			// "Order matters: encryption keys, busy timeout and locking mode
-			// should be the first PRAGMAs set, in that order."
-			// https://github.com/ncruces/go-sqlite3/blob/main/driver/driver.go
-			conn, err := sqlite3.Open("file:" + filename + "?_pragma=busy_timeout(5000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
-			if err != nil {
-				return nil, err
-			}
+func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*pool.Pool[*Conn], error) {
+	pool, err := pool.New(
+		pool.Config[*Conn]{
+			Min:      minConnections,
+			Max:      maxConnections,
+			IdleTime: maxConnectionIdleTime,
+			NewFunc: func() (*Conn, error) {
+				// "Order matters: encryption keys, busy timeout and locking mode
+				// should be the first PRAGMAs set, in that order."
+				// https://github.com/ncruces/go-sqlite3/blob/main/driver/driver.go
+				conn, err := sqlite3.Open("file:" + filename + "?_pragma=busy_timeout(5000)&_pragma=foreign_keys(true)&_pragma=journal_mode(wal)&_pragma=synchronous(normal)")
+				if err != nil {
+					return nil, err
+				}
 
-			return &Conn{Conn: conn}, nil
-		}, func(conn *Conn) error {
-			if conn.TxnState("") != sqlite3.TXN_NONE {
-				err := errors.New("connection has a pending transaction")
-				log.Printf("failed check: %v", err)
-				return err
-			}
-
-			return nil
-		}, func(conn *Conn) {
-			conn.Close()
+				return &Conn{Conn: conn}, nil
+			},
+			DestroyFunc: func(conn *Conn) {
+				conn.Close()
+			},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pool.Start(false)
+	err = pool.Start()
 	if err != nil {
 		return nil, err
 	}

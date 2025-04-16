@@ -6,6 +6,7 @@ require (
 	github.com/eatonphil/gosqlite v0.10.1-0.20250409163211-9c47979bc5b1
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/mattn/go-sqlite3 v1.14.27
+	github.com/michaellenaghan/go-pool v0.1.0
 	github.com/ncruces/go-sqlite3 v0.25.0
 	github.com/tailscale/sqlite v0.0.0-20240816174256-9328d0478def
 	modernc.org/sqlite v1.37.0

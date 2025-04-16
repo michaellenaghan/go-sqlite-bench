@@ -10,11 +10,12 @@ import (
 	"time"
 
 	"github.com/eatonphil/gosqlite"
+	"github.com/michaellenaghan/go-pool"
 )
 
 type DB struct {
-	readPool  *Pool[*Conn]
-	writePool *Pool[*Conn]
+	readPool  *pool.Pool[*Conn]
+	writePool *pool.Pool[*Conn]
 }
 
 type Conn struct {
@@ -55,44 +56,41 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	}
 }
 
-func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*Pool[*Conn], error) {
-	pool, err := NewPool(
-		minConnections,
-		maxConnections,
-		maxConnectionIdleTime,
-		func() (*Conn, error) {
-			conn, err := gosqlite.Open("file:"+filename, gosqlite.OPEN_CREATE|gosqlite.OPEN_READWRITE|gosqlite.OPEN_URI|gosqlite.OPEN_NOMUTEX)
-			if err != nil {
-				return nil, err
-			}
+func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*pool.Pool[*Conn], error) {
+	pool, err := pool.New(
+		pool.Config[*Conn]{
+			Min:      minConnections,
+			Max:      maxConnections,
+			IdleTime: maxConnectionIdleTime,
+			NewFunc: func() (*Conn, error) {
+				conn, err := gosqlite.Open("file:"+filename, gosqlite.OPEN_CREATE|gosqlite.OPEN_READWRITE|gosqlite.OPEN_URI|gosqlite.OPEN_NOMUTEX)
+				if err != nil {
+					return nil, err
+				}
 
-			err = conn.Exec(`
-				PRAGMA busy_timeout(5000);
-				PRAGMA foreign_keys(true);
-				PRAGMA journal_mode(wal);
-				PRAGMA synchronous(normal);
-			`)
-			if err != nil {
+				err = conn.Exec(`
+          PRAGMA busy_timeout(5000);
+          PRAGMA foreign_keys(true);
+          PRAGMA journal_mode(wal);
+          PRAGMA synchronous(normal);
+        `)
+				if err != nil {
+					conn.Close()
+					return nil, err
+				}
+
+				return &Conn{Conn: conn}, nil
+			},
+			DestroyFunc: func(conn *Conn) {
 				conn.Close()
-				return nil, err
-			}
-
-			return &Conn{Conn: conn}, nil
-		}, func(conn *Conn) error {
-			if !conn.AutoCommit() {
-				return conn.Rollback()
-			}
-
-			return nil
-		}, func(conn *Conn) {
-			conn.Close()
+			},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pool.Start(false)
+	err = pool.Start()
 	if err != nil {
 		return nil, err
 	}
