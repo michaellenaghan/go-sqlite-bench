@@ -9,15 +9,15 @@ import (
 	"log"
 	"time"
 
-	"github.com/michaellenaghan/go-pool"
+	"github.com/michaellenaghan/go-simplepool"
 	"github.com/ncruces/go-sqlite3"
 
 	_ "github.com/ncruces/go-sqlite3/embed"
 )
 
 type DB struct {
-	readPool  *pool.Pool[*Conn]
-	writePool *pool.Pool[*Conn]
+	readPool  *simplepool.Pool[*Conn]
+	writePool *simplepool.Pool[*Conn]
 }
 
 type Conn struct {
@@ -41,18 +41,18 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	}
 
 	if maxReadConnections == 0 {
-		pool, err := newPool(filename, maxWriteConnections, maxWriteConnections, 0)
+		pool, err := newPool(filename, maxWriteConnections, maxWriteConnections)
 		if err != nil {
 			return nil, err
 		}
 
 		return &DB{readPool: pool, writePool: pool}, nil
 	} else {
-		readPool, err := newPool(filename, maxReadConnections, maxReadConnections, 0)
+		readPool, err := newPool(filename, maxReadConnections, maxReadConnections)
 		if err != nil {
 			return nil, err
 		}
-		writePool, err := newPool(filename, maxWriteConnections, maxWriteConnections, 0)
+		writePool, err := newPool(filename, maxWriteConnections, maxWriteConnections)
 		if err != nil {
 			readPool.Stop()
 			return nil, err
@@ -62,12 +62,10 @@ func NewDB(ctx context.Context, filename string, maxReadConnections, maxWriteCon
 	}
 }
 
-func newPool(filename string, minConnections, maxConnections int, maxConnectionIdleTime time.Duration) (*pool.Pool[*Conn], error) {
-	pool, err := pool.New(
-		pool.Config[*Conn]{
-			Min:         minConnections,
-			Max:         maxConnections,
-			IdleTimeout: maxConnectionIdleTime,
+func newPool(filename string, minConnections, maxConnections int) (*simplepool.Pool[*Conn], error) {
+	pool, err := simplepool.New(
+		simplepool.Config[*Conn]{
+			Count: minConnections,
 			NewFunc: func() (*Conn, error) {
 				// "Order matters: encryption keys, busy timeout and locking mode
 				// should be the first PRAGMAs set, in that order."
