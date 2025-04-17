@@ -25,7 +25,7 @@
     go-sqlite-bench_test.go:34: OPTION MAX_COMPOUND_SELECT=500
     go-sqlite-bench_test.go:34: OPTION MAX_DEFAULT_PAGE_SIZE=8192
     go-sqlite-bench_test.go:34: OPTION MAX_EXPR_DEPTH=1000
-    go-sqlite-bench_test.go:34: OPTION MAX_FUNCTION_ARG=127
+    go-sqlite-bench_test.go:34: OPTION MAX_FUNCTION_ARG=1000
     go-sqlite-bench_test.go:34: OPTION MAX_LENGTH=1000000000
     go-sqlite-bench_test.go:34: OPTION MAX_LIKE_PATTERN_LENGTH=50000
     go-sqlite-bench_test.go:34: OPTION MAX_MMAP_SIZE=0x7fff0000
@@ -77,7 +77,7 @@
     go-sqlite-bench_test.go:114: skip: can't roundtrip time without additional effort: sql: Scan error on column index 0, name "?": unsupported Scan, storing driver.Value type string into type *time.Time
 --- SKIP: TestTime (0.00s)
 === RUN   TestVersion
-    go-sqlite-bench_test.go:131: VERSION 3.46.1
+    go-sqlite-bench_test.go:131: VERSION 3.49.1
 --- PASS: TestVersion (0.00s)
 === RUN   TestPopulate
 === RUN   TestPopulate/PopulateDB
@@ -92,7 +92,7 @@
 === RUN   TestReadWrite/ReadWritePostWithTx
 === RUN   TestReadWrite/ReadWritePostAndComments
 === RUN   TestReadWrite/ReadWritePostAndCommentsWithTx
---- PASS: TestReadWrite (0.01s)
+--- PASS: TestReadWrite (0.00s)
     --- PASS: TestReadWrite/ReadWritePost (0.00s)
     --- PASS: TestReadWrite/ReadWritePostWithTx (0.00s)
     --- PASS: TestReadWrite/ReadWritePostAndComments (0.00s)
@@ -178,12 +178,12 @@
     go-sqlite-bench_test.go:592: EXPLAIN 62 Transaction 0 0 8 0 1 
     go-sqlite-bench_test.go:592: EXPLAIN 63 Goto 0 1 0  0 
 === RUN   TestExplain/GroupBy
-    go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 45 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 44 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 1 Noop 1 4 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 2 SorterOpen 2 2 0 k(1,B) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 3 Integer 0 2 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 4 Null 0 5 5  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 5 Gosub 4 41 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 5 Gosub 4 40 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 6 OpenRead 3 4 0 k(2,,) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 7 Rewind 3 14 7 0 0 
     go-sqlite-bench_test.go:592: EXPLAIN 8 Column 3 0 12  0 
@@ -193,47 +193,45 @@
     go-sqlite-bench_test.go:592: EXPLAIN 12 SorterInsert 2 13 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 13 Next 3 8 0  1 
     go-sqlite-bench_test.go:592: EXPLAIN 14 OpenPseudo 4 13 2  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 15 SorterSort 2 44 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 15 SorterSort 2 43 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 16 SorterData 2 13 4  0 
     go-sqlite-bench_test.go:592: EXPLAIN 17 Column 4 0 6  0 
     go-sqlite-bench_test.go:592: EXPLAIN 18 Compare 5 6 1 k(1,B) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 19 Jump 20 24 20  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 20 Move 6 5 1  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 21 Gosub 3 33 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 22 IfPos 2 44 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 23 Gosub 4 41 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 20 Gosub 3 33 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 21 Move 6 5 1  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 22 IfPos 2 43 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 23 Gosub 4 40 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 24 AggStep 0 0 8 count(0) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 25 If 1 27 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 26 Column 4 1 7  0 
     go-sqlite-bench_test.go:592: EXPLAIN 27 Integer 1 1 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 28 SorterNext 2 16 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 29 Gosub 3 33 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 30 Goto 0 44 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 30 Goto 0 43 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 31 Integer 1 2 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 32 Return 3 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 33 IfPos 1 35 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 34 Return 3 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 35 AggFinal 8 0 0 count(0) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 36 SCopy 7 17 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 37 Function 1 16 14 strftime(-1) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 38 Copy 8 15 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 39 ResultRow 14 2 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 40 Return 3 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 41 Null 0 7 8  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 42 Integer 0 1 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 43 Return 4 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 44 Halt 0 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 45 Transaction 0 0 8 0 1 
-    go-sqlite-bench_test.go:592: EXPLAIN 46 String8 0 11 0 %Y-%m 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 47 String8 0 16 0 %Y-%m 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 48 Goto 0 1 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 36 Copy 5 14 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 37 Copy 8 15 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 38 ResultRow 14 2 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 39 Return 3 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 40 Null 0 7 8  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 41 Integer 0 1 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 42 Return 4 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 43 Halt 0 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 44 Transaction 0 0 8 0 1 
+    go-sqlite-bench_test.go:592: EXPLAIN 45 String8 0 11 0 %Y-%m 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 46 Goto 0 1 0  0 
 === RUN   TestExplain/JSON
-    go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 57 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 56 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 1 Noop 1 6 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 2 SorterOpen 2 3 0 k(1,B) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 3 Integer 0 2 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 4 Null 0 5 5  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 5 Gosub 4 53 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 5 Gosub 4 52 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 6 OpenRead 0 2 0 5 0 
     go-sqlite-bench_test.go:592: EXPLAIN 7 Rewind 0 15 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 8 Column 0 3 15  0 
@@ -244,15 +242,15 @@
     go-sqlite-bench_test.go:592: EXPLAIN 13 SorterInsert 2 15 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 14 Next 0 8 0  1 
     go-sqlite-bench_test.go:592: EXPLAIN 15 OpenPseudo 3 15 3  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 16 SorterSort 2 56 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 16 SorterSort 2 55 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 17 SorterData 2 15 3  0 
     go-sqlite-bench_test.go:592: EXPLAIN 18 Column 3 0 6  0 
     go-sqlite-bench_test.go:592: EXPLAIN 19 Compare 5 6 1 k(1,B) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 20 Jump 21 25 21  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 21 Move 6 5 1  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 22 Gosub 3 43 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 23 IfPos 2 56 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 24 Gosub 4 53 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 21 Gosub 3 43 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 22 Move 6 5 1  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 23 IfPos 2 55 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 24 Gosub 4 52 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 25 Column 3 2 17  0 
     go-sqlite-bench_test.go:592: EXPLAIN 26 Function 2 17 16 json_extract(-1) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 27 AggStep 0 16 9 sum(1) 1 
@@ -268,7 +266,7 @@
     go-sqlite-bench_test.go:592: EXPLAIN 37 Integer 1 1 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 38 SorterNext 2 17 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 39 Gosub 3 43 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 40 Goto 0 56 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 40 Goto 0 55 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 41 Integer 1 2 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 42 Return 3 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 43 IfPos 1 45 0  0 
@@ -276,20 +274,19 @@
     go-sqlite-bench_test.go:592: EXPLAIN 45 AggFinal 9 1 0 sum(1) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 46 AggFinal 10 1 0 avg(1) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 47 AggFinal 11 1 0 max(1) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 48 SCopy 7 16 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 49 Function 0 16 24 date(-1) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 50 Copy 9 25 2  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 51 ResultRow 24 4 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 52 Return 3 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 53 Null 0 7 11  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 54 Integer 0 1 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 55 Return 4 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 56 Halt 0 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 57 Transaction 0 0 8 0 1 
-    go-sqlite-bench_test.go:592: EXPLAIN 58 String8 0 18 0 $.lorem 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 59 String8 0 20 0 $.ipsum.dolor 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 60 String8 0 22 0 $.lorem.sit 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 61 Goto 0 1 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 48 Copy 5 24 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 49 Copy 9 25 2  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 50 ResultRow 24 4 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 51 Return 3 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 52 Null 0 7 11  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 53 Integer 0 1 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 54 Return 4 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 55 Halt 0 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 56 Transaction 0 0 8 0 1 
+    go-sqlite-bench_test.go:592: EXPLAIN 57 String8 0 18 0 $.lorem 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 58 String8 0 20 0 $.ipsum.dolor 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 59 String8 0 22 0 $.lorem.sit 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 60 Goto 0 1 0  0 
 === RUN   TestExplain/OrderBy
     go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 19 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 1 SorterOpen 1 7 0 k(3,B,B,B) 0 
@@ -379,14 +376,14 @@
     go-sqlite-bench_test.go:592: EXPLAIN 63 String8 0 13 0 +1 day 0 
     go-sqlite-bench_test.go:592: EXPLAIN 64 Goto 0 1 0  0 
 === RUN   TestExplain/Window
-    go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 138 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 0 Init 0 137 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 1 Null 0 1 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 2 InitCoroutine 3 67 3  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 3 InitCoroutine 4 47 4  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 2 InitCoroutine 3 66 3  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 3 InitCoroutine 4 46 4  0 
     go-sqlite-bench_test.go:592: EXPLAIN 4 SorterOpen 7 2 0 k(1,B) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 5 Integer 0 6 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 6 Null 0 9 9  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 7 Gosub 8 43 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 7 Gosub 8 42 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 8 OpenRead 8 4 0 k(2,,) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 9 Rewind 8 16 11 0 0 
     go-sqlite-bench_test.go:592: EXPLAIN 10 Column 8 0 15  0 
@@ -396,129 +393,128 @@
     go-sqlite-bench_test.go:592: EXPLAIN 14 SorterInsert 7 15 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 15 Next 8 10 0  1 
     go-sqlite-bench_test.go:592: EXPLAIN 16 OpenPseudo 9 15 2  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 17 SorterSort 7 46 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 17 SorterSort 7 45 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 18 SorterData 7 15 9  0 
     go-sqlite-bench_test.go:592: EXPLAIN 19 Column 9 0 10  0 
     go-sqlite-bench_test.go:592: EXPLAIN 20 Compare 9 10 1 k(1,B) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 21 Jump 22 26 22  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 22 Move 10 9 1  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 23 Gosub 7 35 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 24 IfPos 6 46 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 25 Gosub 8 43 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 22 Gosub 7 35 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 23 Move 10 9 1  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 24 IfPos 6 45 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 25 Gosub 8 42 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 26 AggStep 0 0 12 count(0) 0 
     go-sqlite-bench_test.go:592: EXPLAIN 27 If 5 29 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 28 Column 9 1 11  0 
     go-sqlite-bench_test.go:592: EXPLAIN 29 Integer 1 5 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 30 SorterNext 7 18 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 31 Gosub 7 35 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 32 Goto 0 46 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 32 Goto 0 45 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 33 Integer 1 6 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 34 Return 7 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 35 IfPos 5 37 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 36 Return 7 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 37 AggFinal 12 0 0 count(0) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 38 SCopy 11 18 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 39 Function 0 18 16 date(-1) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 40 Copy 12 17 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 41 Yield 4 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 42 Return 7 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 43 Null 0 11 12  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 44 Integer 0 5 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 45 Return 8 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 46 EndCoroutine 4 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 47 SorterOpen 10 6 0 k(1,B) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 48 InitCoroutine 4 0 4  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 49 Yield 4 57 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 50 Copy 16 20 0  2 
+    go-sqlite-bench_test.go:592: EXPLAIN 38 Copy 9 16 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 39 Copy 12 17 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 40 Yield 4 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 41 Return 7 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 42 Null 0 11 12  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 43 Integer 0 5 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 44 Return 8 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 45 EndCoroutine 4 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 46 SorterOpen 10 6 0 k(1,B) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 47 InitCoroutine 4 0 4  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 48 Yield 4 56 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 49 Copy 16 19 0  2 
+    go-sqlite-bench_test.go:592: EXPLAIN 50 Copy 17 20 0  2 
     go-sqlite-bench_test.go:592: EXPLAIN 51 Copy 17 21 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 52 Copy 17 22 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 53 Copy 16 19 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 54 MakeRecord 19 4 24  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 55 SorterInsert 10 24 19 4 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 56 Goto 0 49 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 57 OpenPseudo 11 25 6  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 58 SorterSort 10 66 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 59 SorterData 10 25 11  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 60 Column 11 3 23  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 61 Column 11 0 22  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 62 Column 11 2 21  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 63 Column 11 1 20  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 64 Yield 3 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 65 SorterNext 10 59 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 66 EndCoroutine 3 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 67 OpenEphemeral 2 4 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 68 OpenDup 3 2 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 69 OpenDup 4 2 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 70 OpenDup 5 2 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 71 Integer 1 26 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 72 InitCoroutine 3 0 3  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 73 Yield 3 111 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 52 Copy 16 18 0  2 
+    go-sqlite-bench_test.go:592: EXPLAIN 53 MakeRecord 18 4 23  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 54 SorterInsert 10 23 18 4 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 55 Goto 0 48 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 56 OpenPseudo 11 24 6  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 57 SorterSort 10 65 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 58 SorterData 10 24 11  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 59 Column 11 3 22  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 60 Column 11 0 21  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 61 Column 11 2 20  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 62 Column 11 1 19  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 63 Yield 3 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 64 SorterNext 10 58 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 65 EndCoroutine 3 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 66 OpenEphemeral 2 4 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 67 OpenDup 3 2 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 68 OpenDup 4 2 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 69 OpenDup 5 2 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 70 Integer 1 25 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 71 InitCoroutine 3 0 3  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 72 Yield 3 110 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 73 Copy 19 27 0  2 
     go-sqlite-bench_test.go:592: EXPLAIN 74 Copy 20 28 0  2 
     go-sqlite-bench_test.go:592: EXPLAIN 75 Copy 21 29 0  2 
     go-sqlite-bench_test.go:592: EXPLAIN 76 Copy 22 30 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 77 Copy 23 31 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 78 MakeRecord 28 4 32  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 79 NewRowid 3 33 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 80 Insert 3 32 33  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 81 Ne 26 90 33  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 82 Null 0 1 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 83 Rewind 2 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 84 Rewind 5 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 85 Copy 30 34 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 86 Copy 34 35 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 87 Copy 34 36 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 88 Copy 34 37 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 89 Goto 0 110 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 90 Compare 34 30 1 k(1,B) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 91 Jump 92 110 92  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 92 Copy 30 34 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 93 Column 5 3 38  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 94 AggStep 0 38 1 sum(1) 1 
-    go-sqlite-bench_test.go:592: EXPLAIN 95 Next 5 97 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 96 Goto 0 101 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 97 Column 5 2 39  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 98 Compare 37 39 1 k(1,B) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 99 Jump 100 93 100  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 100 Copy 39 37 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 101 AggValue 1 1 2 sum(1) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 102 Gosub 27 132 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 103 Delete 2 0 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 104 Next 2 106 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 105 Goto 0 110 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 106 Column 2 2 39  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 107 Compare 36 39 1 k(1,B) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 108 Jump 109 102 109  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 109 Copy 39 36 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 110 Goto 0 73 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 111 Rewind 3 130 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 112 Column 5 3 38  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 113 AggStep 0 38 1 sum(1) 1 
-    go-sqlite-bench_test.go:592: EXPLAIN 114 Next 5 116 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 115 Goto 0 120 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 116 Column 5 2 39  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 117 Compare 37 39 1 k(1,B) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 118 Jump 119 112 119  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 119 Copy 39 37 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 120 AggValue 1 1 2 sum(1) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 121 Gosub 27 132 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 122 Delete 2 0 0  2 
-    go-sqlite-bench_test.go:592: EXPLAIN 123 Next 2 125 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 124 Goto 0 130 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 125 Column 2 2 39  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 126 Compare 36 39 1 k(1,B) 0 
-    go-sqlite-bench_test.go:592: EXPLAIN 127 Jump 128 121 128  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 128 Copy 39 36 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 129 Goto 0 120 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 130 ResetSorter 2 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 131 Goto 0 137 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 132 Column 2 0 40  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 133 Column 2 1 41  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 134 Copy 2 42 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 135 ResultRow 40 3 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 136 Return 27 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 137 Halt 0 0 0  0 
-    go-sqlite-bench_test.go:592: EXPLAIN 138 Transaction 0 0 8 0 1 
-    go-sqlite-bench_test.go:592: EXPLAIN 139 Goto 0 1 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 77 MakeRecord 27 4 31  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 78 NewRowid 3 32 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 79 Insert 3 31 32  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 80 Ne 25 89 32  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 81 Null 0 1 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 82 Rewind 2 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 83 Rewind 5 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 84 Copy 29 33 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 85 Copy 33 34 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 86 Copy 33 35 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 87 Copy 33 36 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 88 Goto 0 109 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 89 Compare 33 29 1 k(1,B) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 90 Jump 91 109 91  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 91 Copy 29 33 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 92 Column 5 3 37  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 93 AggStep 0 37 1 sum(1) 1 
+    go-sqlite-bench_test.go:592: EXPLAIN 94 Next 5 96 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 95 Goto 0 100 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 96 Column 5 2 38  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 97 Compare 36 38 1 k(1,B) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 98 Jump 99 92 99  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 99 Copy 38 36 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 100 AggValue 1 1 2 sum(1) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 101 Gosub 26 131 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 102 Delete 2 0 0  2 
+    go-sqlite-bench_test.go:592: EXPLAIN 103 Next 2 105 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 104 Goto 0 109 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 105 Column 2 2 38  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 106 Compare 35 38 1 k(1,B) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 107 Jump 108 101 108  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 108 Copy 38 35 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 109 Goto 0 72 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 110 Rewind 3 129 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 111 Column 5 3 37  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 112 AggStep 0 37 1 sum(1) 1 
+    go-sqlite-bench_test.go:592: EXPLAIN 113 Next 5 115 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 114 Goto 0 119 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 115 Column 5 2 38  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 116 Compare 36 38 1 k(1,B) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 117 Jump 118 111 118  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 118 Copy 38 36 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 119 AggValue 1 1 2 sum(1) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 120 Gosub 26 131 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 121 Delete 2 0 0  2 
+    go-sqlite-bench_test.go:592: EXPLAIN 122 Next 2 124 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 123 Goto 0 129 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 124 Column 2 2 38  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 125 Compare 35 38 1 k(1,B) 0 
+    go-sqlite-bench_test.go:592: EXPLAIN 126 Jump 127 120 127  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 127 Copy 38 35 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 128 Goto 0 119 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 129 ResetSorter 2 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 130 Goto 0 136 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 131 Column 2 0 39  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 132 Column 2 1 40  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 133 Copy 2 41 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 134 ResultRow 39 3 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 135 Return 26 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 136 Halt 0 0 0  0 
+    go-sqlite-bench_test.go:592: EXPLAIN 137 Transaction 0 0 8 0 1 
+    go-sqlite-bench_test.go:592: EXPLAIN 138 Goto 0 1 0  0 
 --- PASS: TestExplain (0.04s)
     --- PASS: TestExplain/Correlated (0.00s)
     --- PASS: TestExplain/GroupBy (0.00s)
@@ -527,4 +523,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.298s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.294s

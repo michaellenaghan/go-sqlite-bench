@@ -90,7 +90,7 @@
     go-sqlite-bench_test.go:102: PRAGMA wal_autocheckpoint=1000
 --- PASS: TestPragmas (0.00s)
 === RUN   TestTime
-    go-sqlite-bench_test.go:120: TIME 2025-04-09 14:07:59 -0400 EDT 2025-04-09 14:07:59 -0400 EDT
+    go-sqlite-bench_test.go:120: TIME 2025-04-17 09:16:00 -0400 EDT 2025-04-17 09:16:00 -0400 EDT
 --- PASS: TestTime (0.00s)
 === RUN   TestVersion
     go-sqlite-bench_test.go:131: VERSION 3.49.1
@@ -539,4 +539,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.827s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.821s

@@ -90,7 +90,7 @@
     go-sqlite-bench_test.go:102: PRAGMA wal_autocheckpoint=1000
 --- PASS: TestPragmas (0.00s)
 === RUN   TestTime
-    go-sqlite-bench_test.go:120: TIME 2025-04-09 14:07:58 -0400 EDT 2025-04-09 14:07:58 -0400 EDT
+    go-sqlite-bench_test.go:120: TIME 2025-04-17 09:15:59 -0400 EDT 2025-04-17 09:15:59 -0400 EDT
 --- PASS: TestTime (0.00s)
 === RUN   TestVersion
     go-sqlite-bench_test.go:131: VERSION 3.49.1
@@ -99,16 +99,16 @@
 === RUN   TestPopulate/PopulateDB
 === RUN   TestPopulate/PopulateDBWithTx
 === RUN   TestPopulate/PopulateDBWithTxs
---- PASS: TestPopulate (0.03s)
-    --- PASS: TestPopulate/PopulateDB (0.02s)
-    --- PASS: TestPopulate/PopulateDBWithTx (0.01s)
+--- PASS: TestPopulate (0.02s)
+    --- PASS: TestPopulate/PopulateDB (0.01s)
+    --- PASS: TestPopulate/PopulateDBWithTx (0.00s)
     --- PASS: TestPopulate/PopulateDBWithTxs (0.01s)
 === RUN   TestReadWrite
 === RUN   TestReadWrite/ReadWritePost
 === RUN   TestReadWrite/ReadWritePostWithTx
 === RUN   TestReadWrite/ReadWritePostAndComments
 === RUN   TestReadWrite/ReadWritePostAndCommentsWithTx
---- PASS: TestReadWrite (0.01s)
+--- PASS: TestReadWrite (0.00s)
     --- PASS: TestReadWrite/ReadWritePost (0.00s)
     --- PASS: TestReadWrite/ReadWritePostWithTx (0.00s)
     --- PASS: TestReadWrite/ReadWritePostAndComments (0.00s)
@@ -531,7 +531,7 @@
     go-sqlite-bench_test.go:592: EXPLAIN 136 Halt 0 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 137 Transaction 0 0 8 0 1 
     go-sqlite-bench_test.go:592: EXPLAIN 138 Goto 0 1 0  0 
---- PASS: TestExplain (0.04s)
+--- PASS: TestExplain (0.03s)
     --- PASS: TestExplain/Correlated (0.00s)
     --- PASS: TestExplain/GroupBy (0.00s)
     --- PASS: TestExplain/JSON (0.00s)
