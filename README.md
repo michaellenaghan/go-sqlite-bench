@@ -204,6 +204,15 @@ Examples:
 
 ### What to Know
 
+* **Configuration**
+
+  All implementations use the following configuration. Some implementations use additional configuration.
+
+      PRAGMA busy_timeout(5000);
+      PRAGMA foreign_keys(true);
+      PRAGMA journal_mode(wal);
+      PRAGMA synchronous(normal);
+
 * **Sequential vs. Parallel**
 
   Benchmarks that don't end with "Parallel" are sequential benchmarks; they run on a single goroutine, in a loop:
@@ -1372,6 +1381,17 @@ wal_autocheckpoint=1000
 
 ## glebarez
 
+* **Configuration**
+
+  glebarez uses some additional configuration:
+
+    * `_time_format=sqlite` (default is none)
+    * `_txlock=immediate` (default is `deferred`)
+
+* **Notes**
+
+  `ReadOnly` transactions are always `deferred`. Not-`ReadOnly` transactions use the value of `_txlock`.
+
 ### Compile-time Options
 
 <!--GREP:tests/test_glebarez_driver.txt:OPTION-->
@@ -1477,6 +1497,16 @@ wal_autocheckpoint=1000
 
 ## mattn
 
+* **Configuration**
+
+  mattn uses some additional configuration:
+
+    * `_mutex=no` (default is `full`)
+
+* **Notes**
+
+  mattn doesn't currently support read and write transactions on the same connection because it [ignores `TxOptions` completely](https://github.com/mattn/go-sqlite3/blob/7658c06970ecf5588d8cd930ed1f2de7223f1010/sqlite3_go18.go#L42). Instead, mattn [uses the value of `_txlock`](https://github.com/mattn/go-sqlite3/blob/7658c06970ecf5588d8cd930ed1f2de7223f1010/sqlite3.go#L969) whenever it starts a transaction. If you change the value of `_txlock` to `immediate` you make all transactions write transactions. If you leave the value of `_txlock` at its default, `deferred`, you risk immediate `SQLITE_BUSY` errors when a read transaction is upgraded to a write transaction. See more [here](https://berthub.eu/articles/posts/a-brief-post-on-sqlite3-database-locked-despite-timeout/).
+
 ### Compile-time Options
 
 <!--GREP:tests/test_mattn_driver.txt:OPTION-->
@@ -1569,6 +1599,17 @@ wal_autocheckpoint=1000
 <!--END_GREP-->
 
 ## modernc
+
+* **Configuration**
+
+  modernc uses some additional configuration:
+
+    * `_time_format=sqlite` (default is none)
+    * `_txlock=immediate` (default is `deferred`)
+
+* **Notes**
+
+  `ReadOnly` transactions are always `deferred`. Not-`ReadOnly` transactions use the value of `_txlock`.
 
 ### Compile-time Options
 
