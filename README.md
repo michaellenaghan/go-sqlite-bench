@@ -1390,7 +1390,7 @@ wal_autocheckpoint=1000
 
 * **Notes**
 
-  `ReadOnly` transactions are always `deferred`. Not-`ReadOnly` transactions use the value of `_txlock`.
+  If a transaction is `ReadOnly` it's always `deferred`. If it isn't, it uses the value of `_txlock`.
 
 ### Compile-time Options
 
@@ -1609,7 +1609,7 @@ wal_autocheckpoint=1000
 
 * **Notes**
 
-  `ReadOnly` transactions are always `deferred`. Not-`ReadOnly` transactions use the value of `_txlock`.
+  If a transaction is `ReadOnly` it's always `deferred`. If it isn't, it uses the value of `_txlock`.
 
 ### Compile-time Options
 
