@@ -14,8 +14,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
 github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
-github.com/michaellenaghan/go-simplepool v0.1.1 h1:Kv3IrMCye5w+6KAhV1AGiXMrEpOgxpd25xMK3DovQt0=
-github.com/michaellenaghan/go-simplepool v0.1.1/go.mod h1:U5C88xDX3dleGy/4PIEo3e37x7uxZfBo5Ws4JP80FQo=
+github.com/michaellenaghan/go-simplepool v1.0.0 h1:o7bAjR0hBCGTJHP0ejQx/tqSmjf4ISSfJzNyDrAx6bA=
+github.com/michaellenaghan/go-simplepool v1.0.0/go.mod h1:U5C88xDX3dleGy/4PIEo3e37x7uxZfBo5Ws4JP80FQo=
 github.com/ncruces/go-sqlite3 v0.25.0 h1:trugKUs98Zwy9KwRr/EUxZHL92LYt7UqcKqAfpGpK+I=
 github.com/ncruces/go-sqlite3 v0.25.0/go.mod h1:n6Z7036yFilJx04yV0mi5JWaF66rUmXn1It9Ux8dx68=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
