@@ -7,7 +7,7 @@ require (
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/michaellenaghan/go-simplepool v1.0.0
-	github.com/ncruces/go-sqlite3 v0.25.0
+	github.com/ncruces/go-sqlite3 v0.25.1
 	github.com/tailscale/sqlite v0.0.0-20240816174256-9328d0478def
 	modernc.org/sqlite v1.37.0
 	zombiezen.com/go/sqlite v1.4.0
@@ -23,7 +23,7 @@ require (
 	github.com/tetratelabs/wazero v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
-	modernc.org/libc v1.62.1 // indirect
+	modernc.org/libc v1.64.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.10.0 // indirect
 )
