@@ -18,6 +18,7 @@
     go-sqlite-bench_test.go:34: OPTION DEFAULT_WORKER_THREADS=0
     go-sqlite-bench_test.go:34: OPTION DIRECT_OVERFLOW_READ
     go-sqlite-bench_test.go:34: OPTION DQS=0
+    go-sqlite-bench_test.go:34: OPTION ENABLE_API_ARMOR
     go-sqlite-bench_test.go:34: OPTION ENABLE_ATOMIC_WRITE
     go-sqlite-bench_test.go:34: OPTION ENABLE_BATCH_ATOMIC_WRITE
     go-sqlite-bench_test.go:34: OPTION ENABLE_COLUMN_METADATA
@@ -33,7 +34,7 @@
     go-sqlite-bench_test.go:34: OPTION MAX_COLUMN=2000
     go-sqlite-bench_test.go:34: OPTION MAX_COMPOUND_SELECT=500
     go-sqlite-bench_test.go:34: OPTION MAX_DEFAULT_PAGE_SIZE=8192
-    go-sqlite-bench_test.go:34: OPTION MAX_EXPR_DEPTH=0
+    go-sqlite-bench_test.go:34: OPTION MAX_EXPR_DEPTH=1000
     go-sqlite-bench_test.go:34: OPTION MAX_FUNCTION_ARG=1000
     go-sqlite-bench_test.go:34: OPTION MAX_LENGTH=1000000000
     go-sqlite-bench_test.go:34: OPTION MAX_LIKE_PATTERN_LENGTH=50000
@@ -56,7 +57,6 @@
     go-sqlite-bench_test.go:34: OPTION TEMP_STORE=1
     go-sqlite-bench_test.go:34: OPTION THREADSAFE=0
     go-sqlite-bench_test.go:34: OPTION UNTESTABLE
-    go-sqlite-bench_test.go:34: OPTION USE_ALLOCA
 --- PASS: TestOptions (0.00s)
 === RUN   TestPragma
 --- PASS: TestPragma (0.00s)
@@ -90,7 +90,7 @@
     go-sqlite-bench_test.go:102: PRAGMA wal_autocheckpoint=1000
 --- PASS: TestPragmas (0.00s)
 === RUN   TestTime
-    go-sqlite-bench_test.go:120: TIME 2025-04-17 09:15:59 -0400 EDT 2025-04-17 09:15:59 -0400 EDT
+    go-sqlite-bench_test.go:120: TIME 2025-04-26 20:00:11 -0400 EDT 2025-04-26 20:00:11 -0400 EDT
 --- PASS: TestTime (0.00s)
 === RUN   TestVersion
     go-sqlite-bench_test.go:131: VERSION 3.49.1
@@ -539,4 +539,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.979s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.881s

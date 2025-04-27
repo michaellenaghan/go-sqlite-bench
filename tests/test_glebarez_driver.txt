@@ -104,7 +104,7 @@
 === RUN   TestReadWrite/ReadWritePostWithTx
 === RUN   TestReadWrite/ReadWritePostAndComments
 === RUN   TestReadWrite/ReadWritePostAndCommentsWithTx
---- PASS: TestReadWrite (0.00s)
+--- PASS: TestReadWrite (0.01s)
     --- PASS: TestReadWrite/ReadWritePost (0.00s)
     --- PASS: TestReadWrite/ReadWritePostWithTx (0.00s)
     --- PASS: TestReadWrite/ReadWritePostAndComments (0.00s)
@@ -527,7 +527,7 @@
     go-sqlite-bench_test.go:592: EXPLAIN 136 Halt 0 0 0  0 
     go-sqlite-bench_test.go:592: EXPLAIN 137 Transaction 0 0 8 0 1 
     go-sqlite-bench_test.go:592: EXPLAIN 138 Goto 0 1 0  0 
---- PASS: TestExplain (0.06s)
+--- PASS: TestExplain (0.05s)
     --- PASS: TestExplain/Correlated (0.00s)
     --- PASS: TestExplain/GroupBy (0.00s)
     --- PASS: TestExplain/JSON (0.00s)
@@ -535,4 +535,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.339s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.290s

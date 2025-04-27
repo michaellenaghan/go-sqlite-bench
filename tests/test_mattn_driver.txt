@@ -523,4 +523,4 @@
     --- PASS: TestExplain/RecursiveCTE (0.00s)
     --- PASS: TestExplain/Window (0.00s)
 PASS
-ok  	github.com/michaellenaghan/go-sqlite-bench	0.294s
+ok  	github.com/michaellenaghan/go-sqlite-bench	0.261s
